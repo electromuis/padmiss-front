@@ -32,7 +32,7 @@ import Events from './components/Tournaments/Events.vue'
 const router = new VueRouter({routes: [
         {path: '/', component: Home},
         {path: '/register', component: Register},
-        {path: '/login', component: Settings},
+        {path: '/settings', component: Settings},
         {path: '/login', component: Login},
         {path: '/tournaments', component: Tournaments},
         {path: '/tournaments/:id/events', component: Events}
