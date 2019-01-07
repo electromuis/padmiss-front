@@ -17,7 +17,15 @@
         methods: {
             handleClick(e) {
                 let self = this
-
+                this.padmiss.updateSettings(this.model, () => {
+                    self.message = "Settings saved"
+                }, (data) => {
+                    if(data.message) {
+                        self.message = data.message
+                    } else {
+                        self.message = "Saving failed"
+                    }
+                })
 
             },
             handleValidation(valid, errors) {
@@ -27,6 +35,7 @@
 
         async created() {
             let countries = await this.padmiss.getCountries()
+            let self = this
 
             this.schema = {
                 fields: [
@@ -71,10 +80,16 @@
                     },
                     {
                         type: "input",
+                        inputType: "text",
+                        label: "Avatar url",
+                        model: "avatarIconUrl",
+                        validator: VueFormGenerator.validators.string
+                    },
+                    {
+                        type: "input",
                         inputType: "password",
                         label: "Password",
                         model: "password",
-                        required: true,
                         validator: VueFormGenerator.validators.string
                     },
                     {
@@ -82,7 +97,6 @@
                         inputType: "password",
                         label: "Repeat password",
                         model: "d",
-                        required: true,
                         validator: function(value, field, model) {
                             if(value.length === 0) {
                                 return ["This field is required!"]
@@ -92,6 +106,19 @@
                     }
                 ]
             }
+
+            this.padmiss.getUser((user) => {
+                Object.entries(user).forEach(([k, v]) => {
+                    if(k in self.model && v) {
+                        self.model[k] = v
+                        console.log("Set " + k + " to" + v )
+                    } else {
+                        console.log(user)
+                    }
+                })
+
+                console.log(self.model)
+            })
         },
 
         data () {
@@ -105,7 +132,8 @@
                     shortNickname: "",
                     rfidUid: "",
                     password: "",
-                    country: ""
+                    country: "",
+                    avatarIconUrl: ""
                 },
                 schema: {},
                 formOptions: {

@@ -86,6 +86,13 @@
                     },
                     {
                         type: "input",
+                        inputType: "text",
+                        label: "Avatar url",
+                        model: "avatarIconUrl",
+                        validator: VueFormGenerator.validators.string
+                    },
+                    {
+                        type: "input",
                         inputType: "password",
                         label: "Password",
                         model: "password",
@@ -120,7 +127,8 @@
                     shortNickname: "",
                     rfidUid: "",
                     password: "",
-                    country: ""
+                    country: "",
+                    avatarIconUrl: ""
                 },
                 schema: {},
                 formOptions: {

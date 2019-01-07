@@ -26,6 +26,19 @@ export default {
         }
     },
 
+    getUser(callback) {
+        if(this.loggedIn() === false) {
+            return;
+        }
+
+        // callback(this.user)
+
+        axios.get(this.url + "/api/players/" + this.user.playerId).then((response) => {
+            let user = Object.assign({}, this.user, response.data);
+            callback(user)
+        })
+    },
+
     get(url) {
         return axios.get(this.url + "/api/" + url)
     },
@@ -42,6 +55,14 @@ export default {
 
     register(data, success, error) {
         axios.post(this.url + '/register', data).then(success).catch(error);
+    },
+
+    updateSettings(data, success, error) {
+        if(data.password == '') {
+            delete data.password
+        }
+        data.token = localStorage.token
+        axios.put(this.url + '/api/users/' + this.user.userId + '/edit', data).then(success).catch(error);
     },
 
     login(email, password, callback, callbackErr) {
