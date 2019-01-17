@@ -12,7 +12,7 @@
     import "vue-form-generator/dist/vfg.css";  // optional full css additions
 
     export default {
-        name: "Settings",
+        name: "Songs",
 
         methods: {
             handleClick(e) {
@@ -108,16 +108,11 @@
             }
 
             this.padmiss.getUser((user) => {
-                Object.entries(user).forEach(([k, v]) => {
+                for (const [k, v] of Object.entries(user.getData())) {
                     if(k in self.model && v) {
                         self.model[k] = v
-                        console.log("Set " + k + " to" + v )
-                    } else {
-                        console.log(user)
                     }
-                })
-
-                console.log(self.model)
+                }
             })
         },
 

@@ -1,5 +1,41 @@
 import axios from 'axios'
 
+class User {
+    constructor(data) {
+        this.fields = ['nickname','country','email','shortNickname', 'password', 'rfidUid', 'avatarIconUrl']
+        this.metaFields = ['songs']
+
+        this.data = {}
+        this.metaData = {}
+        this.setData(data)
+    }
+
+    setData(data) {
+        if(data.metaData) {
+            let result = JSON.parse(data.metaData)
+            if(result) {
+                this.metaData = result
+            }
+        }
+
+        for (const [key, value] of Object.entries(data)) {
+            if(this.fields.includes(key)) {
+                this.data[key] = value
+            } else if(this.metaFields.includes(key)) {
+                this.metaData[key] = value
+            }
+        }
+    }
+
+    getData() {
+        let result = this.data
+        if(this.metaData !== undefined) {
+            result.metaData = JSON.stringify(this.metaData)
+        }
+        return result
+    }
+}
+
 export default {
     url: "https://api.padmiss.com/",
     user: null,
@@ -35,6 +71,7 @@ export default {
 
         axios.get(this.url + "/api/players/" + this.user.playerId).then((response) => {
             let user = Object.assign({}, this.user, response.data);
+            user = new User(user)
             callback(user)
         })
     },
@@ -58,11 +95,17 @@ export default {
     },
 
     updateSettings(data, success, error) {
-        if(data.password == '') {
-            delete data.password
-        }
-        data.token = localStorage.token
-        axios.put(this.url + '/api/users/' + this.user.userId + '/edit', data).then(success).catch(error);
+        this.getUser((user) => {
+            user.setData(data)
+            let sendData = user.getData();
+            sendData.token = localStorage.token
+
+            if(sendData.password == '') {
+                delete sendData.password
+            }
+
+            axios.put(this.url + '/api/users/' + this.user.userId + '/edit', sendData).then(success).catch(error);
+        })
     },
 
     login(email, password, callback, callbackErr) {

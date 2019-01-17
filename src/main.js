@@ -25,6 +25,7 @@ Vue.mixin({
 import Register from './components/Register.vue'
 import Login from './components/Login.vue'
 import Settings from './components/Login/Settings.vue'
+import Songs from './components/Login/Songs.vue'
 import Home from './components/Home.vue'
 import Tournaments from './components/Tournaments.vue'
 import Events from './components/Tournaments/Events.vue'
@@ -33,10 +34,14 @@ const router = new VueRouter({routes: [
         {path: '/', component: Home},
         {path: '/register', component: Register},
         {path: '/settings', component: Settings},
+        {path: '/songs', component: Songs},
         {path: '/login', component: Login},
         {path: '/tournaments', component: Tournaments},
         {path: '/tournaments/:id/events', component: Events}
 ]})
+
+import fieldArray from "vfg-field-array/src/components/field-array.vue";
+Vue.component("fieldArray", fieldArray);
 
 new Vue({
   router: router,

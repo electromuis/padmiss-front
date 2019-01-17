@@ -10,6 +10,7 @@
           <b-nav-item v-if="padmiss.loggedIn() == false" to="register">Register</b-nav-item>
           <b-nav-item v-if="padmiss.loggedIn() == false" to="login">Login</b-nav-item>
           <b-nav-item v-if="padmiss.loggedIn()" to="settings">Settings</b-nav-item>
+          <b-nav-item v-if="padmiss.loggedIn()" to="songs">Songs</b-nav-item>
           <b-nav-item v-if="padmiss.loggedIn()" v-on:click="padmiss.logout(); $router.push('/')">Logout</b-nav-item>
           <b-nav-item to="tournaments">Tournaments</b-nav-item>
         </b-navbar-nav>
