@@ -2,6 +2,10 @@ var path = require('path')
 var webpack = require('webpack')
 const ExtractTextPlugin = require("extract-text-webpack-plugin")
 
+var configPath = getConfig()
+
+console.log("CONFIG PATH: " + configPath)
+
 module.exports = {
   entry: ['babel-polyfill', './src/main.js'],
   output: {
@@ -48,7 +52,8 @@ module.exports = {
   },
   resolve: {
     alias: {
-      'vue$': 'vue/dist/vue.esm.js'
+      'vue$': 'vue/dist/vue.esm.js',
+      ClientConfig$: path.resolve(__dirname, configPath)
     }
   },
   devServer: {
@@ -81,4 +86,12 @@ if (process.env.NODE_ENV === 'production') {
       minimize: true
     })
   ])
+}
+
+function getConfig() {
+  if (process.env.NODE_ENV === 'production') {
+    return './src/config/prod.js'
+  }
+  else
+    return './src/config/dev.js'
 }
