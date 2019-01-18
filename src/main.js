@@ -1,50 +1,53 @@
+'use strict'
+
+// libs
+import _ from 'lodash'
 import 'babel-polyfill'
-import padmiss from './padmiss.js'
-padmiss.initialize()
 
+// Vue
 import Vue from 'vue'
-
 import BootstrapVue from "bootstrap-vue"
-import App from './App.vue'
-import VueRouter from 'vue-router'
-import "bootstrap/dist/css/bootstrap.min.css"
-import "bootstrap-vue/dist/bootstrap-vue.css"
-
-Vue.use(BootstrapVue)
-Vue.use(VueRouter)
-
-
-Vue.mixin({
-    data: function() {
-        return {
-            padmiss: padmiss
-        }
-    }
-})
-
-import Register from './components/Register.vue'
-import Login from './components/Login.vue'
-import Settings from './components/Login/Settings.vue'
-import Songs from './components/Login/Songs.vue'
-import Home from './components/Home.vue'
-import Tournaments from './components/Tournaments.vue'
-import Events from './components/Tournaments/Events.vue'
-
-const router = new VueRouter({routes: [
-        {path: '/', component: Home},
-        {path: '/register', component: Register},
-        {path: '/settings', component: Settings},
-        {path: '/songs', component: Songs},
-        {path: '/login', component: Login},
-        {path: '/tournaments', component: Tournaments},
-        {path: '/tournaments/:id/events', component: Events}
-]})
 
 import fieldArray from "vfg-field-array/src/components/field-array.vue";
 Vue.component("fieldArray", fieldArray);
 
+// Config
+import config from 'ClientConfig'
+
+if (_.get(config, 'debug.vue')) {
+  console.log('VUE DEBUG MODE ENABLED')
+  Vue.config.devtools = true
+  Vue.config.debug = true
+  Vue.config.silent = false
+  Vue.config.performance = true
+}
+else {
+  Vue.config.devtools = false
+  Vue.config.debug = false
+  Vue.config.silent = true
+  Vue.config.performance = false
+}
+
+// Styles & Bootstrap
+import "bootstrap/dist/css/bootstrap.min.css"
+import "bootstrap-vue/dist/bootstrap-vue.css"
+
+Vue.use(BootstrapVue)
+
+// Router & Store
+import store from './modules/Store'
+import router from './modules/Router'
+
+// Global Mixins
+import './mixins/GlobalMixin'
+
+// Setup App
+import App from './App.vue'
+
+// Start Vue
 new Vue({
-  router: router,
   el: '#app',
+  store,
+  router,
   render: h => h(App)
 })

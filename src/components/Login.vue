@@ -10,38 +10,47 @@
 <script>
     import VueFormGenerator from "vue-form-generator";
     import "vue-form-generator/dist/vfg.css";
-    import padmiss from "../padmiss";  // optional full css additions
+    import AuthMixin from "../mixins/AuthMixin"
 
     export default {
         name: "Login",
 
+        mixins: [AuthMixin],
+
         mounted() {
-
-            let f = () => {
-                console.log("checked")
-
-                if (this.padmiss.loggedIn() === true) {
-                    self.$router.push('/')
-                }
+            if (this.$isLoggedIn() === true) {
+                self.$router.push('/')
             }
-
-            f()
-            this.padmiss.updateListeners.push(f)
         },
 
         methods: {
             handleClick(e) {
-                let self = this
-                padmiss.login(this.model.email, this.model.password, () => {
-                    self.message = "Login successfull"
-                    self.$router.push('/')
-                }, (data) => {
-                    if(data.message) {
-                        self.message = data.message
-                    } else {
-                        self.message = "Login failed"
-                    }
-                })
+                this
+                    .$signIn(this.model.email, this.model.password)
+                    .then(() => {
+                        self.message = "Login successfull"
+                        self.$router.push('/')
+                    })
+                    .catch(data => {
+                        if(data.message) {
+                            self.message = data.message
+                        } else {
+                            self.message = "Login failed"
+                        }
+                    })
+
+                // padmiss.login(this.model.email, this.model.password, () => {
+                //     self.message = "Login successfull"
+                //     self.$router.push('/')
+                // }, (data) => {
+                //     if(data.message) {
+                //         self.message = data.message
+                //     } else {
+                //         self.message = "Login failed"
+                //     }
+                // })
+
+
             },
             handleValidation(valid, errors) {
                 this.valid = valid
