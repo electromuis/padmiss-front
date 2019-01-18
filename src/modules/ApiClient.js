@@ -6,7 +6,7 @@ import config from 'ClientConfig'
 
 const client = axios.create({
   baseURL: config.apiBaseUrl,
-  withCredentials: true,
+  // withCredentials: true,
   timeout: 60000,
 })
 

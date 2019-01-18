@@ -10,7 +10,9 @@
                 <b-nav-item v-if="$isLoggedIn" to="settings">Settings</b-nav-item>
                 <b-nav-item v-if="$isLoggedIn" to="songs">Songs</b-nav-item>
                 <b-nav-item to="tournaments">Tournaments</b-nav-item>
+            </b-navbar-nav>
 
+            <b-navbar-nav class="ml-auto">
                 <b-nav-item v-if="$isLoggedIn" v-on:click="$signOut(); $router.push('/')" right>Logout</b-nav-item>
             </b-navbar-nav>
 
