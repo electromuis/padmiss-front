@@ -11,11 +11,12 @@
     import VueFormGenerator from "vue-form-generator";
     import "vue-form-generator/dist/vfg.css";  // optional full css additions
     import AuthMixin from "../../mixins/AuthMixin"
+    import CountriesMixin from '../../mixins/CountriesMixin'
 
     export default {
-        name: "Songs",
+        name: "Settings",
 
-        mixins: [AuthMixin],
+        mixins: [AuthMixin, CountriesMixin],
 
         methods: {
             handleClick(e) {
@@ -36,12 +37,15 @@
             }
         },
 
-        async created() {
-            this.padmiss.getUser((user) => {
-                for (const [k, v] of Object.entries(user.getData())) {
-                    if(k in self.model && v) {
-                        self.model[k] = v
-                    }
+        created() {
+            let me = this
+            this.$getCountries().then((countries) => {
+                me.schema.fields.filter(x => x.model === 'country')[0].values = countries
+            })
+
+            Object.entries(me.$user.data).forEach(([k, v]) => {
+                if(v && me.model.hasOwnProperty(k)) {
+                    me.model[k] = v
                 }
             })
         },
@@ -51,7 +55,6 @@
                 valid: false,
                 success: false,
                 message: "",
-                countries: [],
                 model: {
                     nickname: "",
                     email: "",
@@ -77,7 +80,7 @@
                             model: "country",
                             required: "true",
                             validator: VueFormGenerator.validators.string,
-                            values: countries
+                            values: []
                         },
                         {
                             type: "input",
@@ -122,8 +125,8 @@
                             label: "Repeat password",
                             model: "d",
                             validator: function(value, field, model) {
-                                if(value.length === 0) {
-                                    return ["This field is required!"]
+                                if(model.password.length === 0) {
+                                    return null
                                 }
                                 return value === model.password ? null : ["Passwords should be the same"]
                             }

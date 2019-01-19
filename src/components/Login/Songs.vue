@@ -34,15 +34,14 @@
         },
 
         created() {
-            let self = this
+            let me = this
 
-            this.padmiss.getUser((user) => {
-                for (const [k, v] of Object.entries(user.metaData)) {
-                    if(k in self.model && v) {
-                        self.model[k] = v
-                    }
+            for (const [k, v] of Object.entries(me.$user.metaData)) {
+                if(k in me.model && v) {
+                    me.model[k] = v
                 }
-            })
+            }
+
         },
 
         data () {

@@ -16,9 +16,12 @@
 <script>
     import VueFormGenerator from "vue-form-generator";
     import "vue-form-generator/dist/vfg.css";  // optional full css additions
+    import CountriesMixin from '../mixins/CountriesMixin'
 
     export default {
         name: "Register",
+
+        mixins: [CountriesMixin],
 
         methods: {
             handleClick(e) {
@@ -40,80 +43,11 @@
             }
         },
 
-        async created() {
-            let countries = await this.padmiss.getCountries()
-
-            this.schema = {
-                fields: [
-                    {
-                        type: "input",
-                        inputType: "text",
-                        label: "Nickname",
-                        model: "nickname",
-                        required: "true",
-                        validator: VueFormGenerator.validators.string
-                    },
-                    {
-                        type: "select",
-                        label: "Country",
-                        model: "country",
-                        required: "true",
-                        validator: VueFormGenerator.validators.string,
-                        values: countries
-                    },
-                    {
-                        type: "input",
-                        inputType: "email",
-                        label: "Email",
-                        model: "email",
-                        required: "true",
-                        validator: VueFormGenerator.validators.email
-                    },
-                    {
-                        type: "input",
-                        inputType: "text",
-                        label: "Short nickname (4 chars)",
-                        model: "shortNickname",
-                        required: "true",
-                        validator: VueFormGenerator.validators.string
-                    },
-                    {
-                        type: "input",
-                        inputType: "text",
-                        label: "Card number",
-                        model: "rfidUid",
-                        validator: VueFormGenerator.validators.string
-                    },
-                    {
-                        type: "input",
-                        inputType: "text",
-                        label: "Avatar url",
-                        model: "avatarIconUrl",
-                        validator: VueFormGenerator.validators.string
-                    },
-                    {
-                        type: "input",
-                        inputType: "password",
-                        label: "Password",
-                        model: "password",
-                        required: true,
-                        validator: VueFormGenerator.validators.string
-                    },
-                    {
-                        type: "input",
-                        inputType: "password",
-                        label: "Repeat password",
-                        model: "d",
-                        required: true,
-                        validator: function(value, field, model) {
-                            if(value.length === 0) {
-                                return ["This field is required!"]
-                            }
-                            return value === model.password ? null : ["Passwords should be the same"]
-                        }
-                    }
-                ]
-            }
+        created() {
+            let me = this
+            this.$getCountries().then((countries) => {
+                me.schema.fields.filter(x => x.model === 'country')[0].values = countries
+            })
         },
 
         data () {
@@ -130,7 +64,75 @@
                     country: "",
                     avatarIconUrl: ""
                 },
-                schema: {},
+                schema: {
+                    fields: [
+                        {
+                            type: "input",
+                            inputType: "text",
+                            label: "Nickname",
+                            model: "nickname",
+                            required: "true",
+                            validator: VueFormGenerator.validators.string
+                        },
+                        {
+                            type: "select",
+                            label: "Country",
+                            model: "country",
+                            required: "true",
+                            validator: VueFormGenerator.validators.string,
+                            values: []
+                        },
+                        {
+                            type: "input",
+                            inputType: "email",
+                            label: "Email",
+                            model: "email",
+                            required: "true",
+                            validator: VueFormGenerator.validators.email
+                        },
+                        {
+                            type: "input",
+                            inputType: "text",
+                            label: "Short nickname (4 chars)",
+                            model: "shortNickname",
+                            required: "true",
+                            validator: VueFormGenerator.validators.string
+                        },
+                        {
+                            type: "input",
+                            inputType: "text",
+                            label: "Card number",
+                            model: "rfidUid",
+                            validator: VueFormGenerator.validators.string
+                        },
+                        {
+                            type: "input",
+                            inputType: "text",
+                            label: "Avatar url",
+                            model: "avatarIconUrl",
+                            validator: VueFormGenerator.validators.string
+                        },
+                        {
+                            type: "input",
+                            inputType: "password",
+                            label: "Password",
+                            model: "password",
+                            validator: VueFormGenerator.validators.string
+                        },
+                        {
+                            type: "input",
+                            inputType: "password",
+                            label: "Repeat password",
+                            model: "d",
+                            validator: function(value, field, model) {
+                                if(value && value.length === 0) {
+                                    return ["This field is required!"]
+                                }
+                                return value === model.password ? null : ["Passwords should be the same"]
+                            }
+                        }
+                    ]
+                },
                 formOptions: {
                     validateAfterLoad: true,
                     validateAfterChanged: true,

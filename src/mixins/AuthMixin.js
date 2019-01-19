@@ -2,7 +2,7 @@
 
 class User {
   constructor(data) {
-    this.fields = ['nickname','country','email','shortNickname', 'password', 'rfidUid', 'avatarIconUrl']
+    this.fields = ['nickname','country','email','shortNickname', 'password', 'rfidUid', 'avatarIconUrl', 'playerId', 'userId']
     this.metaFields = ['songs']
 
     this.data = {}
@@ -51,7 +51,7 @@ export default {
 
       me.$logDebug('$autoLogin')
 
-      return new Promise(resolve => {
+      return new Promise((resolve, reject) => {
         // No token in local storage, cannot auto-login
         if (!localStorage.token) {
           return resolve(null)
@@ -68,18 +68,23 @@ export default {
                 delete localStorage.token
               }
 
-              return resolve(null)
+              return reject(null)
             }
 
-            // Validation succeeded
-            me.$store.commit('SET', {
-              key: 'user',
-              value: result
+            me.$api.get('/api/players/' + result.playerId).then(playerResult => {
+                let user = new User(Object.assign({}, result, playerResult))
+
+                // Validation succeeded
+                me.$store.commit('SET', {
+                    key: 'user',
+                    value: user
+                })
+
+                resolve()
             })
+            .catch(reject)
 
-            // TODO: Also get player data, or make the backend return also that data with the result
 
-            resolve(result)
           })
           // In case of errors, get rid of our token from local storage
           .catch(err => {
@@ -89,7 +94,7 @@ export default {
 
             me.$logError('auto sign-in error', err.message)
 
-            resolve(null)
+            reject(null)
           })
       })
     },
@@ -136,6 +141,16 @@ export default {
             reject(err)
           })
       })
+    },
+
+    $saveUser() {
+        return new Promise((resolve, reject) => {
+            let me = this
+            let userData = me.$user.getData()
+            userData.token = localStorage.token
+
+            me.$api.post('/api/users/' + userData.userId + '/edit', userData).then(resolve, reject)
+        })
     },
 
     $signOut() {

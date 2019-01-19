@@ -18,13 +18,15 @@
         mixins: [AuthMixin],
 
         mounted() {
-            if (this.$isLoggedIn() === true) {
+            if (this.$isLoggedIn === true) {
                 self.$router.push('/')
             }
         },
 
         methods: {
             handleClick(e) {
+                let self = this
+
                 this
                     .$signIn(this.model.email, this.model.password)
                     .then(() => {
