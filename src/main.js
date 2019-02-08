@@ -9,6 +9,10 @@ import Vue from 'vue'
 import BootstrapVue from "bootstrap-vue"
 
 import fieldArray from "vfg-field-array/src/components/field-array.vue";
+
+import fieldComponents from "vue-form-generator/src/utils/fieldsLoader.js";
+fieldArray.components = fieldComponents
+
 Vue.component("fieldArray", fieldArray);
 
 // Config

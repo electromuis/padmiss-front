@@ -13,7 +13,10 @@ import Login from '../components/Login.vue'
 import Settings from '../components/Login/Settings.vue'
 import Home from '../components/Home.vue'
 import Tournaments from '../components/Tournaments.vue'
+import EditTournaments from '../components/Tournaments/Edit.vue'
+import DetailsTournaments from '../components/Tournaments/Details.vue'
 import Events from '../components/Tournaments/Events.vue'
+import EditEvents from '../components/Tournaments/Events/Edit.vue'
 import Songs from "../components/Login/Songs.vue";
 
 const routes = [
@@ -72,14 +75,41 @@ const routes = [
     },
   },
   {
-    path: '/tournaments/:id/events',
-    component: Events,
-    name: 'tournament-events',
+    path: '/tournaments/:tournamentId/edit',
+    component: EditTournaments,
+    name: 'tournament-edit',
     meta: {
-      title: 'Tournament Events',
+      title: 'Tournament edit',
       public: true,
     },
   },
+  {
+    path: '/tournaments/:tournamentId/details',
+    component: DetailsTournaments,
+    name: 'tournament-details',
+    meta: {
+      title: 'Tournament details',
+      public: true,
+    },
+  },
+  {
+    path: '/tournaments/:tournamentId/events',
+    component: Events,
+    name: 'tournament-events',
+    meta: {
+      title: 'Tournament events',
+      public: true,
+    },
+  },
+  {
+    path: '/tournaments/:tournamentId/events/:eventId/edit',
+    component: EditEvents,
+    name: 'tournament-events-edit',
+    meta: {
+      title: 'Tournament events Edit',
+      public: true,
+    },
+  }
 ]
 
 const router = new VueRouter({

@@ -19,36 +19,36 @@
 
         mounted() {
             if (this.$isLoggedIn === true) {
-                self.$router.push('/')
+                me.$router.push('/')
             }
         },
 
         methods: {
             handleClick(e) {
-                let self = this
+                let me = this
 
                 this
                     .$signIn(this.model.email, this.model.password)
                     .then(() => {
-                        self.message = "Login successfull"
-                        self.$router.push('/')
+                        me.message = "Login successfull"
+                        me.$router.push('/')
                     })
                     .catch(data => {
                         if(data.message) {
-                            self.message = data.message
+                            me.message = data.message
                         } else {
-                            self.message = "Login failed"
+                            me.message = "Login failed"
                         }
                     })
 
                 // padmiss.login(this.model.email, this.model.password, () => {
-                //     self.message = "Login successfull"
-                //     self.$router.push('/')
+                //     me.message = "Login successfull"
+                //     me.$router.push('/')
                 // }, (data) => {
                 //     if(data.message) {
-                //         self.message = data.message
+                //         me.message = data.message
                 //     } else {
-                //         self.message = "Login failed"
+                //         me.message = "Login failed"
                 //     }
                 // })
 

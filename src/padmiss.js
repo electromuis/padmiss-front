@@ -49,11 +49,11 @@ export default {
 
         let response = await axios.get(this.url + '/api/countries')
         if(Array.isArray(response.data)) {
-            let self = this
+            let me = this
             this.countries = []
 
             response.data.forEach((c) => {
-                self.countries.push({name: c.name, id: c._id})
+                me.countries.push({name: c.name, id: c._id})
             })
 
             return this.countries
@@ -139,12 +139,12 @@ export default {
             return
         }
 
-        let self = this
+        let me = this
 
         axios.post(this.url + "/validate-token", {"token": localStorage.token}).then((response) => {
             if(response.data.success === true) {
                 this.user = response.data
-                self.update()
+                me.update()
             }
         })
     }

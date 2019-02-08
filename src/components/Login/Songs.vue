@@ -16,14 +16,14 @@
 
         methods: {
             handleClick(e) {
-                let self = this
+                let me = this
                 this.padmiss.updateSettings(this.model, () => {
-                    self.message = "Settings saved"
+                    me.message = "Settings saved"
                 }, (data) => {
                     if(data.message) {
-                        self.message = data.message
+                        me.message = data.message
                     } else {
-                        self.message = "Saving failed"
+                        me.message = "Saving failed"
                     }
                 })
 

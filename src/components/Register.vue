@@ -15,7 +15,6 @@
 
 <script>
     import VueFormGenerator from "vue-form-generator";
-    import "vue-form-generator/dist/vfg.css";  // optional full css additions
     import CountriesMixin from '../mixins/CountriesMixin'
 
     export default {
@@ -25,17 +24,17 @@
 
         methods: {
             handleClick(e) {
-                let self = this
+                let me = this
 
                 this.padmiss.register(this.model, function(response) {
                     if(response.data.success === true) {
-                        self.message = "Registration sucessfull"
+                        me.message = "Registration sucessfull"
                         this.success = true
                     } else {
-                        self.message = response.data.message
+                        me.message = response.data.message
                     }
                 }, function () {
-                    self.message = "Registration failed"
+                    me.message = "Registration failed"
                 })
             },
             handleValidation(valid, errors) {

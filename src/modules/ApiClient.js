@@ -15,7 +15,10 @@ export default class ApiClient {
     if (config.debug.vue)
       console.log(method, route, 'RESULT', response)
 
-    if (response.status && response.status === 200) {
+    if (options && options.expectStatus && response.status && response.status === options.expectStatus) {
+      resolve(response.data)
+    }
+    else if (response.status && response.status === 200) {
       resolve(response.data)
     }
     else if (options && options.resolveAlways) {
