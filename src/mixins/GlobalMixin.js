@@ -4,6 +4,7 @@ import _ from 'lodash'
 import Vue from 'vue'
 import config from 'ClientConfig'
 import ApiClient from '../modules/ApiClient'
+import GraphqlClient from "../modules/GraphqlClient";
 
 const eventBus = new Vue()
 
@@ -20,6 +21,10 @@ export default Vue.mixin({
     $api() {
       return ApiClient
     },
+
+    $graph() {
+      return GraphqlClient
+    }
   },
 
   methods: {

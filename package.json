@@ -13,6 +13,7 @@
     "bootstrap": "^4.0.0-beta.2",
     "bootstrap-vue": "^1.2.0",
     "fecha": "^3.0.2",
+    "graphql-query-builder": "^1.0.7",
     "lodash": "^4.17.11",
     "popper.js": "^1.12.9",
     "pug": "^2.0.3",
