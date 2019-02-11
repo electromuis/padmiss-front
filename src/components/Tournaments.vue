@@ -34,8 +34,6 @@
 </template>
 
 <script>
-    import Query from 'graphql-query-builder'
-
     export default {
         name: "Event",
 
@@ -63,8 +61,6 @@
             this.$api.get('/api/tournaments').then((response) => {
                 me.values = response
             })
-
-            // this.$graph.query(new Query('Tournament', {'id': '5c5d80ae76147965b24cb1d3'}).find('name', 'description'))
         },
 
         components: {

@@ -54,7 +54,7 @@
             })
 
             if(this.$route.params.tournamentId !== 0) {
-                me.$loadTournament().then((r) => {
+                me.$loadTournament(true).then((r) => {
                     me.loading = false
                 })
             }

@@ -6,8 +6,11 @@ export default class {
             let request = {query: "{" + q.toString() + "}"}
 
             ApiClient.post('/graphiql', request, {}).then((response) => {
-
-                resolve(response)
+                if(response.data) {
+                    resolve(response.data)
+                } else {
+                    reject()
+                }
             }).catch(reject)
         }))
     }
