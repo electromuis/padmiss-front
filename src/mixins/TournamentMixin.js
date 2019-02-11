@@ -12,21 +12,22 @@ export default {
             return new Promise(((resolve, reject) => {
                if(full === true) {
                    this.$graph.query(
-                       new Query('Tournament', {id: me.$route.params.tournamentId})
-                       .find([
+                       'Tournament',
+                       [
                            'name',
                            'description',
                            'startDate',
                            'endDate',
                            {'tournamentAdmin': ['_id']},
                            {'tournamentManagers': ['_id']}
-                       ])
+                       ],
+                       {'id': me.$route.params.tournamentId}
                    ).then((tournament) => {
-                       tournament.Tournament.tournamentAdmin = tournament.Tournament.tournamentAdmin._id
-                       tournament.Tournament.tournamentManagers = tournament.Tournament.tournamentManagers.map(u => u._id)
+                       tournament.tournamentAdmin = tournament.tournamentAdmin._id
+                       tournament.tournamentManagers = tournament.tournamentManagers.map(u => u._id)
 
-                       me.tournament = tournament.Tournament
-                       resolve(tournament.Tournament)
+                       me.tournament = tournament
+                       resolve(tournament)
                    }).catch((e) => {
                        reject(e)
                        me.$router.push('/tournaments')

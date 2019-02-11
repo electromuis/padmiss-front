@@ -2,7 +2,7 @@
     <loading v-if="loading" :active="true"></loading>
     <div v-else id="edit">
         <b-alert v-if="message" show variant="secondary">{{message}}</b-alert>
-        <vue-form-generator :schema="schema" :model="tournament" :options="formOptions" @validated="handleValidation" />
+        <vue-form-generator :schema="schema" :model="cab" :options="formOptions" @validated="handleValidation" />
         <b-button v-if="valid" v-on:click="handleClick">Save</b-button>
         <b-button v-else v-on:click="handleClick" disabled>Save</b-button>
     </div>
@@ -16,17 +16,20 @@
         methods: {
             handleClick(e) {
                 let me = this
-                let data = this.tournament
+                let data = this.cab
                 data.token = localStorage.token
+                delete data._id
 
                 if(me.loading === false) {
-                    if(this.$route.params.tournamentId.length > 1) {
-                        me.$api.put('/api/tournaments/' + this.$route.params.tournamentId, data, {expectStatus: 201}).then(() => {
-                            me.$router.push('/tournaments')
+                    if(this.$route.params.cabId.length > 1) {
+                        delete data.apiKey
+
+                        me.$api.put('/api/arcade-cabs/' + this.$route.params.cabId, data, {expectStatus: 201}).then(() => {
+                            me.$router.push('/cabs')
                         })
                     } else {
-                        me.$api.post('/api/tournaments', data, {expectStatus: 201}).then(() => {
-                            me.$router.push('/tournaments')
+                        me.$api.post('/api/arcade-cabs', data, {expectStatus: 201}).then(() => {
+                            me.$router.push('/cabs')
                         })
                     }
                 }
@@ -38,22 +41,44 @@
 
         created() {
             let me = this
-            this.$api.get('/api/players?sort=nickName')
+            this.$api.get('/api/users?sort=email&token=' + localStorage.token)
             .then((users) => {
                 let mappedUsers = users.map(u => {
                     return {
-                        name: u.nickName,
+                        name: u.email,
                         id: u.id
                     }
                 })
 
                 me.schema.fields.filter(x => x.model === 'cabOwner')[0].values = mappedUsers
-                me.schema.fields.filter(x => x.model === 'coOwners')[0].values = mappedUsers
+                me.schema.fields.filter(x => x.model === 'coOwners')[0].items.values = mappedUsers
             })
 
             if(this.$route.params.cabId.length > 1) {
-                me.$loadTournament(true).then((r) => {
+                me.schema.fields = me.schema.fields.filter(x => x.model !== 'apiKey')
+
+                me.$graph.query(
+                    'ArcadeCab',
+                    [
+                        '_id',
+                        'name',
+                        'cabDescription',
+                        'cabIconUrl',
+                        {'cabOwner': ['_id']},
+                        {'coOwners': ['_id']},
+                        'isLeftSidePlayable',
+                        'isRightSidePlayable'
+                    ],
+                    {id: me.$route.params.cabId}
+                ).then((cab) => {
+                    cab.cabOwner = cab.cabOwner._id
+                    cab.coOwners = cab.coOwners.map(u => u._id)
+
+                    me.cab = cab
+                    console.log(me.cab)
                     me.loading = false
+                }).catch(() => {
+                    me.$router.push('/cabs')
                 })
             }
             else {
@@ -67,17 +92,28 @@
                 success: false,
                 loading: true,
                 message: "",
-                tournament: {
-                    id: 0,
+                cab: {
+                    _id: 0,
+                    apiKey: "",
                     name: "",
-                    description: "",
-                    tournamentAdmin: "",
-                    tournamentManagers: [],
-                    startDate: "",
-                    endDate: ""
+                    cabDescription: "",
+                    cabLocation: "",
+                    cabIconUrl: "",
+                    cabOwner: "",
+                    coOwners: [],
+                    isLeftSidePlayable: true,
+                    isRightSidePlayable: true
                 },
                 schema: {
                     fields: [
+                        {
+                            type: "input",
+                            inputType: "text",
+                            label: "Api Key",
+                            model: "apiKey",
+                            required: "true",
+                            validator: VueFormGenerator.validators.string
+                        },
                         {
                             type: "input",
                             inputType: "text",
@@ -85,6 +121,18 @@
                             model: "name",
                             required: "true",
                             validator: VueFormGenerator.validators.string
+                        },
+                        {
+                            type: "input",
+                            inputType: "text",
+                            label: "Description",
+                            model: "description"
+                        },
+                        {
+                            type: "input",
+                            inputType: "text",
+                            label: "Icon url",
+                            model: "cabIconUrl"
                         },
                         {
                             type: "select",
@@ -95,29 +143,29 @@
                             validator: VueFormGenerator.validators.string
                         },
                         {
-                            type: "input",
-                            inputType: "date",
-                            label: "Start date",
-                            model: "startDate",
-                            required: "true",
-                            validator: VueFormGenerator.validators.date,
-                        },
-                        {
-                            type: "input",
-                            inputType: "date",
-                            label: "End date",
-                            model: "endDate",
-                            required: "true",
-                            validator: VueFormGenerator.validators.date,
-                        },
-                        {
                             type: "array",
-                            label: "Tournament managers",
-                            model: "tournamentManagers",
+                            label: "Co owners",
+                            model: "coOwners",
                             items: {
                                 type: "select",
                                 values: []
                             }
+                        },
+                        {
+                            type: "select",
+                            label: "Has P1",
+                            model: "isLeftSidePlayable",
+                            require: "true",
+                            values: [true, false],
+                            validator: VueFormGenerator.validators.boolean
+                        },
+                        {
+                            type: "select",
+                            label: "Has P2",
+                            model: "isRightSidePlayable",
+                            require: "true",
+                            values: [true, false],
+                            validator: VueFormGenerator.validators.boolean
                         }
                     ]
                 },

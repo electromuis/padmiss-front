@@ -21,7 +21,8 @@ import EditEvents from '../components/Tournaments/Events/Edit.vue'
 import DeleteEvents from '../components/Tournaments/Events/Delete.vue'
 import Songs from "../components/Login/Songs.vue"
 import Cabs from "../components/Cabs.vue"
-import EditCabs from "../components/Cabs/Edit"
+import EditCabs from "../components/Cabs/Edit.vue"
+import DeleteCabs from "../components/Cabs/Delete.vue"
 
 const routes = [
   {
@@ -149,6 +150,15 @@ const routes = [
       title: 'Cabs edit',
       public: true
     }
+  },
+  {
+      path: '/cabs/:cabId/delete',
+      component: DeleteCabs,
+      name: 'cabs-delete',
+      meta: {
+          title: 'Cabs delete',
+          public: true
+      }
   }
 ]
 

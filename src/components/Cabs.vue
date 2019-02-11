@@ -17,7 +17,8 @@
                 <tr v-for="row in values">
                     <td>{{ row.name }}</td>
                     <td>
-                        <b-button v-on:click="$router.push({path: `/cabs/${row.id}/edit`})">Edit</b-button>
+                        <b-button v-on:click="$router.push({path: `/cabs/${row._id}/edit`})">Edit</b-button>
+                        <b-button v-on:click="$router.push({path: `/cabs/${row._id}/delete`})">Delete</b-button>
                     </td>
                 </tr>
             </tbody>
@@ -26,7 +27,6 @@
 </template>
 
 <script>
-    import Query from 'graphql-query-builder'
 
     export default {
         name: "Event",
@@ -41,10 +41,10 @@
             let me = this
 
             this.$graph.query(
-                new Query('ArcadeCabs')
-                .find({docs: ['name', {'cabOwner': '_id'}]})
+                'ArcadeCabs',
+                {docs: ['_id', 'name', {'cabOwner': '_id'}]}
             ).then((response) => {
-                me.values = response.ArcadeCabs.docs
+                me.values = response.docs
             })
         },
 
