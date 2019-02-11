@@ -15,9 +15,13 @@ import Home from '../components/Home.vue'
 import Tournaments from '../components/Tournaments.vue'
 import EditTournaments from '../components/Tournaments/Edit.vue'
 import DetailsTournaments from '../components/Tournaments/Details.vue'
+import DeleteTournaments from '../components/Tournaments/Delete.vue'
 import Events from '../components/Tournaments/Events.vue'
 import EditEvents from '../components/Tournaments/Events/Edit.vue'
-import Songs from "../components/Login/Songs.vue";
+import DeleteEvents from '../components/Tournaments/Events/Delete.vue'
+import Songs from "../components/Login/Songs.vue"
+import Cabs from "../components/Cabs.vue"
+import EditCabs from "../components/Cabs/Edit"
 
 const routes = [
   {
@@ -93,6 +97,15 @@ const routes = [
     },
   },
   {
+    path: '/tournaments/:tournamentId/delete',
+    component: DeleteTournaments,
+    name: 'tournament-delete',
+    meta: {
+      title: 'Tournament delete',
+      public: true,
+    },
+  },
+  {
     path: '/tournaments/:tournamentId/events',
     component: Events,
     name: 'tournament-events',
@@ -109,6 +122,33 @@ const routes = [
       title: 'Tournament events Edit',
       public: true,
     },
+  },
+  {
+    path: '/tournaments/:tournamentId/events/:eventId/delete',
+    component: DeleteEvents,
+    name: 'tournament-events-delete',
+    meta: {
+      title: 'Tournament events Delete',
+      public: true,
+    },
+  },
+  {
+    path: '/cabs',
+    component: Cabs,
+    name: 'cabs',
+    meta: {
+      title: 'Cabs',
+      public: true
+    }
+  },
+  {
+    path: '/cabs/:cabId/edit',
+    component: EditCabs,
+    name: 'cabs-edit',
+    meta: {
+      title: 'Cabs edit',
+      public: true
+    }
   }
 ]
 

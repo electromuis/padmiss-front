@@ -10,6 +10,7 @@
                 <b-nav-item v-if="$isLoggedIn" to="/settings">Settings</b-nav-item>
                 <b-nav-item v-if="$isLoggedIn" to="/songs">Songs</b-nav-item>
                 <b-nav-item v-if="$isLoggedIn" to="/tournaments">Tournaments</b-nav-item>
+                <b-nav-item v-if="$isLoggedIn" to="/Cabs">Cabs</b-nav-item>
             </b-navbar-nav>
 
             <b-navbar-nav class="ml-auto">

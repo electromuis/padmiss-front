@@ -11,10 +11,8 @@
 <script>
     import VueFormGenerator from "vue-form-generator";
     import Loading from 'vue-loading-overlay';
-    import TournamentMixin from '../../mixins/TournamentMixin'
 
     export default {
-        mixins: [TournamentMixin],
         methods: {
             handleClick(e) {
                 let me = this
@@ -40,20 +38,20 @@
 
         created() {
             let me = this
-            this.$api.get('/api/users?sort=email&token=' + localStorage.token)
+            this.$api.get('/api/players?sort=nickName')
             .then((users) => {
                 let mappedUsers = users.map(u => {
                     return {
-                        name: u.email,
+                        name: u.nickName,
                         id: u.id
                     }
                 })
 
-                me.schema.fields.filter(x => x.model === 'tournamentAdmin')[0].values = mappedUsers
-                me.schema.fields.filter(x => x.model === 'tournamentManagers')[0].items.values = mappedUsers
+                me.schema.fields.filter(x => x.model === 'cabOwner')[0].values = mappedUsers
+                me.schema.fields.filter(x => x.model === 'coOwners')[0].values = mappedUsers
             })
 
-            if(this.$route.params.tournamentId.length > 1) {
+            if(this.$route.params.cabId.length > 1) {
                 me.$loadTournament(true).then((r) => {
                     me.loading = false
                 })
@@ -89,16 +87,9 @@
                             validator: VueFormGenerator.validators.string
                         },
                         {
-                            type: "textArea",
-                            label: "Description",
-                            model: "description",
-                            required: "true",
-                            validator: VueFormGenerator.validators.string
-                        },
-                        {
                             type: "select",
-                            label: "Tournament admin",
-                            model: "tournamentAdmin",
+                            label: "Cab owner",
+                            model: "cabOwner",
                             require: "true",
                             values: [],
                             validator: VueFormGenerator.validators.string
