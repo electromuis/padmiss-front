@@ -89,6 +89,7 @@ const routes = [
     meta: {
       title: 'Tournament edit',
       public: true,
+      parent: 'tournaments'
     },
   },
   {
@@ -98,6 +99,7 @@ const routes = [
     meta: {
       title: 'Tournament details',
       public: true,
+      parent: 'tournaments'
     },
   },
   {
@@ -107,6 +109,7 @@ const routes = [
     meta: {
       title: 'Tournament delete',
       public: true,
+      parent: 'tournaments'
     },
   },
   {
@@ -116,6 +119,7 @@ const routes = [
     meta: {
       title: 'Tournament events',
       public: true,
+      parent: 'tournaments'
     },
   },
   {
@@ -125,6 +129,7 @@ const routes = [
     meta: {
       title: 'Tournament events Edit',
       public: true,
+      parent: 'tournament-events'
     },
   },
   {
@@ -134,6 +139,7 @@ const routes = [
     meta: {
       title: 'Tournament events Delete',
       public: true,
+      parent: 'tournament-events'
     },
   },
   {
@@ -143,6 +149,7 @@ const routes = [
     meta: {
       title: 'Tournament events parts',
       public: true,
+      parent: 'tournament-events'
     },
   },
   {
@@ -152,6 +159,7 @@ const routes = [
     meta: {
       title: 'Tournament events parts edit',
       public: true,
+      parent: 'tournament-events-parts'
     },
   },
   {
@@ -161,6 +169,7 @@ const routes = [
     meta: {
       title: 'Tournament events parts delete',
       public: true,
+      parent: 'tournament-events-parts'
     },
   },
   {

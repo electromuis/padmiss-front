@@ -4,6 +4,7 @@
 
     <div v-else>
       <Menu />
+      <Breadcrumb />
       <div class="container">
         <router-view></router-view>
       </div>
@@ -13,6 +14,7 @@
 
 <script>
   import Menu from './components/App/Menu.vue'
+  import Breadcrumb from './components/App/Breadcrumb.vue'
   import AuthMixin from "./mixins/AuthMixin";
 
   import Loading from 'vue-loading-overlay';
@@ -36,7 +38,8 @@
     },
     components: {
       Menu,
-      Loading
+      Loading,
+      Breadcrumb
     }
   }
 </script>
