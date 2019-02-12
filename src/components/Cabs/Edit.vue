@@ -153,6 +153,10 @@
                             type: "array",
                             label: "Co owners",
                             model: "coOwners",
+                            newElementButtonLabelClasses: "btn btn-secondary new",
+                            removeElementButtonClasses: "btn btn-secondary remove",
+                            itemContainerClasses: "array-item",
+                            showRemoveButton: true,
                             items: {
                                 type: "select",
                                 values: []
@@ -191,6 +195,16 @@
     }
 </script>
 
-<style scoped>
-
+<style>
+    .array-item {
+        margin-bottom: 12px;
+    }
+    .btn.remove {
+        margin-left: 12px;
+    }
+    .array-item {
+        display: flex;
+        -ms-flex-wrap: wrap;
+        flex-wrap: wrap;
+    }
 </style>
