@@ -26,6 +26,10 @@ import DeleteCabs from "../components/Cabs/Delete.vue"
 import Parts from "../components/Tournaments/Events/Parts.vue"
 import EditParts from "../components/Tournaments/Events/Parts/Edit.vue"
 import DeleteParts from "../components/Tournaments/Events/Parts/Delete.vue"
+import Rounds from "../components/Tournaments/Events/Parts/Rounds.vue"
+import EditRounds from "../components/Tournaments/Events/Parts/Rounds/Edit.vue"
+import DeleteRounds from "../components/Tournaments/Events/Parts/Rounds/Delete.vue"
+
 
 const routes = [
   {
@@ -171,6 +175,36 @@ const routes = [
       public: true,
       parent: 'tournament-events-parts'
     },
+  },
+  {
+      path: '/tournaments/:tournamentId/events/:eventId/parts/:partId/rounds',
+      component: Rounds,
+      name: 'tournament-events-parts-rounds',
+      meta: {
+          title: 'Tournament events parts rounds',
+          public: true,
+          parent: 'tournament-events-parts'
+      },
+  },
+  {
+      path: '/tournaments/:tournamentId/events/:eventId/parts/:partId/rounds/:roundId/edit',
+      component: EditRounds,
+      name: 'tournament-events-parts-rounds-edit',
+      meta: {
+          title: 'Tournament events parts rounds edit',
+          public: true,
+          parent: 'tournament-events-parts-rounds'
+      },
+  },
+    {
+      path: '/tournaments/:tournamentId/events/:eventId/parts/:partId/rounds/:roundId/delete',
+      component: DeleteRounds,
+      name: 'tournament-events-parts-rounds-delete',
+      meta: {
+          title: 'Tournament events parts rounds delete',
+          public: true,
+          parent: 'tournament-events-parts-rounds'
+      },
   },
   {
     path: '/cabs',

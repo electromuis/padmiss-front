@@ -1,8 +1,8 @@
 <template>
     <div id="tournaments">
-        Parts
+        Rounds
 
-        <b-button @click="$router.push({path: $eventPath + `/parts/0/edit`})" variant="info" class="m-1">
+        <b-button @click="$router.push({path: $partPath + `/rounds/0/edit`})" variant="info" class="m-1">
             New
         </b-button>
 
@@ -19,9 +19,8 @@
                     <td>{{ row.name }}</td>
                     <td>{{ row.status }}</td>
                     <td>
-                        <b-button v-on:click="$router.push({path: $eventPath + `/parts/${row._id}/rounds`})">Rounds</b-button>
-                        <b-button v-on:click="$router.push({path: $eventPath + `/parts/${row._id}/edit`})">Edit</b-button>
-                        <b-button v-on:click="$router.push({path: $eventPath + `/parts/${row._id}/delete`})">Delete</b-button>
+                        <b-button v-on:click="$router.push({path: $partPath + `/rounds/${row._id}/edit`})">Edit</b-button>
+                        <b-button v-on:click="$router.push({path: $partPath + `/rounds/${row._id}/delete`})">Delete</b-button>
                     </td>
                 </tr>
             </tbody>
@@ -30,7 +29,7 @@
 </template>
 
 <script>
-    import TournamentMixin from '../../../mixins/TournamentMixin'
+    import TournamentMixin from '../../../../mixins/TournamentMixin'
 
     export default {
         mixins: [TournamentMixin],
@@ -40,6 +39,7 @@
                 path: "",
                 tournament: {},
                 event: {},
+                part: {},
                 values: []
             }
         },
@@ -49,13 +49,15 @@
 
             me.$loadTournament().then((tournament) => {
                 me.$loadEvent().then((event) => {
-                    me.$graph.query(
-                        "TournamentEventParts",
-                        {docs: ["_id", "name","status"]},
-                        {tournamentEventId: event._id},
-                        true
-                    ).then((parts) => {
-                        me.values = parts.docs
+                    me.$loadPart().then((part) => {
+                        me.$graph.query(
+                            "Rounds",
+                            {docs: ["_id", "name","status"]},
+                            {tournamentEventPartId: part._id},
+                            true
+                        ).then((parts) => {
+                            me.values = parts.docs
+                        })
                     })
                 })
             })

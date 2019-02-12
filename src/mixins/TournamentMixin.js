@@ -14,6 +14,11 @@ export default {
         "RoundRobin"
     ],
 
+    'PLAY_STYLES': [
+        "Single",
+        "Double"
+    ],
+
     methods: {
         $loadTournament(full) {
             let me = this
@@ -131,6 +136,34 @@ export default {
                 })
             }))
         },
+
+        $loadRound() {
+            let me = this
+
+            return new Promise(((resolve, reject) => {
+                this.$graph.query(
+                    'Round',
+                    [
+                        "_id",
+                        "name",
+                        "roundType",
+                        "playMode",
+                        "bestOfCount",
+                        "status",
+                        {'arcadeCabs': ['_id']}
+                    ],
+                    {'id': me.$route.params.roundId}
+                ).then((round) => {
+                    round.arcadeCabs = round.arcadeCabs.map(u => u._id)
+
+                    me.round = round
+                    resolve(round)
+                }).catch((e) => {
+                    reject(e)
+                    me.$router.push('/tournaments')
+                })
+            }))
+        },
     },
 
     computed: {
@@ -140,6 +173,10 @@ export default {
 
         $eventPath() {
             return '/tournaments/' + this.$route.params.tournamentId + '/events/' + this.$route.params.eventId
+        },
+
+        $partPath() {
+            return '/tournaments/' + this.$route.params.tournamentId + '/events/' + this.$route.params.eventId + '/parts/' + this.$route.params.partId
         }
     }
 }

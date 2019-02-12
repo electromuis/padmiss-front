@@ -1,11 +1,7 @@
 <template>
-    <div class="breadcrumb">
-        <nav aria-label="breadcrumb">
-            <ol class="breadcrumb">
-                <li v-for="s in stack" class="breadcrumb-item" aria-current="page"><a :href="s.url">{{s.meta.title}}</a></li>
-            </ol>
-        </nav>
-    </div>
+        <ol v-if="stack.length > 0" class="breadcrumb">
+            <li v-for="s in stack" class="breadcrumb-item" aria-current="page"><a :href="s.url">{{s.meta.title}}</a></li>
+        </ol>
 </template>
 
 <script>

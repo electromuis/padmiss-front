@@ -2,10 +2,16 @@ import ApiClient from './ApiClient'
 import Query from 'graphql-query-builder'
 
 export default class {
-    static query(type, fields, filter) {
+    static query(type, fields, filter, encodeFilter) {
         return new Promise(((resolve, reject) => {
             if(filter === undefined) {
                 filter = {}
+            } else {
+                if(encodeFilter === true) {
+                    filter = {
+                        queryString: JSON.stringify(filter)
+                    }
+                }
             }
             let q = new Query(type, filter)
             q.find(fields)
