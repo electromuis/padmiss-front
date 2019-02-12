@@ -23,6 +23,9 @@ import Songs from "../components/Login/Songs.vue"
 import Cabs from "../components/Cabs.vue"
 import EditCabs from "../components/Cabs/Edit.vue"
 import DeleteCabs from "../components/Cabs/Delete.vue"
+import Parts from "../components/Tournaments/Events/Parts.vue"
+import EditParts from "../components/Tournaments/Events/Parts/Edit.vue"
+import DeleteParts from "../components/Tournaments/Events/Parts/Delete.vue"
 
 const routes = [
   {
@@ -130,6 +133,33 @@ const routes = [
     name: 'tournament-events-delete',
     meta: {
       title: 'Tournament events Delete',
+      public: true,
+    },
+  },
+  {
+    path: '/tournaments/:tournamentId/events/:eventId/parts',
+    component: Parts,
+    name: 'tournament-events-parts',
+    meta: {
+      title: 'Tournament events parts',
+      public: true,
+    },
+  },
+  {
+    path: '/tournaments/:tournamentId/events/:eventId/parts/:partId/edit',
+    component: EditParts,
+    name: 'tournament-events-parts-edit',
+    meta: {
+      title: 'Tournament events parts edit',
+      public: true,
+    },
+  },
+  {
+    path: '/tournaments/:tournamentId/events/:eventId/parts/:partId/delete',
+    component: DeleteParts,
+    name: 'tournament-events-parts-delete',
+    meta: {
+      title: 'Tournament events parts delete',
       public: true,
     },
   },

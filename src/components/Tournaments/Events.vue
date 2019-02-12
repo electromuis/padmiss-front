@@ -24,6 +24,7 @@
                 <tr v-for="row in values">
                     <td>{{ row.name }}</td>
                     <td>
+                        <b-button v-on:click="$router.push({path: $tournamentPath + `/events/${row._id}/parts`})">Parts</b-button>
                         <b-button v-on:click="$router.push({path: $tournamentPath + `/events/${row._id}/edit`})">Edit</b-button>
                         <b-button v-on:click="$router.push({path: $tournamentPath + `/events/${row._id}/delete`})">Delete</b-button>
                     </td>

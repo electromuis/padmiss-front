@@ -64,6 +64,7 @@
                         'name',
                         'cabDescription',
                         'cabIconUrl',
+                        'cabLocation',
                         {'cabOwner': ['_id']},
                         {'coOwners': ['_id']},
                         'isLeftSidePlayable',
@@ -127,6 +128,12 @@
                             inputType: "text",
                             label: "Description",
                             model: "description"
+                        },,
+                        {
+                            type: "input",
+                            inputType: "text",
+                            label: "Location",
+                            model: "cabLocation"
                         },
                         {
                             type: "input",

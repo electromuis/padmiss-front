@@ -2,7 +2,16 @@ import Query from 'graphql-query-builder'
 
 export default {
     'STATUS_OPTIONS': [
-        "New"
+        "New",
+        "Ongoing",
+        "Finished"
+    ],
+
+    'ROUND_TYPES': [
+        "KotH",
+        "SingleElimination",
+        "DoubleElimination",
+        "RoundRobin"
     ],
 
     methods: {
@@ -19,12 +28,14 @@ export default {
                            'startDate',
                            'endDate',
                            {'tournamentAdmin': ['_id']},
-                           {'tournamentManagers': ['_id']}
+                           {'tournamentManagers': ['_id']},
+                           {'arcadeCabs': ['_id']}
                        ],
                        {'id': me.$route.params.tournamentId}
                    ).then((tournament) => {
                        tournament.tournamentAdmin = tournament.tournamentAdmin._id
                        tournament.tournamentManagers = tournament.tournamentManagers.map(u => u._id)
+                       tournament.arcadeCabs = tournament.arcadeCabs.map(u => u._id)
 
                        me.tournament = tournament
                        resolve(tournament)
@@ -44,6 +55,43 @@ export default {
             }))
         },
 
+        $getCabValues(forTournament) {
+            let me = this
+
+            return new Promise(((resolve, reject) => {
+                if(forTournament === true) {
+                    this.$graph.query(
+                        'Tournament',
+                        [
+                            {'arcadeCabs': ['_id', 'name', 'cabLocation']}
+                        ],
+                        {'id': me.$route.params.tournamentId}
+                    ).then((tournament) => {
+                        let mapped = tournament.arcadeCabs.map((c) => {
+                            return {
+                                id: c._id,
+                                name: c.cabLocation + ' - ' + c.name
+                            }
+                        })
+                        resolve(mapped)
+                    }).catch(reject)
+                } else {
+                    me.$graph.query(
+                        "ArcadeCabs",
+                        {docs: ['_id', 'name', 'cabLocation']}
+                    ).then((cabs) => {
+                        let mapped = cabs.docs.map((c) => {
+                            return {
+                                id: c._id,
+                                name: c.cabLocation + ' - ' + c.name
+                            }
+                        })
+                        resolve(mapped)
+                    }).catch(reject)
+                }
+            }))
+        },
+
         $loadEvent() {
             let me = this
 
@@ -57,11 +105,41 @@ export default {
                 })
             }))
         },
+
+        $loadPart() {
+            let me = this
+
+            return new Promise(((resolve, reject) => {
+                this.$graph.query(
+                    'TournamentEventPart',
+                    [
+                        "_id",
+                        "name",
+                        "roundType",
+                        "status",
+                        {'arcadeCabs': ['_id']}
+                    ],
+                    {'id': me.$route.params.partId}
+                ).then((part) => {
+                    part.arcadeCabs = part.arcadeCabs.map(u => u._id)
+
+                    me.part = part
+                    resolve(part)
+                }).catch((e) => {
+                    reject(e)
+                    me.$router.push('/tournaments')
+                })
+            }))
+        },
     },
 
     computed: {
         $tournamentPath() {
             return '/tournaments/' + this.$route.params.tournamentId
+        },
+
+        $eventPath() {
+            return '/tournaments/' + this.$route.params.tournamentId + '/events/' + this.$route.params.eventId
         }
     }
 }

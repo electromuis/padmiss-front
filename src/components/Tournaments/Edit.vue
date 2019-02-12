@@ -53,6 +53,10 @@
                 me.schema.fields.filter(x => x.model === 'tournamentManagers')[0].items.values = mappedUsers
             })
 
+            this.$getCabValues().then((cabs) => {
+                me.schema.fields.filter(x => x.model === 'arcadeCabs')[0].items.values = cabs
+            })
+
             if(this.$route.params.tournamentId.length > 1) {
                 me.$loadTournament(true).then((r) => {
                     me.loading = false
@@ -75,6 +79,7 @@
                     description: "",
                     tournamentAdmin: "",
                     tournamentManagers: [],
+                    arcadeCabs: [],
                     startDate: "",
                     endDate: ""
                 },
@@ -123,6 +128,15 @@
                             type: "array",
                             label: "Tournament managers",
                             model: "tournamentManagers",
+                            items: {
+                                type: "select",
+                                values: []
+                            }
+                        },
+                        {
+                            type: "array",
+                            label: "Cabs",
+                            model: "arcadeCabs",
                             items: {
                                 type: "select",
                                 values: []
