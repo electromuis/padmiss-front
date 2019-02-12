@@ -24,6 +24,7 @@
                     data.token = localStorage.token
                     data.tournamentEventPartId = this.part._id
                     data.tournamentId = this.tournament.id
+                    data.roundType = this.part.roundType
 
                     if(this.$route.params.roundId.length > 1) {
                         me.$api.put('/api/rounds/' + this.$route.params.roundId, data, {expectStatus: 201}).then(() => {
@@ -74,7 +75,6 @@
                 round: {
                     name: "",
                     status: "New",
-                    roundType: "",
                     playMode: "",
                     bestOfCount: 1,
                     arcadeCabs: []
@@ -94,14 +94,6 @@
                             label: "Status",
                             model: "status",
                             values: TournamentsMixin.STATUS_OPTIONS,
-                            required: "true",
-                            validator: VueFormGenerator.validators.string
-                        },
-                        {
-                            type: "select",
-                            label: "Round type",
-                            model: "roundType",
-                            values: TournamentsMixin.ROUND_TYPES,
                             required: "true",
                             validator: VueFormGenerator.validators.string
                         },

@@ -2,15 +2,19 @@ import ApiClient from './ApiClient'
 import Query from 'graphql-query-builder'
 
 export default class {
-    static query(type, fields, filter, encodeFilter) {
+    static async query(type, fields, filter, encodeFilter) {
         return new Promise(((resolve, reject) => {
             if(filter === undefined) {
                 filter = {}
             } else {
                 if(encodeFilter === true) {
-                    filter = {
+                    let newFilter = {
                         queryString: JSON.stringify(filter)
                     }
+                    if(filter.limit) {
+                        newFilter.limit = filter.limit
+                    }
+                    filter = newFilter
                 }
             }
             let q = new Query(type, filter)
