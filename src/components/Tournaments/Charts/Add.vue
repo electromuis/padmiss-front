@@ -37,7 +37,12 @@
                         NotesWriter.setData(text)
                         NotesWriter.read()
                         let sm = NotesWriter.write()
-                        console.log(sm)
+                        console.log("." + sm + ".")
+                        console.log(NotesWriter)
+
+                        if(sm !== text) {
+                            console.log("nop")
+                        }
                     });
 
                     reader.readAsText(f);

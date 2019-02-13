@@ -27,14 +27,9 @@ export default {
         'KEYSOUNDS',
         'ATTACKS'
     ],
+    chartFields: ['type', 'credit', 'diff', 'level', 'meter'],
     out: [],
-    chart: {
-        type: "",
-        description: "",
-        credit: "",
-        diff: "Easy",
-        meter: 1
-    },
+    charts: [],
 
     setData(data) {
         this.data = data
@@ -45,26 +40,55 @@ export default {
 
         let lines = this.data.split("\n")
         let mode = "normal"
+        let c = 0
 
         let re1 = /^#(\w+):([^;]*);$/
         let re2 = /;$/
-        let re3 = /a/
+        let re3 = /\s*(.*)\s*\/\/(.*)$/
+        let re4 = /^(.*):$/
+
+        let chart = null
+
+        let notes = []
 
         let buff = ""
 
         lines.forEach(l => {
             l = l.trim()
+
+            let match = re3.exec(l)
+            if(match !== null) {
+                l = match[1]
+            }
+
+            l = l.trim()
             if(l.length === 0) {
                 return
             }
+
+            // console.log([l, mode])
 
             if(mode === "normal") {
                 let match = re1.exec(l)
                 if(match) {
                     me.handleLine(match)
                 } else {
-                    buff = l
-                    mode = "buffer"
+                    console.log(l)
+                    if(l === '#NOTES:') {
+
+                        if(chart !== null) {
+                            me.charts.push(chart)
+                        }
+
+                        notes = []
+                        chart = {notes: []}
+                        mode = "chart"
+                        c = 0
+                    } else {
+                        console.log([1, l, "buffer"])
+                        buff = l
+                        mode = "buffer"
+                    }
                 }
             } else if (mode === "buffer") {
                 buff += l
@@ -80,8 +104,41 @@ export default {
                         //todo
                     }
                 }
+            } else if (mode ===  'chart') {
+                if(c < me.chartFields.length) {
+                    let match = re4.exec(l)
+                    if(match) {
+                        chart[me.chartFields[c]] = match[1]
+                        c++
+                    } else {
+                        //ignore?
+                    }
+                }
+
+                if(c >= me.chartFields.length) {
+                    mode = 'notes'
+                }
+
+            } else if (mode === 'notes') {
+                if(l === ',') {
+                    chart.notes.push(notes)
+                    notes = []
+                } else if (l === ';') {
+                    chart.notes.push(notes)
+                    me.charts.push(chart)
+                    chart = null
+                    mode = 'normal'
+                } else {
+                    notes.push(l)
+                }
             }
+
+            // console.log(mode)
         })
+
+        if(chart !== null) {
+            me.charts.push(chart)
+        }
     },
 
     handleLine(matches) {
@@ -92,45 +149,46 @@ export default {
 
         let me = this
 
-        let k = matches[1]
-        let v = matches[2]
+        let key = matches[1]
+        let val = matches[2]
 
-        if(this.splitTags.includes(k)) {
-            // let v = v.split(',').map(i => i.trim())
-            // console.log(v)
-            //
-            // if(['STOPS', 'BPMS'].includes(k)) {
-            //     v = v.map(i => {
-            //         console.log(i)
-            //         let pts = i.split(',')
-            //         if(pts.length !== 2) {
-            //             //todo
-            //             return i
-            //         }
-            //
-            //         return me.formatDec(pts[0]) + '=' + me.formatDec(pts[1])
-            //     })
-            // }
+        if(val.length === 0) {
+            return
         }
 
-        this.info[k] = v
+        if(this.splitTags.includes(key)) {
+            val = val.split(',').map(i => i.trim())
+
+            if(['STOPS', 'BPMS'].includes(key)) {
+                val = val.map(i => {
+                    let pts = i.split(',')
+                    if(pts.length !== 2) {
+                        //todo
+                        return i
+                    }
+
+                    return me.formatDec(pts[0]) + '=' + me.formatDec(pts[1])
+                })
+            }
+        }
+
+        this.info[key] = val
     },
 
     formatDec(i) {
         i = parseFloat(i)
-        return i.toPrecision(6)
+        return i.toFixed(6)
     },
 
     write() {
         this.out = []
 
         this.writeHeader()
-        this.writeChart()
+        this.writeCharts()
 
         let ret = ""
         this.out.forEach(l => {
-            l = l.trim()
-            ret += l + "\r\n"
+            ret += l + "\n"
         })
         return ret
     },
@@ -156,33 +214,58 @@ export default {
             let val = ""
             if(me.info[t]) {
                 if(Array.isArray(me.info[t])) {
-                    if (t === 'STOPS') {
-                        val = me.info[t].join(",\r\n")
+                    if (['STOPS', 'BPMS'].includes(t)) {
+                        val = me.info[t].join(",\n") + "\n"
                     } else {
                         val = me.info[t].join(',')
                     }
                 } else {
                     //todo
                 }
+            } else {
+                if(['STOPS', 'BPMS'].includes(t)) {
+                    val = "\n"
+                }
             }
+
+            if(t === 'FGCHANGES' && val.length === 0) {
+                return
+            }
+
             this.writeTag(t, val)
         })
-
     },
 
-    writeChart() {
-        this.out.push("")
-        this.out.push("//---------------" + this.chart.type + " - " + this.chart.description +"----------------")
-        this.out.push('#NOTES:')
-        this.out.push('     ' + this.chart.type + ':')
-        this.out.push('     ' + this.chart.credit + ':')
-        this.out.push('     ' + this.chart.diff + ':')
-        this.out.push('     ' + this.chart.meter + ':')
+    writeCharts() {
+        let me = this
 
+        me.charts.forEach(chart => {
+            me.out.push("")
+            me.out.push("//---------------" + chart.type + " - " + chart.credit +"----------------")
+            me.out.push('#NOTES:')
+            me.chartFields.forEach(f => {
+                me.out.push('     ' + chart[f] + ':')
+            })
 
+            let first = true
+
+            chart.notes.forEach(n => {
+                if(first === false) {
+                    me.out.push(',')
+                }
+
+                n.forEach(l => {
+                    me.out.push(l)
+                })
+
+                first = false
+            })
+
+            me.out.push(';')
+        })
     },
 
     writeTag(tag, val) {
-        this.out.push("#" + tag + ":" + val + ";\r\n")
+        this.out.push("#" + tag + ":" + val + ";")
     }
 }
