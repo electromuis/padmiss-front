@@ -31,7 +31,9 @@
                         })
                     } else {
                         me.$api.post('/api/tournament-event-parts', data, {expectStatus: 201}).then(() => {
-                            me.$router.push(me.$eventPath + "/parts")
+                            me.$generateStructure().then((r) => {
+                                me.$router.push(me.$eventPath + "/parts")
+                            })
                         })
                     }
                 }
