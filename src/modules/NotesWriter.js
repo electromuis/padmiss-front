@@ -1,7 +1,7 @@
-export default class {
-    data = ""
-    info = {}
-    tags = [
+export default {
+    data: "",
+    info: {},
+    tags: [
         'TITLE',
         'SUBTITLE',
         'ARTIST',
@@ -18,27 +18,27 @@ export default class {
         'OFFSET',
         'SAMPLESTART',
         'SAMPLELENGTH'
-    ]
-    splitTags = [
+    ],
+    splitTags: [
         'BPMS',
         'STOPS',
         'BGCHANGES',
         'FGCHANGES',
         'KEYSOUNDS',
         'ATTACKS'
-    ]
-    out = []
-    chart = {
+    ],
+    out: [],
+    chart: {
         type: "",
         description: "",
         credit: "",
         diff: "Easy",
         meter: 1
-    }
+    },
 
     setData(data) {
         this.data = data
-    }
+    },
 
     read() {
         let me = this
@@ -68,7 +68,7 @@ export default class {
                 }
             } else if (mode === "buffer") {
                 buff += l
-                if(re2.match(l)) {
+                if(re2.exec(l)) {
                     mode = "normal"
 
                     let match = re1.exec(buff)
@@ -82,36 +82,44 @@ export default class {
                 }
             }
         })
-    }
+    },
 
     handleLine(matches) {
+        if(matches.length !== 3) {
+            //todo
+            return
+        }
+
         let me = this
 
         let k = matches[1]
         let v = matches[2]
+
         if(this.splitTags.includes(k)) {
-            let v = v.split(',').map(i => i.trim())
-
-            if(['STOPS', 'BPMS'].includes(k)) {
-                v = v.map(i => {
-                    let pts = i.split('.')
-                    if(pts.length !== 2) {
-                        //todo
-                        return i
-                    }
-
-                    return me.formatDec(pts[0]) + '=' + me.formatDec(pts[1])
-                })
-            }
+            // let v = v.split(',').map(i => i.trim())
+            // console.log(v)
+            //
+            // if(['STOPS', 'BPMS'].includes(k)) {
+            //     v = v.map(i => {
+            //         console.log(i)
+            //         let pts = i.split(',')
+            //         if(pts.length !== 2) {
+            //             //todo
+            //             return i
+            //         }
+            //
+            //         return me.formatDec(pts[0]) + '=' + me.formatDec(pts[1])
+            //     })
+            // }
         }
 
-        this.info[k] = k
-    }
+        this.info[k] = v
+    },
 
     formatDec(i) {
         i = parseFloat(i)
         return i.toPrecision(6)
-    }
+    },
 
     write() {
         this.out = []
@@ -125,7 +133,7 @@ export default class {
             ret += l + "\r\n"
         })
         return ret
-    }
+    },
 
     writeHeader() {
         let me = this
@@ -147,16 +155,20 @@ export default class {
         this.splitTags.forEach(t => {
             let val = ""
             if(me.info[t]) {
-                if(t === 'STOPS') {
-                    val = me.info[t].join(",\r\n")
+                if(Array.isArray(me.info[t])) {
+                    if (t === 'STOPS') {
+                        val = me.info[t].join(",\r\n")
+                    } else {
+                        val = me.info[t].join(',')
+                    }
                 } else {
-                    val = me.info[t].join(',')
+                    //todo
                 }
             }
             this.writeTag(t, val)
         })
 
-    }
+    },
 
     writeChart() {
         this.out.push("")
@@ -168,7 +180,7 @@ export default class {
         this.out.push('     ' + this.chart.meter + ':')
 
 
-    }
+    },
 
     writeTag(tag, val) {
         this.out.push("#" + tag + ":" + val + ";\r\n")

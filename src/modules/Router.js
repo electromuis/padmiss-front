@@ -16,6 +16,8 @@ import Tournaments from '../components/Tournaments.vue'
 import EditTournaments from '../components/Tournaments/Edit.vue'
 import DetailsTournaments from '../components/Tournaments/Details.vue'
 import DeleteTournaments from '../components/Tournaments/Delete.vue'
+import ChartsTournaments from '../components/Tournaments/Charts.vue'
+import AddChartsTournaments from '../components/Tournaments/Charts/Add.vue'
 import Events from '../components/Tournaments/Events.vue'
 import EditEvents from '../components/Tournaments/Events/Edit.vue'
 import DeleteEvents from '../components/Tournaments/Events/Delete.vue'
@@ -115,6 +117,26 @@ const routes = [
       title: 'Tournament delete',
       public: true,
       parent: 'tournaments'
+    },
+  },
+  {
+    path: '/tournaments/:tournamentId/charts',
+    component: ChartsTournaments,
+    name: 'tournament-charts',
+    meta: {
+      title: 'Tournament charts',
+      public: true,
+      parent: 'tournaments'
+    },
+  },
+  {
+    path: '/tournaments/:tournamentId/charts/add',
+    component: AddChartsTournaments,
+    name: 'tournament-charts-add',
+    meta: {
+      title: 'Tournament charts add',
+      public: true,
+      parent: 'tournaments-charts'
     },
   },
   {
