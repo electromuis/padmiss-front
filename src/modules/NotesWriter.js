@@ -161,7 +161,7 @@ export default {
 
             if(['STOPS', 'BPMS'].includes(key)) {
                 val = val.map(i => {
-                    let pts = i.split(',')
+                    let pts = i.split('=')
                     if(pts.length !== 2) {
                         //todo
                         return i
@@ -233,6 +233,49 @@ export default {
             }
 
             this.writeTag(t, val)
+        })
+    },
+
+    calcLength(chart) {
+        if(this.info['BPMS'] && Array.isArray(this.info['BPMS']) && this.info['BPMS'].length > 0) {
+          //todo make anti statement
+        } else {
+            return
+        }
+
+        let bpms = {}
+        this.info['BPMS'].forEach(b => {
+            let pts = b.split('=')
+            if(pts.length !== 2) {
+                //todo
+                return
+            }
+            bpms[parseFloat(pts[0])] = parseFloat(pts[1])
+        })
+        //seconds
+        let length = 0
+
+        //Check first bpm = 0
+        if(typeof bpms[0] === undefined) {
+            //todo
+            return
+        }
+
+        let bpmOptions = []
+
+        if(bpms.length === 0) {
+            length = (chart.notes.length - 1) * 60
+            let last = chart.notes = chart.notes[chart.notes.length]
+            let bpm = bpmOptions[last.length]
+
+        }
+
+        let first = true
+        Object.entries(bpms).forEach(([beat, bpm]) => {
+            if(first === true) {
+
+            }
+            first = false
         })
     },
 
