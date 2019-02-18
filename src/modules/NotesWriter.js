@@ -245,6 +245,8 @@ export default {
 
         let notes = chart.notes
         let bpms = []
+        let lastBeatInt = notes.length * 4
+
         this.info['BPMS'].forEach(b => {
             let pts = b.split('=')
             if(pts.length !== 2) {
@@ -252,7 +254,13 @@ export default {
                 return
             }
 
-            bpms.push([parseFloat(pts[0]), parseFloat(pts[1])])
+            let beat = parseFloat(pts[0])
+            if(beat > lastBeatInt) {
+                //We dont care about speedchanges after our last beat
+                return
+            }
+
+            bpms.push([beat, parseFloat(pts[1])])
         })
 
         //seconds
@@ -264,9 +272,34 @@ export default {
             return
         }
 
+        console.log(bpms)
         let fromBeat = 0
         let bpm = 0
-        console.log(bpms)
+
+
+
+        //Becuase NO AUDIO FILES, this might be fine
+        let lastBeat = lastBeatInt
+
+        //Does song time end at last note, or after last measure?
+        // let lastBeat = 0
+        // let lastBeatNotes = notes[notes.length - 1].reverse()
+        // let division = lastBeatNotes[lastBeatNotes.length - 1].length;
+        // let noteDivision = 0
+        //
+        // for(let i = 0; i < lastBeatNotes.length; i++) {
+        //     if(lastBeatNotes[i].replace('0', '').length !== 0) {
+        //         noteDivision = division - i
+        //         break;
+        //     }
+        // }
+        //
+        // if(noteDivision > 0) {
+        //     lastBeat = (lastBeatInt - 1) + (noteDivision / division)
+        // } else {
+        //     //todo
+        // }
+
 
         //Calculate length for all beats
         for (let i = 0; i < bpms.length; i++) {
@@ -277,7 +310,7 @@ export default {
                 toBeat = bpms[i+1][0]
             }
             else {
-                toBeat = notes.length * 4 //one measure is 4 beats
+                toBeat = lastBeat
             }
 
             let beats = toBeat - fromBeat
@@ -286,39 +319,38 @@ export default {
             if(bpm > 0) {
                 duration = 60 * beats / bpm
             } else {
-                //todo, bpm gimicks
+                //todo, test this
                 duration = 60 * beats / Math.abs(bpm)
             }
 
-            console.log([duration, length, fromBeat, toBeat, bpm, beats, beats/bpm, beats/bpm*60])
+            console.log([duration, length, fromBeat, toBeat, bpm, beats])
 
             length += duration
 
             fromBeat = toBeat
         }
 
-        //Substract last bit
-
-        let lastBeatNotes = notes[notes.length - 1].reverse()
-        let division = 0;
-        let noteDivision = 0
-
-        for(let i = 0; i < lastBeatNotes.length; i++) {
-            if(lastBeatNotes[i].replace('0', '').length !== 0) {
-                division = lastBeatNotes[i].length
-                noteDivision = i
-                break;
-            }
+        //Apply music offset
+        if(typeof this.info['OFFSET'] !== 'undefined') {
+            let offset = parseFloat(this.info['OFFSET'])
+            length -= offset
         }
 
-        if(noteDivision > 0) {
-            //todo, dont reuse bpm var, find the actual bpm of the last note becuase maybe the last bpm change is for another chart, after out last notes
+        if(typeof this.info['STOPS'] !== 'undefined') {
+            this.info['STOPS'].forEach(b => {
+                let pts = b.split('=')
+                if (pts.length !== 2) {
+                    //todo
+                    return
+                }
 
-            let duration = 60 * (noteDivision / division) / bpm
-            let beatDuration = 60 / bpm
-            // length -= beatDuration - duration
-        } else {
-            //todo
+                let beat = parseFloat(pts[0])
+                let val = parseFloat(pts[1])
+
+                //todo test negative stops
+                console.log(val)
+                length += val
+            })
         }
 
         return length

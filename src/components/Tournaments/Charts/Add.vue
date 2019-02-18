@@ -42,7 +42,7 @@
 
                         NotesWriter.charts.forEach(c => {
                             let l = NotesWriter.calcLength(c)
-                            console.log("Length: " + Math.round(l/60)+":"+(l % 60))
+                            console.log("Length: " + Math.floor(l/60)+":"+(l % 60))
                         })
 
                         if(sm !== text) {
