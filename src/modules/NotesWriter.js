@@ -243,15 +243,18 @@ export default {
             return
         }
 
-        let bpms = {}
+        let notes = chart.notes
+        let bpms = []
         this.info['BPMS'].forEach(b => {
             let pts = b.split('=')
             if(pts.length !== 2) {
                 //todo
                 return
             }
-            bpms[parseFloat(pts[0])] = parseFloat(pts[1])
+
+            bpms.push([parseFloat(pts[0]), parseFloat(pts[1])])
         })
+
         //seconds
         let length = 0
 
@@ -261,22 +264,64 @@ export default {
             return
         }
 
-        let bpmOptions = []
+        let fromBeat = 0
+        let bpm = 0
+        console.log(bpms)
 
-        if(bpms.length === 0) {
-            length = (chart.notes.length - 1) * 60
-            let last = chart.notes = chart.notes[chart.notes.length]
-            let bpm = bpmOptions[last.length]
+        //Calculate length for all beats
+        for (let i = 0; i < bpms.length; i++) {
+            bpm = bpms[i][1]
+            let toBeat = 0
 
+            if(typeof bpms[i+1] !== 'undefined') {
+                toBeat = bpms[i+1][0]
+            }
+            else {
+                toBeat = notes.length * 4 //one measure is 4 beats
+            }
+
+            let beats = toBeat - fromBeat
+            let duration = 0
+
+            if(bpm > 0) {
+                duration = 60 * beats / bpm
+            } else {
+                //todo, bpm gimicks
+                duration = 60 * beats / Math.abs(bpm)
+            }
+
+            console.log([duration, length, fromBeat, toBeat, bpm, beats, beats/bpm, beats/bpm*60])
+
+            length += duration
+
+            fromBeat = toBeat
         }
 
-        let first = true
-        Object.entries(bpms).forEach(([beat, bpm]) => {
-            if(first === true) {
+        //Substract last bit
 
+        let lastBeatNotes = notes[notes.length - 1].reverse()
+        let division = 0;
+        let noteDivision = 0
+
+        for(let i = 0; i < lastBeatNotes.length; i++) {
+            if(lastBeatNotes[i].replace('0', '').length !== 0) {
+                division = lastBeatNotes[i].length
+                noteDivision = i
+                break;
             }
-            first = false
-        })
+        }
+
+        if(noteDivision > 0) {
+            //todo, dont reuse bpm var, find the actual bpm of the last note becuase maybe the last bpm change is for another chart, after out last notes
+
+            let duration = 60 * (noteDivision / division) / bpm
+            let beatDuration = 60 / bpm
+            // length -= beatDuration - duration
+        } else {
+            //todo
+        }
+
+        return length
     },
 
     writeCharts() {

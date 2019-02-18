@@ -37,8 +37,13 @@
                         NotesWriter.setData(text)
                         NotesWriter.read()
                         let sm = NotesWriter.write()
-                        console.log("." + sm + ".")
+                        //console.log("." + sm + ".")
                         console.log(NotesWriter)
+
+                        NotesWriter.charts.forEach(c => {
+                            let l = NotesWriter.calcLength(c)
+                            console.log("Length: " + Math.round(l/60)+":"+(l % 60))
+                        })
 
                         if(sm !== text) {
                             console.log("nop")
