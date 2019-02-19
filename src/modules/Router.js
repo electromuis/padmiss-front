@@ -16,11 +16,10 @@ import Tournaments from '../components/Tournaments.vue'
 import EditTournaments from '../components/Tournaments/Edit.vue'
 import DetailsTournaments from '../components/Tournaments/Details.vue'
 import DeleteTournaments from '../components/Tournaments/Delete.vue'
-import ChartsTournaments from '../components/Tournaments/Charts.vue'
-import AddChartsTournaments from '../components/Tournaments/Charts/Add.vue'
 import Events from '../components/Tournaments/Events.vue'
 import EditEvents from '../components/Tournaments/Events/Edit.vue'
 import DeleteEvents from '../components/Tournaments/Events/Delete.vue'
+import Charts from "../components/Tournaments/Events/Charts.vue"
 import Songs from "../components/Login/Songs.vue"
 import Cabs from "../components/Cabs.vue"
 import EditCabs from "../components/Cabs/Edit.vue"
@@ -120,26 +119,6 @@ const routes = [
     },
   },
   {
-    path: '/tournaments/:tournamentId/charts',
-    component: ChartsTournaments,
-    name: 'tournament-charts',
-    meta: {
-      title: 'Tournament charts',
-      public: true,
-      parent: 'tournaments'
-    },
-  },
-  {
-    path: '/tournaments/:tournamentId/charts/add',
-    component: AddChartsTournaments,
-    name: 'tournament-charts-add',
-    meta: {
-      title: 'Tournament charts add',
-      public: true,
-      parent: 'tournaments-charts'
-    },
-  },
-  {
     path: '/tournaments/:tournamentId/events',
     component: Events,
     name: 'tournament-events',
@@ -165,6 +144,16 @@ const routes = [
     name: 'tournament-events-delete',
     meta: {
       title: 'Tournament events Delete',
+      public: true,
+      parent: 'tournament-events'
+    },
+  },
+  {
+    path: '/tournaments/:tournamentId/events/:eventId/charts',
+    component: Charts,
+    name: 'tournament-events-charts',
+    meta: {
+      title: 'Tournament events charts',
       public: true,
       parent: 'tournament-events'
     },

@@ -1,39 +1,44 @@
-export default {
-    data: "",
-    info: {},
-    tags: [
-        'TITLE',
-        'SUBTITLE',
-        'ARTIST',
-        'TITLETRANSLIT',
-        'SUBTITLETRANSLIT',
-        'ARTISTTRANSLIT',
-        'GENRE',
-        'CREDIT',
-        'BANNER',
-        'BACKGROUND',
-        'LYRICSPATH',
-        'CDTITLE',
-        'MUSIC',
-        'OFFSET',
-        'SAMPLESTART',
-        'SAMPLELENGTH'
-    ],
-    splitTags: [
-        'BPMS',
-        'STOPS',
-        'BGCHANGES',
-        'FGCHANGES',
-        'KEYSOUNDS',
-        'ATTACKS'
-    ],
-    chartFields: ['type', 'credit', 'diff', 'level', 'meter'],
-    out: [],
-    charts: [],
+class NotesWriter {
+    constructor() {
+        this.data = ""
+        this.info = {}
+
+        this.tags = [
+            'TITLE',
+            'SUBTITLE',
+            'ARTIST',
+            'TITLETRANSLIT',
+            'SUBTITLETRANSLIT',
+            'ARTISTTRANSLIT',
+            'GENRE',
+            'CREDIT',
+            'BANNER',
+            'BACKGROUND',
+            'LYRICSPATH',
+            'CDTITLE',
+            'MUSIC',
+            'OFFSET',
+            'SAMPLESTART',
+            'SAMPLELENGTH'
+        ]
+
+        this.splitTags = [
+            'BPMS',
+            'STOPS',
+            'BGCHANGES',
+            'FGCHANGES',
+            'KEYSOUNDS',
+            'ATTACKS'
+        ]
+
+        this.chartFields = ['type', 'credit', 'diff', 'level', 'meter']
+        this.out = []
+        this.charts = []
+    }
 
     setData(data) {
         this.data = data
-    },
+    }
 
     read() {
         let me = this
@@ -139,7 +144,7 @@ export default {
         if(chart !== null) {
             me.charts.push(chart)
         }
-    },
+    }
 
     handleLine(matches) {
         if(matches.length !== 3) {
@@ -173,12 +178,12 @@ export default {
         }
 
         this.info[key] = val
-    },
+    }
 
     formatDec(i) {
         i = parseFloat(i)
         return i.toFixed(6)
-    },
+    }
 
     write() {
         this.out = []
@@ -191,7 +196,7 @@ export default {
             ret += l + "\n"
         })
         return ret
-    },
+    }
 
     writeHeader() {
         let me = this
@@ -234,7 +239,7 @@ export default {
 
             this.writeTag(t, val)
         })
-    },
+    }
 
     calcLength(chart) {
         if(this.info['BPMS'] && Array.isArray(this.info['BPMS']) && this.info['BPMS'].length > 0) {
@@ -354,7 +359,7 @@ export default {
         }
 
         return length
-    },
+    }
 
     writeCharts() {
         let me = this
@@ -383,9 +388,11 @@ export default {
 
             me.out.push(';')
         })
-    },
+    }
 
     writeTag(tag, val) {
         this.out.push("#" + tag + ":" + val + ";")
     }
 }
+
+export default NotesWriter

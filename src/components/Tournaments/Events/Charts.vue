@@ -1,0 +1,153 @@
+<template>
+    <div id="tournaments">
+        Charts
+
+        <form v-bind:class="[hovering ? 'drop hover' : 'drop']" ref="drop">
+
+            Drop here to add
+
+        </form>
+
+        <div class="warnings" v-if="warnings.length > 0">
+            <p class="message" v-for="w in warnings">{{w}}</p>
+        </div>
+
+        <!--<vue-bootstrap-table-->
+                <!--:columns="columns"-->
+                <!--:values="values"-->
+                <!--:sortable="true"-->
+                <!--:paginated="true"-->
+        <!--&gt;-->
+        <!--</vue-bootstrap-table>-->
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <td>Name</td>
+                    <td>Actions</td>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="row in values">
+                    <td>{{ row.name }}</td>
+                    <td>
+                        Nothing
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</template>
+
+<script>
+    import TournamentMixin from '../../../mixins/TournamentMixin'
+    import NotesWriter from '../../../modules/NotesWriter'
+
+    export default {
+        name: "Events",
+
+        mixins: [TournamentMixin],
+
+        data() {
+            return {
+                path: "",
+                tournament: {},
+                values: [],
+                warnings: [],
+                hovering: false
+            }
+        },
+
+        created() {
+            let me = this
+
+            me.$loadTournament().then((tournament) => {
+                //load selected charts
+            })
+        },
+
+        mounted() {
+            let me = this
+
+            let e = ['drag', 'dragstart', 'dragend', 'dragover', 'dragenter', 'dragleave', 'drop']
+            e.forEach( function( evt ) {
+                this.$refs.drop.addEventListener(evt, function(e){
+                    e.preventDefault();
+                    e.stopPropagation();
+                }.bind(this), false);
+            }.bind(this));
+
+            me.$refs.drop.addEventListener('drop', e => {
+                for( let i = 0; i < e.dataTransfer.files.length; i++ ){
+                    me.handleUpload(e.dataTransfer.files[i])
+                }
+                me.hovering = false
+            })
+
+            me.$refs.drop.addEventListener('dragenter', e => {
+                me.hovering = true
+            })
+
+            me.$refs.drop.addEventListener('dragleave', e => {
+                me.hovering = false
+            })
+        },
+
+        methods: {
+            handleUpload(u) {
+                console.log(u)
+
+                let ext = u.name.split('.').pop()
+                if(ext !== 'sm') {
+                    this.warnings.push(u.name + ' is not a valid simfile')
+                }
+
+                let reader = new FileReader();
+
+                reader.addEventListener('loadend', (e) => {
+                    const text = e.srcElement.result;
+                    let writer = new NotesWriter()
+                    writer.setData(text)
+                    writer.read()
+
+                    let charts = writer.charts
+
+                    charts.forEach(c => {
+                        writer.charts = [c]
+                        let l = writer.calcLength(c)
+                        console.log("Length: " + Math.floor(l/60)+":"+(l % 60))
+                    })
+                });
+
+                reader.readAsText(u);
+            }
+        },
+
+        components: {
+        }
+    }
+</script>
+
+<style>
+    .drop {
+        background: white;
+        border: 1px grey solid;
+        border-radius: 8px;
+
+        height: 150px;
+        line-height: 150px;
+        vertical-align: middle;
+        text-align: center;
+
+        margin-bottom: 20px;
+    }
+
+    .drop.hover {
+        background: blue;
+    }
+
+    .warnings .message {
+        padding: 5px;
+        background-color: #fcf8e3;
+        margin-bottom: 4px;
+    }
+</style>

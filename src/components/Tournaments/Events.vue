@@ -27,6 +27,7 @@
                         <b-button v-on:click="$router.push({path: $tournamentPath + `/events/${row._id}/parts`})">Parts</b-button>
                         <b-button v-on:click="$router.push({path: $tournamentPath + `/events/${row._id}/edit`})">Edit</b-button>
                         <b-button v-on:click="$router.push({path: $tournamentPath + `/events/${row._id}/delete`})">Delete</b-button>
+                        <b-button v-on:click="$router.push({path: $tournamentPath + `/events/${row._id}/charts`})">Charts</b-button>
                     </td>
                 </tr>
             </tbody>

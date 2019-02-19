@@ -27,7 +27,6 @@
                         <b-button v-on:click="$router.push({path: `/tournaments/${row.id}/events`})">Events</b-button>
                         <b-button v-on:click="$router.push({path: `/tournaments/${row.id}/edit`})">Edit</b-button>
                         <b-button v-on:click="$router.push({path: `/tournaments/${row.id}/delete`})">Delete</b-button>
-                        <b-button v-on:click="$router.push({path: `/tournaments/${row.id}/charts`})">Charts</b-button>
                     </td>
                 </tr>
             </tbody>
@@ -41,18 +40,6 @@
 
         data() {
             return {
-                // columns: [
-                //     {
-                //         title: "id"
-                //     },
-                //     {
-                //         title: "name"
-                //     },
-                //     {
-                //         title: "createdAt"
-                //     }
-                // ],
-
                 values: []
             }
         },
