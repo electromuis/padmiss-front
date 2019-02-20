@@ -16,10 +16,7 @@
             handleClick(e) {
                 let me = this
 
-                me.tournament.token = localStorage.token
-                me.tournament.playerJoinRequests.push(this.$store.state.user.data.playerId)
-
-                me.$api.put('/api/tournaments/' + this.$route.params.tournamentId, me.tournament, {expectStatus: 201}).then(() => {
+                me.$api.post('/api/tournaments/' + this.$route.params.tournamentId + '/add-player-join-request', {token: localStorage.token}, {expectStatus: 201}).then(() => {
                     me.$router.push('/tournaments')
                 })
             }
