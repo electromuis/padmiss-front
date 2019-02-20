@@ -24,10 +24,14 @@
                 <tr v-for="row in values">
                     <td>{{ row.name }}</td>
                     <td>
-                        <b-button v-on:click="$router.push({path: `/tournaments/${row.id}/players`})">Players</b-button>
-                        <b-button v-on:click="$router.push({path: `/tournaments/${row.id}/events`})">Events</b-button>
-                        <b-button v-on:click="$router.push({path: `/tournaments/${row.id}/edit`})">Edit</b-button>
-                        <b-button v-on:click="$router.push({path: `/tournaments/${row.id}/delete`})">Delete</b-button>
+                        <b-button v-if="$can('join-tournament', row)" v-on:click="$router.push({path: `/tournaments/${row.id}/join`})">Join</b-button>
+
+                        <template v-if="$can('edit-tournament')">
+                            <b-button v-on:click="$router.push({path: `/tournaments/${row.id}/players`})">Players</b-button>
+                            <b-button v-on:click="$router.push({path: `/tournaments/${row.id}/events`})">Events</b-button>
+                            <b-button v-on:click="$router.push({path: `/tournaments/${row.id}/edit`})">Edit</b-button>
+                            <b-button v-on:click="$router.push({path: `/tournaments/${row.id}/delete`})">Delete</b-button>
+                        </template>
                     </td>
                 </tr>
             </tbody>
@@ -36,8 +40,10 @@
 </template>
 
 <script>
+    import AuthMixin from '../mixins/AuthMixin'
+
     export default {
-        name: "Event",
+        mixins: [AuthMixin],
 
         data() {
             return {

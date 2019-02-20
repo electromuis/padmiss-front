@@ -8,13 +8,11 @@
 </template>
 
 <script>
-    import TournamentMixin from '../../mixins/TournamentMixin'
-    import Players from '../Custom/Players.vue'
+    import TournamentMixin from '../../../mixins/TournamentMixin'
+    import Players from '../../Custom/Players.vue'
     import Loading from 'vue-loading-overlay';
 
     export default {
-        name: "Events",
-
         mixins: [TournamentMixin],
 
         methods: {
@@ -22,23 +20,23 @@
                 // console.log(this.players)
 
                 this.loading = true
-                this.updateTournament().then(() => {
+                this.updateEvent().then(() => {
+
                     this.loading = false
                 })
             },
 
-            updateTournament() {
+            updateEvent() {
                 let me = this
 
                 return new Promise(((resolve, reject) => {
                     let data = me.tournament
 
                     data.token = localStorage.token,
-                    data.playerJoinRequests = me.players.join.map(p => p.id)
                     data.players = this.players.current.map(p => p.id)
                     data.disqualifiedPlayers = this.players.disqualified.map(p => p.id)
 
-                    me.$api.put('/api/tournaments/' + this.$route.params.tournamentId, data, {expectStatus: 201}).then(() => {
+                    me.$api.put('/api/tournament-events/' + this.$route.params.eventId, data, {expectStatus: 201}).then(() => {
                         me.loading = false
                     })
                 }))
@@ -53,7 +51,6 @@
                 groups: [],
                 players: {
                     all: [],
-                    join: [],
                     current: [],
                     disqualified: []
                 }
@@ -68,36 +65,35 @@
                     'Players',
                     {docs: ['_id', 'nickname']}
                 ),
-                me.$loadTournament(true)
+                me.$loadTournament(true),
+                me.$loadEvent()
             ])
            .then(response => {
-               let players = response[0].docs
                let playerMap = {}
 
-               let join = response[1].playerJoinRequests
-               let current = response[1].players
-               let disqualified = response[1].disqualifiedPlayers
-
-               let all = players.filter(p => {
+               response[0].docs.forEach(p => {
                    playerMap[p._id] = {
                        id: p._id,
                        name: p.nickname
                    }
+               })
 
+               let current = response[2].players
+               let disqualified = response[2].disqualifiedPlayers
+
+               let all = response[1].players.filter(p => {
                    let ret =
-                        join.indexOf(p._id) < 0 &&
-                        current.indexOf(p._id) < 0 &&
-                        disqualified.indexOf(p._id) < 0
+                        current.indexOf(p) < 0 &&
+                        disqualified.indexOf(p) < 0
 
                    return ret
                })
 
-               me.players.all = all.map(p => playerMap[p._id])
-               me.players.join = join.map(p => playerMap[p])
+               me.players.all = all.map(p => playerMap[p])
                me.players.current = current.map(p => playerMap[p])
                me.players.disqualified = disqualified.map(p => playerMap[p])
 
-               me.groups = ['all', 'join', 'current', 'disqualified']
+               me.groups = ['all', 'current', 'disqualified']
 
                me.loading = false
            })

@@ -14,10 +14,11 @@ import Settings from '../components/Login/Settings.vue'
 import Home from '../components/Home.vue'
 import Tournaments from '../components/Tournaments.vue'
 import EditTournaments from '../components/Tournaments/Edit.vue'
-import DetailsTournaments from '../components/Tournaments/Details.vue'
 import DeleteTournaments from '../components/Tournaments/Delete.vue'
 import PlayersTournaments from '../components/Tournaments/Players.vue'
+import JoinTournaments from '../components/Tournaments/Join.vue'
 import Events from '../components/Tournaments/Events.vue'
+import PlayersEvents from '../components/Tournaments/Events/Players.vue'
 import EditEvents from '../components/Tournaments/Events/Edit.vue'
 import DeleteEvents from '../components/Tournaments/Events/Delete.vue'
 import Charts from "../components/Tournaments/Events/Charts.vue"
@@ -28,6 +29,7 @@ import DeleteCabs from "../components/Cabs/Delete.vue"
 import Parts from "../components/Tournaments/Events/Parts.vue"
 import EditParts from "../components/Tournaments/Events/Parts/Edit.vue"
 import DeleteParts from "../components/Tournaments/Events/Parts/Delete.vue"
+import StartParts from "../components/Tournaments/Events/Parts/Start.vue"
 import Rounds from "../components/Tournaments/Events/Parts/Rounds.vue"
 import EditRounds from "../components/Tournaments/Events/Parts/Rounds/Edit.vue"
 import DeleteRounds from "../components/Tournaments/Events/Parts/Rounds/Delete.vue"
@@ -100,16 +102,6 @@ const routes = [
     },
   },
   {
-    path: '/tournaments/:tournamentId/details',
-    component: DetailsTournaments,
-    name: 'tournament-details',
-    meta: {
-      title: 'Tournament details',
-      public: true,
-      parent: 'tournaments'
-    },
-  },
-  {
     path: '/tournaments/:tournamentId/delete',
     component: DeleteTournaments,
     name: 'tournament-delete',
@@ -122,9 +114,19 @@ const routes = [
   {
     path: '/tournaments/:tournamentId/players',
     component: PlayersTournaments,
-    name: 'tournament-events-players',
+    name: 'tournament-players',
     meta: {
       title: 'Tournament players',
+      public: true,
+      parent: 'tournaments'
+    },
+  },
+  {
+    path: '/tournaments/:tournamentId/join',
+    component: JoinTournaments,
+    name: 'tournament-events-join',
+    meta: {
+      title: 'Tournament join',
       public: true,
       parent: 'tournaments'
     },
@@ -170,6 +172,16 @@ const routes = [
     },
   },
   {
+    path: '/tournaments/:tournamentId/events/:eventId/players',
+    component: PlayersEvents,
+    name: 'tournament-events-players',
+    meta: {
+      title: 'Tournament events players',
+      public: true,
+      parent: 'tournament-events'
+    },
+  },
+  {
     path: '/tournaments/:tournamentId/events/:eventId/parts',
     component: Parts,
     name: 'tournament-events-parts',
@@ -195,6 +207,16 @@ const routes = [
     name: 'tournament-events-parts-delete',
     meta: {
       title: 'Tournament events parts delete',
+      public: true,
+      parent: 'tournament-events-parts'
+    },
+  },
+  {
+    path: '/tournaments/:tournamentId/events/:eventId/parts/:partId/start',
+    component: StartParts,
+    name: 'tournament-events-parts-start',
+    meta: {
+      title: 'Tournament events parts start',
       public: true,
       parent: 'tournament-events-parts'
     },

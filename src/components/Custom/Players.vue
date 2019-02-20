@@ -6,7 +6,7 @@
         <div class="group" v-for="group in groups">
             {{group}}
             <draggable v-model="players[group]" class="dragArea" :options="{group:'players'}" @end="handleMove" :group="group">
-                <div class="player" v-if="filterPlayers(player)" v-for="player in players[group]" :data-player="player.id">
+                <div class="player" v-for="player in players[group]" v-if="filterPlayers(player, group)" :data-player="player.id">
                     {{player.name}}
                 </div>
             </draggable>
@@ -21,10 +21,12 @@
         name: "Players",
 
         methods: {
-            filterPlayers(p) {
+            filterPlayers(p, group) {
                 if(this.filter.length === 0) {
                     return true
                 }
+
+                console.log(p, group)
 
                 return p.name.toLowerCase().indexOf(this.filter.toLowerCase()) > -1
             },

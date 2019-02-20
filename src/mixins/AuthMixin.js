@@ -42,6 +42,10 @@ export default {
     $isLoggedIn() {
       return !!this.$store.state.user
     },
+
+    $isAdmin() {
+      return true
+    }
   },
 
   methods: {
@@ -164,6 +168,30 @@ export default {
       if (localStorage.token) {
         delete localStorage.token
       }
+    },
+
+    $can(action, what) {
+      switch (action) {
+        case 'join-tournament':
+          if(this.$isLoggedIn === false) {
+            return false
+          }
+
+          if(what.players.indexOf(this.$store.state.user.data.playerId) > -1) {
+            return false
+          }
+
+          if(what.playerJoinRequests.indexOf(this.$store.state.user.data.playerId) > -1) {
+            return false
+          }
+
+          return true
+
+        case 'edit-tournament':
+          return this.$isAdmin
+      }
+
+      return false
     }
   }
 }

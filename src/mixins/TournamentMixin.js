@@ -46,7 +46,12 @@ export default {
                    ).then((tournament) => {
                        tournament.tournamentAdmin = tournament.tournamentAdmin._id
                        tournament.tournamentManagers = tournament.tournamentManagers.map(u => u._id)
+
                        tournament.arcadeCabs = tournament.arcadeCabs.map(u => u._id)
+
+                       tournament.players = tournament.players.map(p => p._id)
+                       tournament.disqualifiedPlayers = tournament.disqualifiedPlayers.map(p => p._id)
+                       tournament.playerJoinRequests = tournament.playerJoinRequests.map(p => p._id)
 
                        me.tournament = tournament
                        resolve(tournament)
@@ -106,15 +111,28 @@ export default {
         $loadEvent() {
             let me = this
 
-            return new Promise(((resolve, reject) => {
-                this.$api.get('/api/tournament-events/' + me.$route.params.eventId).then((event) => {
+            return new Promise((resolve, reject) => {
+                this.$graph.query(
+                    'TournamentEvent',
+                    [
+                        'name',
+                        'status',
+                        'isCountedToTournamentPoints',
+                        {'players': ['_id']},
+                        {'disqualifiedPlayers': ['_id']},
+                    ],
+                    {'id': me.$route.params.eventId}
+                ).then(event => {
+                    event.players = event.players.map(u => u._id)
+                    event.disqualifiedPlayers = event.disqualifiedPlayers.map(u => u._id)
+
                     me.event = event
                     resolve(event)
                 }).catch((e) => {
                     reject(e)
                     me.$router.push('/tournaments')
                 })
-            }))
+            })
         },
 
         $loadPart() {
