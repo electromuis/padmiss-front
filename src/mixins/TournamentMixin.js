@@ -30,11 +30,17 @@ export default {
                        [
                            'name',
                            'description',
+                           'status',
+                           'appIds',
                            'startDate',
                            'endDate',
                            {'tournamentAdmin': ['_id']},
                            {'tournamentManagers': ['_id']},
-                           {'arcadeCabs': ['_id']}
+                           {'arcadeCabs': ['_id']},
+
+                           {'playerJoinRequests': ['_id']},
+                           {'players': ['_id']},
+                           {'disqualifiedPlayers': ['_id']},
                        ],
                        {'id': me.$route.params.tournamentId}
                    ).then((tournament) => {
