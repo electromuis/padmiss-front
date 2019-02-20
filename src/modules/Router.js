@@ -16,6 +16,7 @@ import Tournaments from '../components/Tournaments.vue'
 import EditTournaments from '../components/Tournaments/Edit.vue'
 import DetailsTournaments from '../components/Tournaments/Details.vue'
 import DeleteTournaments from '../components/Tournaments/Delete.vue'
+import PlayersTournaments from '../components/Tournaments/Players.vue'
 import Events from '../components/Tournaments/Events.vue'
 import EditEvents from '../components/Tournaments/Events/Edit.vue'
 import DeleteEvents from '../components/Tournaments/Events/Delete.vue'
@@ -114,6 +115,16 @@ const routes = [
     name: 'tournament-delete',
     meta: {
       title: 'Tournament delete',
+      public: true,
+      parent: 'tournaments'
+    },
+  },
+  {
+    path: '/tournaments/:tournamentId/players',
+    component: PlayersTournaments,
+    name: 'tournament-events-players',
+    meta: {
+      title: 'Tournament players',
       public: true,
       parent: 'tournaments'
     },
