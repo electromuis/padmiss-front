@@ -1,5 +1,5 @@
 <template>
-    <loading v-if="loading" :active="true"></loading>
+
     <div v-else class="structure">
         Event part structure<br/>
 
@@ -31,8 +31,7 @@
             Promise.all([
                 me.$loadTournament(),
                 me.$loadEvent(),
-                me.$loadPart(),
-                me.$loadRound()
+                me.$loadPart()
             ]).then((r) => {
                 me.loading = false
             })
@@ -41,11 +40,11 @@
         data () {
             return {
                 loading: true,
-                type: ""
+                type: "SingleElimination"
             }
         },
 
-        comments: {
+        components: {
             DoubleElimination,
             SingleElimination,
             RoundRobin,

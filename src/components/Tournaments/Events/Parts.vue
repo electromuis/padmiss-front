@@ -22,6 +22,7 @@
                         <b-button v-on:click="$router.push({path: $eventPath + `/parts/${row._id}/rounds`})">Rounds</b-button>
                         <b-button v-on:click="$router.push({path: $eventPath + `/parts/${row._id}/edit`})">Edit</b-button>
                         <b-button v-on:click="$router.push({path: $eventPath + `/parts/${row._id}/delete`})">Delete</b-button>
+                        <b-button v-on:click="$router.push({path: $eventPath + `/parts/${row._id}/structure`})">Structure</b-button>
                         <b-button v-if="row.status === 'New'" v-on:click="$router.push({path: $eventPath + `/parts/${row._id}/start`})">Start</b-button>
                     </td>
                 </tr>
