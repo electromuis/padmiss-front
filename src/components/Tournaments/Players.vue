@@ -3,7 +3,7 @@
     <div v-else id="tournaments">
         Players
 
-        <Players :groups="groups" :players="players" :dragged="handleMove"/>
+        <Players :groups="groups" :players="players" :dragged="handleMove" :allowed-moves="moves"/>
     </div>
 </template>
 
@@ -19,12 +19,46 @@
 
         methods: {
             handleMove(player, from, to) {
-                // console.log(this.players)
+
+                let me = this
 
                 this.loading = true
-                this.updateTournament().then(() => {
+
+                if(from === 'join' && to === 'current') {
+                    let data = {
+                        token: localStorage.token,
+                        playerId: player.id
+                    }
+
+                    me.$api.post('/api/tournaments/' + me.$route.params.tournamentId + '/approve-player-join-request', data, {expectStatus: 204}).then(() => {
+                        me.loading = false
+                    })
+                } else if (from === 'join' && to === 'all') {
+                    let data = {
+                        token: localStorage.token,
+                        playerId: player.id
+                    }
+
+                    me.$api.post('/api/tournaments/' + me.$route.params.tournamentId + '/decline-player-join-request', data, {expectStatus: 204}).then(() => {
+                        me.loading = false
+                    })
+                } else if (from === 'current' && to === 'disqualified') {
+                    let data = {
+                        token: localStorage.token,
+                        playerId: player.id
+                    }
+
+                    me.$api.post('/api/tournaments/' + me.$route.params.tournamentId + '/disqualify-player', data, {expectStatus: 204}).then(() => {
+                        me.loading = false
+                    })
+                } else {
                     this.loading = false
-                })
+                }
+
+                // if admin
+                // this.updateTournament().then(() => {
+                //     this.loading = false
+                // })
             },
 
             updateTournament() {
@@ -56,7 +90,13 @@
                     join: [],
                     current: [],
                     disqualified: []
-                }
+                },
+                //if admin
+                moves: [
+                    ['join', 'current'],
+                    ['join', 'all'],
+                    ['current', 'disqualified']
+                ]
             }
         },
 

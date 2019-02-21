@@ -5,7 +5,7 @@
         </div>
         <div class="group" v-for="group in groups">
             {{group}}
-            <draggable v-model="players[group]" class="dragArea" :options="{group:'players'}" @end="handleMove" :group="group">
+            <draggable v-model="players[group]" class="dragArea" :options="{group:'players'}" @end="handleMove" :group="group" :move="checkMove">
                 <div class="player" v-for="player in players[group]" v-if="filterPlayers(player, group)" :data-player="player.id">
                     {{player.name}}
                 </div>
@@ -26,30 +26,58 @@
                     return true
                 }
 
-                console.log(p, group)
-
                 return p.name.toLowerCase().indexOf(this.filter.toLowerCase()) > -1
             },
 
             handleMove(e) {
                 //could also do a deep watch of the players var?
+                let me = this
+                let all = {}
+
+                this.groups.forEach(g => {
+                    me.players[g].forEach(p => {
+                        all[p.id] = p
+                    })
+                })
 
                 let from = e.from.attributes['group'].nodeValue
                 let to = e.to.attributes['group'].nodeValue
 
-                let playerId = e.item.attributes['data-player'].nodeValue
-                let player = this.players[from].filter(p => p.id == playerId)[0]
+                let playerId = e.clone.attributes['data-player'].nodeValue
+                let player = all[playerId]
 
-                if(typeof this.$props.dragged !== "undefined") {
-                    this.$props.dragged(player, from, to)
+                if(typeof me.$props.dragged !== "undefined") {
+                    me.$props.dragged(player, from, to)
                 }
+            },
+
+            checkMove(e)
+            {
+                let from = e.from.attributes['group'].nodeValue
+                let to = e.to.attributes['group'].nodeValue
+
+                if(from === to) {
+                    return true
+                }
+
+                if(Array.isArray(this.$props.allowedMoves)) {
+
+                    if(this.$props.allowedMoves.filter(i => {
+                        return i[0] === from && i[1] === to
+                    }).length > 0) {
+                        return true
+                    } else {
+                        return false
+                    }
+                }
+
+                return true
             }
         },
 
         data() {
             return {
-                filter: "",
-                all: []
+                filter: ""
             }
         },
 
@@ -58,13 +86,8 @@
         //         handler() {
         //             let me = this
         //             this.all = {}
-        //             let new =
         //
-        //             this.groups.forEach(g => {
-        //                 me.players[g].forEach(p => {
-        //                     me.all[p.id] = p
-        //                 })
-        //             })
+        //
         //         },
         //         deep: true
         //     }
@@ -73,7 +96,8 @@
         props: {
             groups: Array,
             players: Object,
-            dragged: Function
+            dragged: Function,
+            allowedMoves: Array
         },
 
         components: {
