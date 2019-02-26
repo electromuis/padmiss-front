@@ -1,17 +1,16 @@
 <template>
-    <div class="bracket">
+    <loading v-if="loading" :active="true"></loading>
+    <div v-else class="bracket">
         <svg class="lines-overlay" id="lines-overlay">
             <line v-for="line in lines" :x1="line.x1" :x2="line.x2" :y1="line.y1" :y2="line.y2" style="stroke:rgb(255,0,0);stroke-width:2"></line>
         </svg>
 
         <div class="round" v-for="(round, i) in rounds" v-bind:style="roundStyle">
-
-            <div class="match spacer"></div>
-            <div class="match" v-for="match in round.matches" :ref="'match-' + match.id">
+            <div class="match" v-for="match in round.matches" :ref="'match-' + match._id">
 
                 <div class="player" v-for="player in match.players">
 
-                    {{player.name}}
+                    {{player.nickname}}
 
                 </div>
 
@@ -25,6 +24,7 @@
 
 <script>
     import TournamentMixin from "../../../../../mixins/TournamentMixin";
+    import Loading from 'vue-loading-overlay';
 
     export default {
         name: "SingleElimination",
@@ -33,6 +33,8 @@
 
         methods: {
             update() {
+                console.log("update")
+
                 let me = this
                 this.lines = []
 
@@ -43,7 +45,13 @@
 
                     Object.entries(round.matches).forEach(([m, match]) => {
                         m = parseInt(m)
-                        let melm = this.$refs['match-' + match.id][0]
+
+                        if(typeof me.$refs['match-' + match._id] === 'undefined') {
+                            console.log(['match-' + match._id, me.$refs])
+                            return
+                        }
+
+                        let melm = me.$refs['match-' + match._id][0]
                         let width = roundWidth - melm.offsetWidth
 
                         if(typeof me.rounds[r-1] !== 'undefined') {
@@ -52,50 +60,51 @@
                             let match1 = lastRound.matches[m*2]
                             let match2 = lastRound.matches[m*2+1]
 
-                            let elm1 = me.$refs['match-' + match1.id][0]
-                            let elm2 = me.$refs['match-' + match2.id][0]
+                            if(me.$refs['match-' + match1._id] && me.$refs['match-' + match2._id]) {
 
-                            let elmh = elm1.offsetTop + (elm2.offsetTop - elm1.offsetTop) / 2 + elm1.offsetHeight / 2
+                                let elm1 = me.$refs['match-' + match1._id][0]
+                                let elm2 = me.$refs['match-' + match2._id][0]
 
-                            me.lines.push({
-                                x1: melm.offsetLeft,
-                                x2: melm.offsetLeft - width / 4,
+                                let elmh = elm1.offsetTop + (elm2.offsetTop - elm1.offsetTop) / 2 + elm1.offsetHeight / 2
 
-                                y1: melm.offsetTop + melm.offsetHeight / 2,
-                                y2: melm.offsetTop + melm.offsetHeight / 2
-                            })
+                                me.lines.push({
+                                    x1: melm.offsetLeft,
+                                    x2: melm.offsetLeft - width / 4,
 
-                            me.lines.push({
-                                x1: melm.offsetLeft - width / 4,
-                                x2: melm.offsetLeft - width / 4,
+                                    y1: melm.offsetTop + melm.offsetHeight / 2,
+                                    y2: melm.offsetTop + melm.offsetHeight / 2
+                                })
 
-                                y1: melm.offsetTop + melm.offsetHeight / 2,
-                                y2: elmh
-                            })
+                                me.lines.push({
+                                    x1: melm.offsetLeft - width / 4,
+                                    x2: melm.offsetLeft - width / 4,
 
-                            me.lines.push({
-                                x1: melm.offsetLeft - width / 2,
-                                x2: melm.offsetLeft - width / 4,
+                                    y1: melm.offsetTop + melm.offsetHeight / 2,
+                                    y2: elmh
+                                })
 
-                                y1: elmh,
-                                y2: elmh
-                            })
+                                me.lines.push({
+                                    x1: melm.offsetLeft - width / 2,
+                                    x2: melm.offsetLeft - width / 4,
 
-                            me.lines.push({
-                                x1: elm1.offsetLeft + elm1.offsetWidth + width / 2,
-                                x2: elm1.offsetLeft + elm2.offsetWidth + width / 2,
+                                    y1: elmh,
+                                    y2: elmh
+                                })
 
-                                y1: elm1.offsetTop + elm1.offsetHeight / 2,
-                                y2: elm2.offsetTop + elm2.offsetHeight / 2
-                            })
+                                me.lines.push({
+                                    x1: elm1.offsetLeft + elm1.offsetWidth + width / 2,
+                                    x2: elm1.offsetLeft + elm2.offsetWidth + width / 2,
 
-                            return
+                                    y1: elm1.offsetTop + elm1.offsetHeight / 2,
+                                    y2: elm2.offsetTop + elm2.offsetHeight / 2
+                                })
+                            }
                         }
 
                         if(typeof me.rounds[r+1] !== 'undefined') {
                             let nextRound = me.rounds[r+1]
                             let nextMatch = nextRound.matches[Math.floor(m / 2)]
-                            let nmeml = me.$refs['match-' + nextMatch.id][0]
+                            let nmeml = me.$refs['match-' + nextMatch._id][0]
 
                             me.lines.push({
                                 x1: melm.offsetLeft + melm.offsetWidth,
@@ -104,71 +113,93 @@
                                 y1: melm.offsetTop + melm.offsetHeight / 2,
                                 y2: melm.offsetTop + melm.offsetHeight / 2
                             })
-
-                            // me.lines.push({
-                            //     x1: melm.offsetLeft + melm.offsetWidth + width / 2,
-                            //     x2: melm.offsetLeft + melm.offsetWidth + width / 2,
-                            //
-                            //     y1: melm.offsetTop + melm.offsetHeight / 2,
-                            //     y2: nmeml.offsetTop + (nmeml.offsetHeight * 0.25)
-                            // })
                         }
 
                     })
                 })
+            },
+
+            async loadData() {
+                let me = this
+
+                let tournament = await this.$loadTournament()
+                let part = await this.$loadPart()
+                let rounds = await this.$graph.query(
+                    'Rounds',
+                    {docs: [
+                            '_id',
+                            'name',
+                            'status'
+                        ]},
+                    {tournamentEventPartId: me.part._id},
+                    true
+                )
+                rounds = rounds.docs
+
+                for(let i = 0; i < rounds.length; i ++) {
+                    let r = rounds[i]
+
+                    let matches = await me.$graph.query(
+                        'Matches',
+                        {docs: [
+                                '_id',
+                                'status',
+                                {players: ['_id']}
+                            ]},
+                        {roundId: r._id},
+                        true
+                    )
+                    matches = matches.docs
+
+                    for(let x = 0; x < matches.length; x ++) {
+                        let m = matches[x]
+
+                        m.name = 'Match ' + m._id
+                        let ids = m.players
+                        m.players = []
+
+                        for(let y = 0; y < ids.length; y++) {
+                            let player = await me.$graph.query(
+                                'Player',
+                                [
+                                    '_id',
+                                    'nickname',
+                                    'shortNickname',
+                                    {country: ['_id']},
+                                    //And the other fields
+                                ],
+                                {id: ids[y]._id}
+                            )
+
+                            m.players.push(player)
+                        }
+                    }
+
+                    r.matches = matches
+                }
+
+                return rounds
             }
         },
 
         mounted() {
-            this.update()
+            let me = this
+
+            this.loadData().then((rounds) => {
+                me.rounds = rounds
+                me.loading = false
+                console.log(rounds)
+                me.update()
+
+                me.$nextTick(() => {
+                    me.update()
+                })
+
+            })
         },
 
         created() {
             let me = this
-
-            //todo from vueX or property
-            me.$loadTournament().then(tournament => {
-                me.$loadPart().then(part => {
-                    me.$graph.query(
-                        'Rounds',
-                        {docs: [
-                            'name',
-                            'status'
-                        ]},
-                        {tournamentEventPartId: me.part._id},
-                        true
-                    ).then(rounds => {
-                        rounds = rounds.docs
-
-                        Promise.all(rounds.map(round => {
-                            return new Promise(((resolve, reject) => {
-                                me.$graph.query(
-                                    'Matches',
-                                    {docs: [
-                                            '_id',
-                                            'status',
-                                            {players: ['_id']}
-                                        ]},
-                                    {roundId: round._id},
-                                    true
-                                ).then(matches => {
-                                    matches.docs.forEach(m => {
-                                        m.players = [
-                                            {id: 1, name: 'peter'},
-                                            {id: 2, name: 'peter2'}
-                                        ]
-                                    })
-                                    round.matches = matches.docs
-                                    resolve()
-                                })
-                            }))
-                        })).then(
-                            me.loading = false
-                            me.rounds = rounds
-                        )
-                    })
-                })
-            })
         },
 
         data() {
@@ -278,7 +309,20 @@
                     // }
                 ]
             }
-        }
+        },
+
+        components: {
+            "loading": Loading
+        },
+
+        watch: {
+            rounds: {
+                handler() {
+                    this.update()
+                },
+                deep: true
+            }
+        },
     }
 </script>
 

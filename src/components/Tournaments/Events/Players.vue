@@ -31,6 +31,7 @@
 
                 return new Promise(((resolve, reject) => {
                     let data = me.tournament
+                    delete data._id
 
                     data.token = localStorage.token,
                     data.players = this.players.current.map(p => p.id)

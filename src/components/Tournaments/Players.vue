@@ -9,13 +9,14 @@
 
 <script>
     import TournamentMixin from '../../mixins/TournamentMixin'
+    import AuthMixin from '../../mixins/AuthMixin'
     import Players from '../Custom/Players.vue'
     import Loading from 'vue-loading-overlay';
 
     export default {
         name: "Events",
 
-        mixins: [TournamentMixin],
+        mixins: [TournamentMixin, AuthMixin],
 
         methods: {
             handleMove(player, from, to) {
@@ -23,6 +24,14 @@
                 let me = this
 
                 this.loading = true
+                if(this.$can('admin-users-tournament', me.tournament)) {
+                    this.updateTournament().then(() => {
+                        this.loading = false
+                    })
+
+                    return
+                }
+
 
                 if(from === 'join' && to === 'current') {
                     let data = {
@@ -54,11 +63,6 @@
                 } else {
                     this.loading = false
                 }
-
-                // if admin
-                // this.updateTournament().then(() => {
-                //     this.loading = false
-                // })
             },
 
             updateTournament() {
@@ -102,6 +106,10 @@
 
         created() {
             let me = this
+
+            if(this.$can('admin-users-tournament', me.tournament)) {
+                me.moves = null
+            }
 
             Promise.all([
                 me.$graph.query(

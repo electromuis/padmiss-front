@@ -23,52 +23,43 @@ export default {
         $loadTournament(full) {
             let me = this
 
-            return new Promise(((resolve, reject) => {
-               if(full === true) {
-                   this.$graph.query(
-                       'Tournament',
-                       [
-                           'name',
-                           'description',
-                           'status',
-                           'appIds',
-                           'startDate',
-                           'endDate',
-                           {'tournamentAdmin': ['_id']},
-                           {'tournamentManagers': ['_id']},
-                           {'arcadeCabs': ['_id']},
+            return new Promise((resolve, reject) => {
+               this.$graph.query(
+                   'Tournament',
+                   [
+                       '_id',
+                       'name',
+                       'description',
+                       'status',
+                       'appIds',
+                       'startDate',
+                       'endDate',
+                       {'tournamentAdmin': ['_id']},
+                       {'tournamentManagers': ['_id']},
+                       {'arcadeCabs': ['_id']},
 
-                           {'playerJoinRequests': ['_id']},
-                           {'players': ['_id']},
-                           {'disqualifiedPlayers': ['_id']},
-                       ],
-                       {'id': me.$route.params.tournamentId}
-                   ).then((tournament) => {
-                       tournament.tournamentAdmin = tournament.tournamentAdmin._id
-                       tournament.tournamentManagers = tournament.tournamentManagers.map(u => u._id)
+                       {'playerJoinRequests': ['_id']},
+                       {'players': ['_id']},
+                       {'disqualifiedPlayers': ['_id']},
+                   ],
+                   {'id': me.$route.params.tournamentId}
+               ).then((tournament) => {
+                   tournament.tournamentAdmin = tournament.tournamentAdmin._id
+                   tournament.tournamentManagers = tournament.tournamentManagers.map(u => u._id)
 
-                       tournament.arcadeCabs = tournament.arcadeCabs.map(u => u._id)
+                   tournament.arcadeCabs = tournament.arcadeCabs.map(u => u._id)
 
-                       tournament.players = tournament.players.map(p => p._id)
-                       tournament.disqualifiedPlayers = tournament.disqualifiedPlayers.map(p => p._id)
-                       tournament.playerJoinRequests = tournament.playerJoinRequests.map(p => p._id)
+                   tournament.players = tournament.players.map(p => p._id)
+                   tournament.disqualifiedPlayers = tournament.disqualifiedPlayers.map(p => p._id)
+                   tournament.playerJoinRequests = tournament.playerJoinRequests.map(p => p._id)
 
-                       me.tournament = tournament
-                       resolve(tournament)
-                   }).catch((e) => {
-                       reject(e)
-                       me.$router.push('/tournaments')
-                   })
-               } else {
-                   this.$api.get('/api/tournaments/' + me.$route.params.tournamentId).then((tournament) => {
-                       me.tournament = tournament
-                       resolve(tournament)
-                   }).catch((e) => {
-                       reject(e)
-                       me.$router.push('/tournaments')
-                   })
-               }
-            }))
+                   me.tournament = tournament
+                   resolve(tournament)
+               }).catch((e) => {
+                   reject(e)
+                   me.$router.push('/tournaments')
+               })
+           })
         },
 
         $getCabValues(forTournament) {
@@ -115,6 +106,7 @@ export default {
                 this.$graph.query(
                     'TournamentEvent',
                     [
+                        '_id',
                         'name',
                         'status',
                         'isCountedToTournamentPoints',
@@ -189,100 +181,135 @@ export default {
             }))
         },
 
-        $generateStructure() {
+        async $generateStructure() {
             let me = this
 
-            this.$getCabValues(true).then((cabs) => {
+            let cabs = await this.$getCabValues(true)
 
-                if(this.part.roundType === 'SingleElimination') {
-                    let bestOff = 1
+            if(this.part.roundType === 'SingleElimination') {
+                let bestOff = 1
 
-                    this.$graph().query(
-                        'TournamentEventPart',
-                        {docs: {players: ['_id']}},
-                        {_id: this.part._id}
-                    ).then(result => {
-                        let players = result.docs.players
-                        let c = 0
+                let result = await this.$graph.query(
+                    'TournamentEvent',
+                    [{players: ['_id']}],
+                    {id: me.event._id}
+                )
 
-                        if(players.length % 2 !== 0) {
-                            return false;
-                        }
+                let players = result.players
+                let c = 0
 
-                        let roundBase = {
-                            token: localStorage.token,
-                            tournamentId: me.tournament._id,
-                            tournamentEventPartId: me.part._id,
-                            roundType: me.part.roundType,
-                            playMode: "Single",
-                            name: "Round 1",
-                            status: "New",
-                            bestOfCount: bestOff,
-                            arcadeCabs: cabs,
-                            players: players
-                        }
-
-                        me.$api.post('/api/round', row, {expectStatus: 201}).then(roundBase => {
-
-                            let battles = 0
-                            for(let i = 0; i < players.length; i += 2) {
-
-                                let row = {
-                                    token: localStorage.token,
-                                    tournamentId: me.tournament._id,
-                                    roundId: round._id,
-                                    status: "New",
-                                    roundType: me.part.roundType,
-                                    playMode: "Single",
-                                    bestOfCount: bestOff,
-                                    arcadeCabs: [cabs[c].id],
-                                    players: [players[i], players[i+1]]
-                                }
-
-                                me.$api.post('/api/match', row, {expectStatus: 201})
-                                battles ++
-
-                                c++
-                                if(c >= cabs.length) {
-                                    c = 0
-                                }
-                            }
-
-                            delete roundBase.players
-
-                            let r = 1
-                            while (battles > 0) {
-                                roundBase.name = "Round " + r
-                                r++
-
-                                me.$api.post('/api/round', roundBase, {expectStatus: 201}).then(round => {
-                                    let row = {
-                                        token: localStorage.token,
-                                        tournamentId: me.tournament._id,
-                                        roundId: round._id,
-                                        arcadeCab: cabs[c].id,
-                                        roundType: me.part.roundType
-                                    }
-
-                                    me.$api.post('/api/match', row, {expectStatus: 201})
-                                    battles ++
-
-                                    c++
-                                    if(c >= cabs.length) {
-                                        c = 0
-                                    }
-                                })
-
-                                battles --
-                            }
-
-                        })
-
-
-
-                    })
+                if(players.length === 0 || players.length % 2 !== 0) {
+                    //todo check all branched can be closed
+                    return "No players";
                 }
 
+                let left = players.length
+                let i = 0
+                let roundNum = 1
+                while(left > 1) {
+                    let roundBase = {
+                        token: localStorage.token,
+                        tournamentId: me.tournament._id,
+                        tournamentEventPartId: me.part._id,
+                        roundType: me.part.roundType,
+                        playMode: "Single",
+                        name: "Round " + roundNum,
+                        status: "New",
+                        bestOfCount: bestOff,
+                        arcadeCabs: cabs
+                    }
+
+                    if(roundNum === 1) {
+                        roundBase.players = players
+                    }
+
+                    let round = await me.$api.post('/api/rounds', roundBase, {expectStatus: 201})
+
+                    let matches = left / 2
+
+                    while(matches > 0) {
+                        let row = {
+                            token: localStorage.token,
+                            tournamentId: me.tournament._id,
+                            roundId: round._id,
+                            status: "New",
+                            roundType: me.part.roundType,
+                            playMode: "Single",
+                            bestOfCount: bestOff,
+                            // arcadeCabs: [cabs[c].id],
+                            arcadeCabs: [],
+                        }
+
+                        if (roundNum === 1) {
+                            row.players = [players[i], players[i + 1]]
+                        }
+
+                        let match = await me.$api.post('/api/matches', row, {expectStatus: 201})
+
+                        // c++
+                        // if(c >= cabs.length) {
+                        //     c = 0
+                        // }
+
+                        i += 2
+                        matches --
+                    }
+
+                    roundNum ++
+                    left = left / 2
+                }
+            }
+
+            return true
+        },
+
+        async $getPlayer(id) {
+            let me = this
+
+            return new Promise((resolve, reject) => {
+                me.$getPlayers().then(players => {
+                    if(Array.isArray(players) === false) {
+                        console.log(["No players", players])
+                    }
+
+                    console.log(players)
+                    let filter = players.filter(p => p._id === id)
+                    if(filter.length === 1) {
+                        resolve(filter[0])
+                    } else {
+                        reject()
+                    }
+                })
+            })
+        },
+
+        async $getPlayers() {
+            let me = this
+
+            return new Promise((resolve, reject) => {
+                if(me.$store.state.players.length === 0) {
+                    me.$graph.query(
+                        'Players',
+                        [
+                            '_id',
+                            'nickname',
+                            'shortNickname',
+                            {country: ['_id']},
+                            //And the other fields
+                        ]
+                    ).then(players => {
+                        let mapped = players.docs
+
+                        me.$store.commit('SET', {
+                            key: 'players',
+                            value: mapped
+                        })
+                        resolve(mapped)
+                    })
+                    .catch(reject)
+                } else {
+                    resolve(me.$store.state.players)
+                }
             })
         }
     },

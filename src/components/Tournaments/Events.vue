@@ -60,7 +60,7 @@
             // })
 
             me.$loadTournament().then((tournament) => {
-                me.$api.get('/api/tournament-events?tournamentId=' + tournament.id).then((events) => {
+                me.$api.get('/api/tournament-events?tournamentId=' + tournament._id).then((events) => {
                     me.values = events
                 })
             })

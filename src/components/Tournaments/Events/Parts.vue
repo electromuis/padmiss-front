@@ -57,6 +57,8 @@
                         {tournamentEventId: event._id},
                         true
                     ).then((parts) => {
+                        console.log({tournamentEventId: event._id})
+
                         me.values = parts.docs
                     })
                 })

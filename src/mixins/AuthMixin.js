@@ -189,6 +189,13 @@ export default {
 
         case 'edit-tournament':
           return this.$isAdmin
+
+        case 'admin-users-tournament':
+          return this.$isAdmin
+
+        case 'edit-users-tournament':
+          //todo if is a tournament manager
+          return this.$isAdmin
       }
 
       return false

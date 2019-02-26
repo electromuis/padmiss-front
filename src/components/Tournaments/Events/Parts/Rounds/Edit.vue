@@ -23,7 +23,7 @@
                     let data = this.round
                     data.token = localStorage.token
                     data.tournamentEventPartId = this.part._id
-                    data.tournamentId = this.tournament.id
+                    data.tournamentId = this.tournament._id
                     data.roundType = this.part.roundType
 
                     if(this.$route.params.roundId.length > 1) {

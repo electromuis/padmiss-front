@@ -22,7 +22,7 @@
                 if(me.loading === false) {
                     let data = this.event
                     data.token = localStorage.token
-                    data.tournamentId = this.tournament.id
+                    data.tournamentId = this.tournament._id
 
                     if(this.$route.params.eventId.length > 1) {
                         me.$api.put('/api/tournament-events/' + this.$route.params.eventId, data, {expectStatus: 201}).then(() => {

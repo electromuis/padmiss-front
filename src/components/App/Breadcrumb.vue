@@ -27,7 +27,6 @@
                     let mt = []
                     let url = "#" + r.path
                     while(mt = regex.exec(r.path)) {
-                        console.log(mt[1])
                         if(this.$route.params[mt[1]]) {
                             url = url.replace(':' + mt[1], this.$route.params[mt[1]])
                         }

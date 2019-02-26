@@ -23,15 +23,18 @@
                     let data = this.part
                     data.token = localStorage.token
                     data.tournamentEventId = this.event._id
-                    data.tournamentId = this.tournament.id
+                    data.tournamentId = this.tournament._id
 
                     if(this.$route.params.partId.length > 1) {
                         me.$api.put('/api/tournament-event-parts/' + this.$route.params.partId, data, {expectStatus: 201}).then(() => {
                             me.$router.push(me.$eventPath + "/parts")
                         })
                     } else {
-                        me.$api.post('/api/tournament-event-parts', data, {expectStatus: 201}).then(() => {
+                        me.$api.post('/api/tournament-event-parts', data, {expectStatus: 201}).then((part) => {
+                            me.part = part
+
                             me.$generateStructure().then((r) => {
+                                console.log("Generation result: " + r)
                                 me.$router.push(me.$eventPath + "/parts")
                             })
                         })

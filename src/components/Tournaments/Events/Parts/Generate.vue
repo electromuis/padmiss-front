@@ -69,7 +69,7 @@
                                     let data = {
                                         token: localStorage.token,
                                         tournamentEventPartId: me.part._id,
-                                        tournamentId: me.tournament.id,
+                                        tournamentId: me.tournament._id,
                                         status: "New",
                                         roundType: me.part.roundType,
                                         bestOfCount: me.options.bestOfCount,

@@ -10,6 +10,7 @@ export default {
   tournamentEventParts: [],
   rounds: [],
   matches: [],
+  players: {},
 
   // UI STATE DATA
   ui: {
