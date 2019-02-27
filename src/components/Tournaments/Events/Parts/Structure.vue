@@ -11,7 +11,7 @@
     import TournamentMixin from '../../../../mixins/TournamentMixin'
 
     import DoubleElimination from './Structure/DoubleElimination.vue'
-    import SingleElimination from './Structure/SingleElimination.vue'
+    import Elimination from './Structure/Elimination.vue'
     import RoundRobin from './Structure/RoundRobin.vue'
     import KotH from './Structure/KotH.vue'
 
@@ -40,13 +40,12 @@
         data () {
             return {
                 loading: true,
-                type: "SingleElimination"
+                type: "Elimination"
             }
         },
 
         components: {
-            DoubleElimination,
-            SingleElimination,
+            Elimination,
             RoundRobin,
             KotH
         }

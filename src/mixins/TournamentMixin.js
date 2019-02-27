@@ -186,7 +186,7 @@ export default {
 
             let cabs = await this.$getCabValues(true)
 
-            if(this.part.roundType === 'SingleElimination') {
+            if(this.part.roundType === 'SingleElimination' || this.part.roundType === 'DoubleElimination') {
                 let bestOff = 1
 
                 let result = await this.$graph.query(
@@ -198,9 +198,8 @@ export default {
                 let players = result.players
                 let c = 0
 
-                if(players.length === 0 || players.length % 2 !== 0) {
-                    //todo check all branched can be closed
-                    return "No players";
+                if(players.length === 0 || (players.length & (players.length - 1)) !== 0) {
+                    return "Invalid amount of players";
                 }
 
                 let left = players.length
@@ -236,7 +235,6 @@ export default {
                             roundType: me.part.roundType,
                             playMode: "Single",
                             bestOfCount: bestOff,
-                            // arcadeCabs: [cabs[c].id],
                             arcadeCabs: [],
                         }
 
@@ -246,13 +244,43 @@ export default {
 
                         let match = await me.$api.post('/api/matches', row, {expectStatus: 201})
 
-                        // c++
-                        // if(c >= cabs.length) {
-                        //     c = 0
-                        // }
-
                         i += 2
                         matches --
+                    }
+
+                    if(this.part.roundType === 'DoubleElimination') {
+                        let roundBase = {
+                            token: localStorage.token,
+                            tournamentId: me.tournament._id,
+                            tournamentEventPartId: me.part._id,
+                            roundType: me.part.roundType,
+                            playMode: "Single",
+                            name: "Losers " + roundNum,
+                            status: "New",
+                            bestOfCount: bestOff,
+                            arcadeCabs: cabs
+                        }
+
+                        let round = await me.$api.post('/api/rounds', roundBase, {expectStatus: 201})
+
+                        matches = left / 4
+
+                        while(matches > 0) {
+                            let row = {
+                                token: localStorage.token,
+                                tournamentId: me.tournament._id,
+                                roundId: round._id,
+                                status: "New",
+                                roundType: me.part.roundType,
+                                playMode: "Single",
+                                bestOfCount: bestOff,
+                                arcadeCabs: [],
+                            }
+
+                            let match = await me.$api.post('/api/matches', row, {expectStatus: 201})
+
+                            matches --
+                        }
                     }
 
                     roundNum ++
