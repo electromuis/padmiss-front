@@ -18,7 +18,7 @@
 
 
             <template v-if="typeof losersRoundsMap[round.number] !== 'undefined'">
-                <div class="match" v-for="match in losersRoundsMap[round.number].matches" :ref="'match-' + match._id">
+                <div class="match losers" v-for="match in losersRoundsMap[round.number].matches" :ref="'match-' + match._id">
 
                     <div class="player" v-for="player in match.players">
 

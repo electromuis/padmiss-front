@@ -205,6 +205,10 @@ export default {
                 let left = players.length
                 let i = 0
                 let roundNum = 1
+
+                let lastLoserMatches = []
+                let lastWinnerMatches = []
+
                 while(left > 1) {
                     let roundBase = {
                         token: localStorage.token,
@@ -223,8 +227,8 @@ export default {
                     }
 
                     let round = await me.$api.post('/api/rounds', roundBase, {expectStatus: 201})
-
                     let matches = left / 2
+                    lastWinnerMatches = []
 
                     while(matches > 0) {
                         let row = {
@@ -243,6 +247,7 @@ export default {
                         }
 
                         let match = await me.$api.post('/api/matches', row, {expectStatus: 201})
+                        lastWinnerMatches.push(match)
 
                         i += 2
                         matches --
@@ -263,14 +268,10 @@ export default {
 
                         let round = await me.$api.post('/api/rounds', roundBase, {expectStatus: 201})
 
+                        let losers = lastWinnerMatches.length / 2 + lastLoserMatches / 2
+                        lastLoserMatches = []
 
-                        if(roundNum === 1) {
-                            matches = left / 4
-                        } else {
-
-                        }
-
-                        while(matches > 0) {
+                        while(losers > 0) {
                             let row = {
                                 token: localStorage.token,
                                 tournamentId: me.tournament._id,
@@ -283,13 +284,20 @@ export default {
                             }
 
                             let match = await me.$api.post('/api/matches', row, {expectStatus: 201})
+                            lastLoserMatches.push(match)
 
-                            matches --
+                            losers --
                         }
                     }
 
+                    console.log([roundNum, lastLosers, left])
+
                     roundNum ++
                     left = left / 2
+                }
+
+                if(this.part.roundType === 'DoubleElimination') {
+
                 }
             }
 
