@@ -263,7 +263,12 @@ export default {
 
                         let round = await me.$api.post('/api/rounds', roundBase, {expectStatus: 201})
 
-                        matches = left / 4
+
+                        if(roundNum === 1) {
+                            matches = left / 4
+                        } else {
+
+                        }
 
                         while(matches > 0) {
                             let row = {

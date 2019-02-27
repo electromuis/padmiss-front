@@ -10,7 +10,6 @@
 <script>
     import TournamentMixin from '../../../../mixins/TournamentMixin'
 
-    import DoubleElimination from './Structure/DoubleElimination.vue'
     import Elimination from './Structure/Elimination.vue'
     import RoundRobin from './Structure/RoundRobin.vue'
     import KotH from './Structure/KotH.vue'
