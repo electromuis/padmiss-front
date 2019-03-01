@@ -5,20 +5,10 @@
             <line v-for="line in lines" :x1="line.x1" :x2="line.x2" :y1="line.y1" :y2="line.y2" style="stroke:rgb(255,0,0);stroke-width:2"></line>
         </svg>
 
-        <div class="round" v-for="(round, i) in rounds" v-bind:style="roundStyle">
-            <div class="match" v-for="match in round.matches" :ref="'match-' + match._id">
+        <template v-for="(myRounds, type) in rounds">
+            <div class="round" v-for="round in myRounds" v-bind:style="roundStyle">
 
-                <div class="player" v-for="player in match.players">
-
-                    {{player.nickname}}
-
-                </div>
-
-            </div>
-
-
-            <template v-if="typeof losersRoundsMap[round.number] !== 'undefined'">
-                <div class="match losers" v-for="match in losersRoundsMap[round.number].matches" :ref="'match-' + match._id">
+                <div class="match" v-for="match in round.matches" :ref="'match-' + match._id">
 
                     <div class="player" v-for="player in match.players">
 
@@ -27,8 +17,9 @@
                     </div>
 
                 </div>
-            </template>
-        </div>
+
+            </div>
+        </template>
     </div>
 </template>
 
@@ -53,7 +44,7 @@
                 return null
             }
 
-            return this.parent.$refs['match-' + this._id]
+            return this.parent.$refs['match-' + this._id][0]
         }
 
         drawDependantLines() {
@@ -69,9 +60,13 @@
 
             let widthSplit = 0.5
 
-            if(this.type === 'Winners') {
+            if(this.type === 'Round') {
                 this.dependantMatches.forEach(m => {
-                    let from = me.matches[m].elm()
+                    if(typeof me.parent.matches[m] === 'undefined') {
+                        return
+                    }
+
+                    let from = me.parent.matches[m].elm()
                     let to = me.elm()
 
                     let fromX = from.offsetLeft + from.offsetWidth
@@ -82,6 +77,17 @@
 
                     let width = Math.abs(fromX - toX)
                     let splitPos = fromX + width * widthSplit
+
+                    console.log([
+                        from,
+                        to,
+                        fromX,
+                        toX,
+                        fromY,
+                        toY,
+                        width,
+                        splitPos
+                    ])
 
                     me.parent.lines.push({
                         x1: fromX,
@@ -147,13 +153,23 @@
 
                 for(let i = 0; i < rounds.length; i ++) {
                     let r = rounds[i]
+                    let pts = r.name.split(' ')
+
+
+                    if(pts.length !== 2) {
+                        continue
+                    }
+
+                    let nr = parseInt(pts[1])
+                    let type = pts[0]
 
                     let matches = await me.$graph.query(
                         'Matches',
                         {docs: [
                                 '_id',
                                 'status',
-                                {players: ['_id']}
+                                {players: ['_id']},
+                                {dependantMatches: ['_id']}
                             ]},
                         {roundId: r._id},
                         true
@@ -162,8 +178,11 @@
                     let matchObjects = []
 
                     for(let x = 0; x < matches.length; x ++) {
-                        let m = new Match(me, matches[x])
+                        matches[x].dependantMatches = matches[x].dependantMatches.map(d => d._id)
+
+                        let m = new Match(me, matches[x], type)
                         matchObjects.push(m)
+                        me.matches[m._id] = m
 
                         let ids = m.players
                         m.players = []
@@ -186,24 +205,11 @@
                     }
 
                     r.matches = matchObjects
-                }
 
-                me.rounds = {}
-
-                for(let i = 0; i < rounds.length; i ++) {
-                    let round = rounds[i]
-                    let pts = round.name.split(' ')
-
-                    if(pts.length === 2) {
-                        let nr = parseInt(pts[1])
-                        let type = pts[0]
-
-                        if(typeof me.rounds[type] === 'undefined') {
-                            me.rounds[type] = {}
-                        }
-
-                        me.rounds[type][nr] = round
+                    if(typeof me.rounds[type] === 'undefined') {
+                        me.rounds[type] = {}
                     }
+                    me.rounds[type][nr] = r
                 }
             }
         },
@@ -213,8 +219,7 @@
 
             this.loadData().then(() => {
                 me.loading = false
-                console.log([me.rounds])
-                me.update()
+                console.log([me.rounds, me.matches])
 
                 me.$nextTick(() => {
                     me.update()
@@ -247,7 +252,7 @@
         watch: {
             rounds: {
                 handler() {
-                    this.update()
+                    // this.update()
                 },
                 deep: true
             }

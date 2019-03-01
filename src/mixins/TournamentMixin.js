@@ -187,47 +187,43 @@ export default {
             let cabs = await this.$getCabValues(true)
 
             if(this.part.roundType === 'SingleElimination' || this.part.roundType === 'DoubleElimination') {
-                let bestOff = 1
-
                 let result = await this.$graph.query(
                     'TournamentEvent',
                     [{players: ['_id']}],
                     {id: me.event._id}
                 )
 
-                let players = result.players
-                let c = 0
-
-                if(players.length === 0 || (players.length & (players.length - 1)) !== 0) {
+                if(result.players.length === 0 || (result.players.length & (result.players.length - 1)) !== 0) {
                     return "Invalid amount of players";
                 }
 
-                let left = players.length
-                let i = 0
-                let roundNum = 1
-
+                let players = result.players
+                let playersLeft = players.length
                 let lastLoserMatches = []
                 let lastWinnerMatches = []
 
-                while(left > 1) {
+                let bestOff = 1
+                let roundNumber = 1
+
+                while(playersLeft > 1) {
                     let roundBase = {
                         token: localStorage.token,
                         tournamentId: me.tournament._id,
                         tournamentEventPartId: me.part._id,
                         roundType: me.part.roundType,
                         playMode: "Single",
-                        name: "Round " + roundNum,
+                        name: "Round " + roundNumber,
                         status: "New",
                         bestOfCount: bestOff,
                         arcadeCabs: cabs
                     }
 
-                    if(roundNum === 1) {
+                    if(roundNumber === 1) {
                         roundBase.players = players
                     }
 
                     let round = await me.$api.post('/api/rounds', roundBase, {expectStatus: 201})
-                    let matches = left / 2
+                    let matches = playersLeft / 2
                     let lastWinnerMatchesBuffer = []
 
                     while(matches > 0) {
@@ -243,18 +239,26 @@ export default {
                             dependantMatches: []
                         }
 
-                        if (roundNum === 1) {
-                            row.players = [players[i], players[i + 1]]
+                        if (roundNumber === 1) {
+                            let playerOffset = lastWinnerMatchesBuffer.length*2
+                            row.players = [
+                                players[playerOffset],
+                                players[playerOffset + 1]
+                            ]
                         } else {
-                            row.dependantMatches.push()
+                            let matchOffset = lastWinnerMatchesBuffer.length*2
+                            row.dependantMatches.push(lastWinnerMatches[matchOffset]._id)
+                            row.dependantMatches.push(lastWinnerMatches[matchOffset + 1]._id)
+
                         }
 
                         let match = await me.$api.post('/api/matches', row, {expectStatus: 201})
-                        lastWinnerMatches.push(match)
+                        lastWinnerMatchesBuffer.push(match)
 
-                        i += 2
                         matches --
                     }
+
+                    lastWinnerMatches = lastWinnerMatchesBuffer
 
                     if(this.part.roundType === 'DoubleElimination') {
                         let roundBase = {
@@ -263,7 +267,7 @@ export default {
                             tournamentEventPartId: me.part._id,
                             roundType: me.part.roundType,
                             playMode: "Single",
-                            name: "Losers " + roundNum,
+                            name: "Losers " + roundNumber,
                             status: "New",
                             bestOfCount: bestOff,
                             arcadeCabs: cabs
@@ -293,10 +297,8 @@ export default {
                         }
                     }
 
-                    console.log([roundNum, lastLosers, left])
-
-                    roundNum ++
-                    left = left / 2
+                    roundNumber ++
+                    playersLeft = playersLeft / 2
                 }
 
                 if(this.part.roundType === 'DoubleElimination') {

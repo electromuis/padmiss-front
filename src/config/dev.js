@@ -3,7 +3,7 @@
 import common from './common'
 
 export default common({
-  apiBaseUrl: 'http://localhost:3020',
+  apiBaseUrl: 'https://api.padmiss.com',
   debug: {
     vue: true,
   },
