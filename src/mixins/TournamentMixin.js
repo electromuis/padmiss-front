@@ -228,7 +228,7 @@ export default {
 
                     let round = await me.$api.post('/api/rounds', roundBase, {expectStatus: 201})
                     let matches = left / 2
-                    lastWinnerMatches = []
+                    let lastWinnerMatchesBuffer = []
 
                     while(matches > 0) {
                         let row = {
@@ -240,10 +240,13 @@ export default {
                             playMode: "Single",
                             bestOfCount: bestOff,
                             arcadeCabs: [],
+                            dependantMatches: []
                         }
 
                         if (roundNum === 1) {
                             row.players = [players[i], players[i + 1]]
+                        } else {
+                            row.dependantMatches.push()
                         }
 
                         let match = await me.$api.post('/api/matches', row, {expectStatus: 201})

@@ -37,6 +37,77 @@
     import TournamentMixin from "../../../../../mixins/TournamentMixin";
     import Loading from 'vue-loading-overlay';
 
+    class Match {
+        constructor(parent, data, type){
+            let me = this
+            me.parent = parent
+            me.type = type
+
+            Object.entries(data).forEach(([k, v]) => {
+                me[k] = v
+            })
+        }
+
+        elm() {
+            if(typeof this.parent.$refs['match-' + this._id] === 'undefined') {
+                return null
+            }
+
+            return this.parent.$refs['match-' + this._id]
+        }
+
+        drawDependantLines() {
+            let me = this
+
+            if(this.elm() === null) {
+                return
+            }
+
+            if(this.dependantMatches.length === 0) {
+                return
+            }
+
+            let widthSplit = 0.5
+
+            if(this.type === 'Winners') {
+                this.dependantMatches.forEach(m => {
+                    let from = me.matches[m].elm()
+                    let to = me.elm()
+
+                    let fromX = from.offsetLeft + from.offsetWidth
+                    let fromY = from.offsetTop + from.offsetHeight / 2
+
+                    let toX = to.offsetLeft
+                    let toY = to.offsetTop + to.offsetHeight / 2
+
+                    let width = Math.abs(fromX - toX)
+                    let splitPos = fromX + width * widthSplit
+
+                    me.parent.lines.push({
+                        x1: fromX,
+                        x2: splitPos,
+                        y1: fromY,
+                        y2: fromY
+                    })
+
+                    me.parent.lines.push({
+                        x1: splitPos,
+                        x2: splitPos,
+                        y1: fromY,
+                        y2: toY
+                    })
+
+                    me.parent.lines.push({
+                        x1: splitPos,
+                        x2: toX,
+                        y1: toY,
+                        y2: toY
+                    })
+                })
+            }
+        }
+    }
+
     export default {
         name: "SingleElimination",
 
@@ -48,91 +119,12 @@
 
                 let me = this
                 this.lines = []
-
-                let roundWidth = this.roundStyle.widthInt
-
-                let lists = [me.rounds, me.losersRounds]
-
-                lists.forEach(l => {
-
-                    Object.entries(l).forEach(([r, round]) => {
-                        r = parseInt(r)
-
-                        Object.entries(round.matches).forEach(([m, match]) => {
-                            m = parseInt(m)
-
-                            if(typeof me.$refs['match-' + match._id] === 'undefined') {
-                                console.log(['match-' + match._id, me.$refs])
-                                return
-                            }
-
-                            let melm = me.$refs['match-' + match._id][0]
-                            let width = roundWidth - melm.offsetWidth
-
-                            if(typeof l[r-1] !== 'undefined') {
-                                let lastRound = l[r-1]
-
-                                let match1 = lastRound.matches[m*2]
-                                let match2 = lastRound.matches[m*2+1]
-
-                                if(me.$refs['match-' + match1._id] && me.$refs['match-' + match2._id]) {
-
-                                    let elm1 = me.$refs['match-' + match1._id][0]
-                                    let elm2 = me.$refs['match-' + match2._id][0]
-
-                                    let elmh = elm1.offsetTop + (elm2.offsetTop - elm1.offsetTop) / 2 + elm1.offsetHeight / 2
-
-                                    me.lines.push({
-                                        x1: melm.offsetLeft,
-                                        x2: melm.offsetLeft - width / 4,
-
-                                        y1: melm.offsetTop + melm.offsetHeight / 2,
-                                        y2: melm.offsetTop + melm.offsetHeight / 2
-                                    })
-
-                                    me.lines.push({
-                                        x1: melm.offsetLeft - width / 4,
-                                        x2: melm.offsetLeft - width / 4,
-
-                                        y1: melm.offsetTop + melm.offsetHeight / 2,
-                                        y2: elmh
-                                    })
-
-                                    me.lines.push({
-                                        x1: melm.offsetLeft - width / 2,
-                                        x2: melm.offsetLeft - width / 4,
-
-                                        y1: elmh,
-                                        y2: elmh
-                                    })
-
-                                    me.lines.push({
-                                        x1: elm1.offsetLeft + elm1.offsetWidth + width / 2,
-                                        x2: elm1.offsetLeft + elm2.offsetWidth + width / 2,
-
-                                        y1: elm1.offsetTop + elm1.offsetHeight / 2,
-                                        y2: elm2.offsetTop + elm2.offsetHeight / 2
-                                    })
-                                }
-                            }
-
-                            if(typeof me.rounds[r+1] !== 'undefined') {
-                                let nextRound = l[r+1]
-                                let nextMatch = nextRound.matches[Math.floor(m / 2)]
-                                let nmeml = me.$refs['match-' + nextMatch._id][0]
-
-                                me.lines.push({
-                                    x1: melm.offsetLeft + melm.offsetWidth,
-                                    x2: melm.offsetLeft + melm.offsetWidth + width / 2,
-
-                                    y1: melm.offsetTop + melm.offsetHeight / 2,
-                                    y2: melm.offsetTop + melm.offsetHeight / 2
-                                })
-                            }
-
+                Object.entries(me.rounds).forEach(([type, rounds]) => {
+                    Object.entries(rounds).forEach(([nr, round]) => {
+                        round.matches.forEach(m => {
+                            m.drawDependantLines()
                         })
                     })
-
                 })
             },
 
@@ -167,11 +159,12 @@
                         true
                     )
                     matches = matches.docs
+                    let matchObjects = []
 
                     for(let x = 0; x < matches.length; x ++) {
-                        let m = matches[x]
+                        let m = new Match(me, matches[x])
+                        matchObjects.push(m)
 
-                        m.name = 'Match ' + m._id
                         let ids = m.players
                         m.players = []
 
@@ -192,25 +185,24 @@
                         }
                     }
 
-                    r.matches = matches
+                    r.matches = matchObjects
                 }
 
-                me.rounds = []
-                me.roundsMap = {}
-                me.losersRounds = []
-                me.losersRoundsMap = {}
+                me.rounds = {}
 
                 for(let i = 0; i < rounds.length; i ++) {
                     let round = rounds[i]
+                    let pts = round.name.split(' ')
 
-                    if(round.name.indexOf('Round ') === 0) {
-                        round.number = parseInt(round.name.replace('Round ', ''))
-                        me.rounds.push(round)
-                        me.roundsMap[round.number] = round
-                    } else if(round.name.indexOf('Losers ') === 0) {
-                        round.number = parseInt(round.name.replace('Losers ', ''))
-                        me.losersRounds.push(round)
-                        me.losersRoundsMap[round.number] = round
+                    if(pts.length === 2) {
+                        let nr = parseInt(pts[1])
+                        let type = pts[0]
+
+                        if(typeof me.rounds[type] === 'undefined') {
+                            me.rounds[type] = {}
+                        }
+
+                        me.rounds[type][nr] = round
                     }
                 }
             }
@@ -221,7 +213,7 @@
 
             this.loadData().then(() => {
                 me.loading = false
-                console.log([me.rounds, me.losersRounds])
+                console.log([me.rounds])
                 me.update()
 
                 me.$nextTick(() => {
@@ -243,10 +235,8 @@
                     widthInt: 300,
                     width: '300px'
                 },
-                rounds: [],
-                roundsMap: {},
-                losersRounds: [],
-                losersRoundsMap: {}
+                rounds: {},
+                matches: {}
             }
         },
 
