@@ -33,7 +33,7 @@
                         me.$api.post('/api/tournament-event-parts', data, {expectStatus: 201}).then((part) => {
                             me.part = part
 
-                            me.$generateStructure().then((r) => {
+                            me.genElimination().then((r) => {
                                 console.log("Generation result: " + r)
                                 me.$router.push(me.$eventPath + "/parts")
                             })

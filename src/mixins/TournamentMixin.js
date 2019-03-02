@@ -181,6 +181,264 @@ export default {
             }))
         },
 
+        async genElimination() {
+            let me = this
+            if(this.part.roundType !== 'SingleElimination' && this.part.roundType !== 'DoubleElimination') {
+                return false
+            }
+
+            let cabs = await this.$getCabValues(true)
+            let event = await this.$graph.query(
+                'TournamentEvent',
+                [{players: ['_id']}],
+                {id: me.event._id}
+            )
+
+            let players = event.players.map(p => p._id)
+            let numPlayers = players.length
+            let numPlayersRoundOne = 1 << 31 - Math.clz32(numPlayers);
+            let numMatchesPre = numPlayers - numPlayersRoundOne
+            let losers = this.part.roundType === 'DoubleElimination'
+            let bestOff = 1
+            let rounds = {Winners: [], Losers: []}
+            let roundCounter = 0
+            let playerCounter = 0
+
+            if(numMatchesPre > 0) {
+                let round = await me.$api.post(
+                    '/api/rounds',
+                    {
+                        token: localStorage.token,
+                        tournamentId: me.tournament._id,
+                        tournamentEventPartId: me.part._id,
+                        roundType: me.part.roundType,
+                        playMode: "Single",
+                        name: "Winners " + roundCounter,
+                        status: "New",
+                        bestOfCount: bestOff,
+                        arcadeCabs: cabs
+                    },
+                    {expectStatus: 201}
+                )
+                rounds['Winners'][roundCounter] = round
+
+                let matches = []
+                while(matches.length < numMatchesPre) {
+                    let match = await me.$api.post(
+                        '/api/matches',
+                        {
+                            token: localStorage.token,
+                            tournamentId: me.tournament._id,
+                            roundId: round._id,
+                            status: "New",
+                            roundType: me.part.roundType,
+                            playMode: "Single",
+                            bestOfCount: bestOff,
+                            arcadeCabs: [],
+                            dependantMatches: [],
+                            players: [
+                                players[playerCounter],
+                                players[playerCounter+1]
+                            ]
+                        },
+                        {expectStatus: 201}
+                    )
+                    playerCounter += 2
+                    matches.push(match)
+                }
+                round.matches = matches
+            }
+
+            let numMatches = numPlayersRoundOne
+
+            while (1 === 1) {
+                numMatches = numMatches / 2
+                roundCounter ++
+
+                let round = await me.$api.post(
+                    '/api/rounds',
+                    {
+                        token: localStorage.token,
+                        tournamentId: me.tournament._id,
+                        tournamentEventPartId: me.part._id,
+                        roundType: me.part.roundType,
+                        playMode: "Single",
+                        name: "Winners " + roundCounter,
+                        status: "New",
+                        bestOfCount: bestOff,
+                        arcadeCabs: cabs
+                    },
+                    {expectStatus: 201}
+                )
+                rounds['Winners'][roundCounter] = round
+
+
+                let matches = []
+                while(matches.length < numMatches) {
+                    let matchData = {
+                        token: localStorage.token,
+                        tournamentId: me.tournament._id,
+                        roundId: round._id,
+                        status: "New",
+                        roundType: me.part.roundType,
+                        playMode: "Single",
+                        bestOfCount: bestOff,
+                        arcadeCabs: [],
+                        dependantMatches: [],
+                        players: []
+                    }
+
+                    if(roundCounter === 1) {
+                        if (numMatchesPre > 0 && matches.length < numMatchesPre) {
+                            matchData.players.push(players[playerCounter])
+                            matchData.dependantMatches.push(rounds.Winners[0].matches[matches.length]._id)
+                            playerCounter++
+                        } else {
+                            if(playerCounter > (players.length - 2)) {
+                                playerCounter = 0
+                            }
+
+                            console.log(players, playerCounter)
+                            matchData.players.push(players[playerCounter])
+                            matchData.players.push(players[playerCounter + 1])
+                            playerCounter += 2
+                        }
+                    } else {
+                        let matchCounter = 0
+                        if(matches.length > 0) {
+                            matchCounter = matches.length * 2
+                        }
+
+                        console.log([
+                            matchCounter,
+                            matches.length,
+                            roundCounter,
+                            rounds,
+                            rounds['Winners'][roundCounter - 1].matches
+                        ])
+
+                        matchData.dependantMatches.push(rounds['Winners'][roundCounter - 1].matches[matchCounter]._id)
+                        matchData.dependantMatches.push(rounds['Winners'][roundCounter - 1].matches[matchCounter + 1]._id)
+                    }
+
+                    let match = await me.$api.post(
+                        '/api/matches',
+                        matchData,
+                        {expectStatus: 201}
+                    )
+                    matches.push(match)
+                }
+
+                round.matches = matches
+
+                matches = []
+
+                //Create losers pre
+                if(roundCounter === 1 && numMatchesPre > 0) {
+                    round = await me.$api.post(
+                        '/api/rounds',
+                        {
+                            token: localStorage.token,
+                            tournamentId: me.tournament._id,
+                            tournamentEventPartId: me.part._id,
+                            roundType: me.part.roundType,
+                            playMode: "Single",
+                            name: "Losers 0",
+                            status: "New",
+                            bestOfCount: bestOff,
+                            arcadeCabs: cabs
+                        },
+                        {expectStatus: 201}
+                    )
+                    rounds['Losers'][0] = round
+
+                    while (matches.length < numMatchesPre) {
+
+                        let matchData = {
+                            token: localStorage.token,
+                            tournamentId: me.tournament._id,
+                            roundId: round._id,
+                            status: "New",
+                            roundType: me.part.roundType,
+                            playMode: "Single",
+                            bestOfCount: bestOff,
+                            arcadeCabs: [],
+                            dependantMatches: [
+                                rounds.Winners[0].matches[matches.length]._id,
+                                rounds.Winners[1].matches[matches.length + 1]._id,
+                            ],
+                            players: []
+                        }
+
+                        playerCounter += 2
+
+                        let match = await me.$api.post(
+                            '/api/matches',
+                            matchData,
+                            {expectStatus: 201}
+                        )
+                        matches.push(match)
+                    }
+                }
+
+                //Create a Losers round
+                round = await me.$api.post(
+                    '/api/rounds',
+                    {
+                        token: localStorage.token,
+                        tournamentId: me.tournament._id,
+                        tournamentEventPartId: me.part._id,
+                        roundType: me.part.roundType,
+                        playMode: "Single",
+                        name: "Losers " + roundCounter,
+                        status: "New",
+                        bestOfCount: bestOff,
+                        arcadeCabs: cabs
+                    },
+                    {expectStatus: 201}
+                )
+                rounds['Losers'][roundCounter] = round
+
+                matches = []
+
+                while (matches.length < numMatches) {
+                    // console.log([roundCounter, matchCounter, numMatches, numPlayersRoundOne, matches, rounds])
+
+                    let matchData = {
+                        token: localStorage.token,
+                        tournamentId: me.tournament._id,
+                        roundId: round._id,
+                        status: "New",
+                        roundType: me.part.roundType,
+                        playMode: "Single",
+                        bestOfCount: bestOff,
+                        arcadeCabs: [],
+                        dependantMatches: [
+                            rounds.Winners[roundCounter].matches[matches.length]._id
+                        ],
+                        players: []
+                    }
+
+                    if(roundCounter > 1) {
+                        matchData.dependantMatches.push(rounds.Winners[roundCounter - 1].matches[matches.length]._id)
+                    }
+
+                    playerCounter += 2
+
+                    let match = await me.$api.post(
+                        '/api/matches',
+                        matchData,
+                        {expectStatus: 201}
+                    )
+                    matches.push(match)
+                }
+
+                if(matches.length === 1) {
+                    break
+                }
+            }
+        },
+
         async $generateStructure() {
             let me = this
 
@@ -204,6 +462,8 @@ export default {
 
                 let bestOff = 1
                 let roundNumber = 1
+
+
 
                 while(playersLeft > 1) {
                     let roundBase = {

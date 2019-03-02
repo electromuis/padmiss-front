@@ -21,7 +21,7 @@ import config from 'ClientConfig'
 if (_.get(config, 'debug.vue')) {
   console.log('VUE DEBUG MODE ENABLED')
   Vue.config.devtools = true
-  Vue.config.debug = true
+  // Vue.config.debug = true
   Vue.config.silent = false
   Vue.config.performance = true
 }

@@ -5,9 +5,7 @@
     <div v-else>
       <Menu />
       <Breadcrumb />
-      <div class="container">
         <router-view></router-view>
-      </div>
     </div>
   </div>
 </template>
