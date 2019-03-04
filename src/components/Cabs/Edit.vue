@@ -128,7 +128,7 @@
                             inputType: "text",
                             label: "Description",
                             model: "description"
-                        },,
+                        },
                         {
                             type: "input",
                             inputType: "text",

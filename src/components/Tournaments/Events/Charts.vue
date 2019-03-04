@@ -94,6 +94,7 @@
 
         methods: {
             handleUpload(u) {
+                let me = this
                 console.log(u)
 
                 let ext = u.name.split('.').pop()
@@ -115,6 +116,15 @@
                         writer.charts = [c]
                         let l = writer.calcLength(c)
                         console.log("Length: " + Math.floor(l/60)+":"+(l % 60))
+                        let hash = writer.calcHash(c)
+                        me.$graph.query(
+                            'Stepcharts',
+                            {docs: ['stepArtist', 'stepChartHash']},
+                            {stepChartHash: hash},
+                            true
+                        ).then(result => {
+                            console.log(result)
+                        })
                     })
                 });
 

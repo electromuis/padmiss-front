@@ -1,3 +1,5 @@
+import crc32 from 'crc/crc32';
+
 class NotesWriter {
     constructor() {
         this.data = ""
@@ -361,6 +363,36 @@ class NotesWriter {
         return length
     }
 
+    calcHash(chart) {
+        let out = []
+        this.writeChartNotes(chart, out)
+        let data = out.join("\n")
+        let hash = crc32(data)
+
+        return hash
+    }
+
+    writeChartNotes(chart, to) {
+        let first = true
+        let i = 1
+
+        chart.notes.forEach(n => {
+            if(first === false) {
+                to.push(',  // measure ' + i)
+                i++
+            } else {
+                to.push('  // measure 0')
+            }
+
+            n.forEach(l => {
+                to.push(l)
+            })
+
+            first = false
+        })
+        to.push('')
+    }
+
     writeCharts() {
         let me = this
 
@@ -372,20 +404,7 @@ class NotesWriter {
                 me.out.push('     ' + chart[f] + ':')
             })
 
-            let first = true
-
-            chart.notes.forEach(n => {
-                if(first === false) {
-                    me.out.push(',')
-                }
-
-                n.forEach(l => {
-                    me.out.push(l)
-                })
-
-                first = false
-            })
-
+            me.writeChartNotes(chart, me.out)
             me.out.push(';')
         })
     }
