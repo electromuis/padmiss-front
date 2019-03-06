@@ -93,6 +93,45 @@
         },
 
         methods: {
+            handleChart(writer) {
+                let me = this
+                let chart = writer.charts[0]
+                let hash = writer.calcHash(chart)
+                let sm = writer.writeCharts()
+
+                me.$graph.query(
+                    'Stepcharts',
+                    {docs: ['stepArtist', 'stepChartHash']},
+                    {stepChartHash: hash},
+                    true
+                ).then(result => {
+                    result = result.docs
+                    if(result.length === 1) {
+                        console.log('FOUND!')
+                    } else {
+                        let type = chart.type.replace('dance-', '')
+                        type = type.charAt(0).toUpperCase() + type.slice(1)
+
+                        me.$api.post('/api/stepcharts', {
+                            token: localStorage.token,
+                            stepChartHash: hash,
+                            song: {
+                                title: writer.info.TITLE,
+                                artist: writer.info.ARTIST
+                            },
+                            stepArtist: chart.credit,
+                            stepData: writer.write(),
+                            difficultyLevel: chart.level,
+                            durationSeconds: Math.round(writer.calcLength(chart)),
+                            playMode: type
+                        }, {expectStatus: 201}).then(response => {
+                            console.log(response)
+                        })
+
+                    }
+                })
+            },
+
             handleUpload(u) {
                 let me = this
                 console.log(u)
@@ -114,17 +153,7 @@
 
                     charts.forEach(c => {
                         writer.charts = [c]
-                        let l = writer.calcLength(c)
-                        console.log("Length: " + Math.floor(l/60)+":"+(l % 60))
-                        let hash = writer.calcHash(c)
-                        me.$graph.query(
-                            'Stepcharts',
-                            {docs: ['stepArtist', 'stepChartHash']},
-                            {stepChartHash: hash},
-                            true
-                        ).then(result => {
-                            console.log(result)
-                        })
+                        me.handleChart(writer)
                     })
                 });
 
