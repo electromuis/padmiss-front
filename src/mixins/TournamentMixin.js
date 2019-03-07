@@ -138,11 +138,13 @@ export default {
                         "name",
                         "roundType",
                         "status",
+                        {'stepCharts': ['_id']},
                         {'arcadeCabs': ['_id']}
                     ],
                     {'id': me.$route.params.partId}
                 ).then((part) => {
                     part.arcadeCabs = part.arcadeCabs.map(u => u._id)
+                    part.stepCharts = part.stepCharts.map(u => u._id)
 
                     me.part = part
                     resolve(part)

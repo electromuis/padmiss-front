@@ -22,13 +22,15 @@
         <table class="table table-striped">
             <thead>
                 <tr>
-                    <td>Name</td>
+                    <td>Hash</td>
+                    <td>Artist</td>
                     <td>Actions</td>
                 </tr>
             </thead>
             <tbody>
                 <tr v-for="row in values">
-                    <td>{{ row.name }}</td>
+                    <td>{{ row.stepChartHash }}</td>
+                    <td>{{ row.stepArtist }}</td>
                     <td>
                         Nothing
                     </td>
@@ -39,11 +41,11 @@
 </template>
 
 <script>
-    import TournamentMixin from '../../../mixins/TournamentMixin'
-    import NotesWriter from '../../../modules/NotesWriter'
+    import TournamentMixin from '../../../../mixins/TournamentMixin'
+    import NotesWriter from '../../../../modules/NotesWriter'
 
     export default {
-        name: "Events",
+        name: "Charts",
 
         mixins: [TournamentMixin],
 
@@ -60,8 +62,16 @@
         created() {
             let me = this
 
-            me.$loadTournament().then((tournament) => {
-                //load selected charts
+            me.$loadPart().then((part) => {
+                part.stepCharts.forEach(c => {
+                    me.$graph.query(
+                        'Stepchart',
+                        ['stepArtist', 'stepChartHash'],
+                        {id: c}
+                    ).then(c => {
+                        me.values.push(c)
+                    })
+                })
             })
         },
 
@@ -93,43 +103,76 @@
         },
 
         methods: {
+            addChart(chart) {
+                let me = this
+                let id = chart.id
+
+                return new Promise(((resolve, reject) => {
+                    me.$loadPart().then(part => {
+                        if(part.stepCharts.indexOf(id) === -1) {
+                            part.stepCharts.push(id)
+                            part.token = localStorage.token
+
+                            me.$api.put('/api/tournament-event-parts/' + part._id, part, {expectStatus: 201}).then(() => {
+                                me.$router.push(me.$eventPath + "/parts")
+                            })
+                                .then(() => {
+                                    me.values.push(chart)
+                                    resolve()
+                                })
+                                .catch(reject)
+
+                        } else {
+                            resolve()
+                        }
+                    }).catch(reject)
+                }))
+            },
+
             handleChart(writer) {
                 let me = this
-                let chart = writer.charts[0]
-                let hash = writer.calcHash(chart)
-                let sm = writer.writeCharts()
 
-                me.$graph.query(
-                    'Stepcharts',
-                    {docs: ['stepArtist', 'stepChartHash']},
-                    {stepChartHash: hash},
-                    true
-                ).then(result => {
-                    result = result.docs
-                    if(result.length === 1) {
-                        console.log('FOUND!')
-                    } else {
-                        let type = chart.type.replace('dance-', '')
-                        type = type.charAt(0).toUpperCase() + type.slice(1)
+                return new Promise(((resolve, reject) => {
+                    let chart = writer.charts[0]
+                    let hash = writer.calcHash(chart)
+                    let sm = writer.writeCharts()
 
-                        me.$api.post('/api/stepcharts', {
-                            token: localStorage.token,
-                            stepChartHash: hash,
-                            song: {
-                                title: writer.info.TITLE,
-                                artist: writer.info.ARTIST
-                            },
-                            stepArtist: chart.credit,
-                            stepData: writer.write(),
-                            difficultyLevel: chart.level,
-                            durationSeconds: Math.round(writer.calcLength(chart)),
-                            playMode: type
-                        }, {expectStatus: 201}).then(response => {
-                            console.log(response)
-                        })
+                    me.$graph.query(
+                        'Stepcharts',
+                        {docs: ['stepArtist', 'stepChartHash']},
+                        {stepChartHash: hash},
+                        true
+                    ).then(result => {
+                        result = result.docs
+                        if(result.length === 1) {
+                            console.log('FOUND!')
 
-                    }
-                })
+                            me.addChart(result[0])
+
+                        } else {
+                            let type = chart.type.replace('dance-', '')
+                            type = type.charAt(0).toUpperCase() + type.slice(1)
+
+                            me.$api.post('/api/stepcharts', {
+                                token: localStorage.token,
+                                stepChartHash: hash,
+                                song: {
+                                    title: writer.info.TITLE,
+                                    artist: writer.info.ARTIST
+                                },
+                                stepArtist: chart.credit,
+                                stepData: writer.write(),
+                                difficultyLevel: chart.level,
+                                durationSeconds: Math.round(writer.calcLength(chart)),
+                                playMode: type
+                            }, {expectStatus: 201}).then(response => {
+
+                                me.addChart(response).then(resolve)
+
+                            }).catch(reject)
+                        }
+                    })
+                }))
             },
 
             handleUpload(u) {
