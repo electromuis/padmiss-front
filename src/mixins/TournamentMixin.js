@@ -144,11 +144,13 @@ export default {
                     {'id': me.$route.params.partId}
                 ).then((part) => {
                     part.arcadeCabs = part.arcadeCabs.map(u => u._id)
+                    part.stepCharts = part.stepCharts.filter(u => u !== null)
                     part.stepCharts = part.stepCharts.map(u => u._id)
 
                     me.part = part
                     resolve(part)
                 }).catch((e) => {
+                    console.log("ERRRRRRRRRRRRRRRRRR" + e)
                     reject(e)
                     me.$router.push('/tournaments')
                 })

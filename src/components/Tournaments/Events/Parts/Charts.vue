@@ -105,7 +105,7 @@
         methods: {
             addChart(chart) {
                 let me = this
-                let id = chart.id
+                let id = chart._id
 
                 return new Promise(((resolve, reject) => {
                     me.$loadPart().then(part => {
@@ -136,10 +136,11 @@
                     let chart = writer.charts[0]
                     let hash = writer.calcHash(chart)
                     let sm = writer.writeCharts()
+                    let last = new Promise((resolve1, reject1) => {resolve1()})
 
                     me.$graph.query(
                         'Stepcharts',
-                        {docs: ['stepArtist', 'stepChartHash']},
+                        {docs: ['stepArtist', 'stepChartHash', '_id']},
                         {stepChartHash: hash},
                         true
                     ).then(result => {
@@ -147,7 +148,10 @@
                         if(result.length === 1) {
                             console.log('FOUND!')
 
-                            me.addChart(result[0])
+                            last.then(() => {
+                                me.addChart(result[0])
+                            })
+
 
                         } else {
                             let type = chart.type.replace('dance-', '')
@@ -166,8 +170,12 @@
                                 durationSeconds: Math.round(writer.calcLength(chart)),
                                 playMode: type
                             }, {expectStatus: 201}).then(response => {
+                                response._id = response.id
 
-                                me.addChart(response).then(resolve)
+                                last.then(() => {
+                                    last = me.addChart(response).then(resolve)
+                                })
+
 
                             }).catch(reject)
                         }
