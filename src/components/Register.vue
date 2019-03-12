@@ -26,15 +26,13 @@
             handleClick(e) {
                 let me = this
 
-                this.padmiss.register(this.model, function(response) {
-                    if(response.data.success === true) {
-                        me.message = "Registration sucessfull"
-                        this.success = true
-                    } else {
-                        me.message = response.data.message
-                    }
-                }, function () {
-                    me.message = "Registration failed"
+                this.$api.post(
+                    '/register',
+                    me.model
+                ).then(r => {
+                    me.message = "Registration sucessfull"
+                }).catch(e => {
+                    me.message = e
                 })
             },
             handleValidation(valid, errors) {
@@ -77,7 +75,7 @@
                             type: "select",
                             label: "Country",
                             model: "country",
-                            required: "true",
+                            // required: "true",
                             validator: VueFormGenerator.validators.string,
                             values: []
                         },

@@ -14,21 +14,44 @@
 
     export default {
         methods: {
+            makeid() {
+                let text = "";
+                let possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+
+                for (let i = 0; i < 32; i++)
+                    text += possible.charAt(Math.floor(Math.random() * possible.length));
+
+                return text;
+            },
+
+
             handleClick(e) {
                 let me = this
                 let data = this.cab
+
                 data.token = localStorage.token
+                data.cabOwner = me.$user.data.userId
                 delete data._id
 
                 if(me.loading === false) {
                     if(this.$route.params.cabId.length > 1) {
-                        delete data.apiKey
+                        let url = '/api/arcade-cabs/' + this.$route.params.cabId
+                        if(me.$user.isAdmin() === false) {
+                            url += '/edit'
+                        }
 
-                        me.$api.put('/api/arcade-cabs/' + this.$route.params.cabId, data, {expectStatus: 201}).then(() => {
+                        me.$api.put(url, data, {expectStatus: 201}).then(() => {
                             me.$router.push('/cabs')
                         })
                     } else {
-                        me.$api.post('/api/arcade-cabs', data, {expectStatus: 201}).then(() => {
+                        let url = '/api/arcade-cabs'
+                        if(me.$user.isAdmin() === false) {
+                            url += '/create'
+                        } else {
+                            data.apiKey = me.makeid()
+                        }
+
+                        me.$api.post(url, data, {expectStatus: 201}).then(() => {
                             me.$router.push('/cabs')
                         })
                     }
@@ -41,18 +64,21 @@
 
         created() {
             let me = this
-            this.$api.get('/api/users?sort=email&token=' + localStorage.token)
-            .then((users) => {
-                let mappedUsers = users.map(u => {
-                    return {
-                        name: u.email,
-                        id: u.id
-                    }
-                })
 
-                me.schema.fields.filter(x => x.model === 'cabOwner')[0].values = mappedUsers
-                me.schema.fields.filter(x => x.model === 'coOwners')[0].items.values = mappedUsers
-            })
+            if(me.$user.isAdmin()) {
+                this.$api.get('/api/users?sort=email&token=' + localStorage.token)
+                .then((users) => {
+                    let mappedUsers = users.map(u => {
+                        return {
+                            name: u.email,
+                            id: u.id
+                        }
+                    })
+
+                    me.schema.fields.filter(x => x.model === 'cabOwner')[0].values = mappedUsers
+                    me.schema.fields.filter(x => x.model === 'coOwners')[0].items.values = mappedUsers
+                })
+            }
 
             if(this.$route.params.cabId.length > 1) {
                 me.schema.fields = me.schema.fields.filter(x => x.model !== 'apiKey')
@@ -95,7 +121,6 @@
                 message: "",
                 cab: {
                     _id: 0,
-                    apiKey: "",
                     name: "",
                     cabDescription: "",
                     cabLocation: "",
@@ -110,14 +135,6 @@
                         {
                             type: "input",
                             inputType: "text",
-                            label: "Api Key",
-                            model: "apiKey",
-                            required: "true",
-                            validator: VueFormGenerator.validators.string
-                        },
-                        {
-                            type: "input",
-                            inputType: "text",
                             label: "Name",
                             model: "name",
                             required: "true",
@@ -127,41 +144,41 @@
                             type: "input",
                             inputType: "text",
                             label: "Description",
-                            model: "description"
+                            model: "cabDescription"
                         },
-                        {
-                            type: "input",
-                            inputType: "text",
-                            label: "Location",
-                            model: "cabLocation"
-                        },
+                        // {
+                        //     type: "input",
+                        //     inputType: "text",
+                        //     label: "Location",
+                        //     model: "cabLocation"
+                        // },
                         {
                             type: "input",
                             inputType: "text",
                             label: "Icon url",
                             model: "cabIconUrl"
                         },
-                        {
-                            type: "select",
-                            label: "Cab owner",
-                            model: "cabOwner",
-                            require: "true",
-                            values: [],
-                            validator: VueFormGenerator.validators.string
-                        },
-                        {
-                            type: "array",
-                            label: "Co owners",
-                            model: "coOwners",
-                            newElementButtonLabelClasses: "btn btn-secondary new",
-                            removeElementButtonClasses: "btn btn-secondary remove",
-                            itemContainerClasses: "array-item",
-                            showRemoveButton: true,
-                            items: {
-                                type: "select",
-                                values: []
-                            }
-                        },
+                        // {
+                        //     type: "select",
+                        //     label: "Cab owner",
+                        //     model: "cabOwner",
+                        //     require: "true",
+                        //     values: [],
+                        //     validator: VueFormGenerator.validators.string
+                        // },
+                        // {
+                        //     type: "array",
+                        //     label: "Co owners",
+                        //     model: "coOwners",
+                        //     newElementButtonLabelClasses: "btn btn-secondary new",
+                        //     removeElementButtonClasses: "btn btn-secondary remove",
+                        //     itemContainerClasses: "array-item",
+                        //     showRemoveButton: true,
+                        //     items: {
+                        //         type: "select",
+                        //         values: []
+                        //     }
+                        // },
                         {
                             type: "select",
                             label: "Has P1",

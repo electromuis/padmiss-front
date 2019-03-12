@@ -34,6 +34,10 @@ class User {
     }
     return result
   }
+
+  isAdmin() {
+    return typeof this.data.isAdmin !== 'undefined' && this.data.isAdmin
+  }
 }
 
 export default {
@@ -44,7 +48,7 @@ export default {
     },
 
     $isAdmin() {
-      return true
+      return this.$isLoggedIn() && this.$store.state.user.isAdmin()
     }
   },
 
@@ -186,6 +190,14 @@ export default {
           }
 
           return true
+
+        case 'create-cab':
+          return true
+
+        case 'own-cab':
+        case 'edit-cab':
+          let userId = this.$store.state.user.data.userId
+          return what.cabOwner == userId || what.coOwners.indexOf(userId) > -1
 
         case 'edit-tournament':
           return this.$isAdmin

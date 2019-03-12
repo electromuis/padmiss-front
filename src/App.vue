@@ -5,7 +5,10 @@
     <div v-else>
       <Menu />
       <Breadcrumb />
+      <div v-if="wrapper" class="container">
         <router-view></router-view>
+      </div>
+      <router-view v-else></router-view>
     </div>
   </div>
 </template>
@@ -23,7 +26,8 @@
     mixins: [AuthMixin],
     data() {
       return {
-          loading: true
+          loading: true,
+          wrapper: true
       }
     },
     created() {

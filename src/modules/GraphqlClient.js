@@ -14,6 +14,9 @@ export default class {
                     if(filter.limit) {
                         newFilter.limit = filter.limit
                     }
+                    if(filter.sort) {
+                        newFilter.sort = filter.sort
+                    }
                     filter = newFilter
                 }
             }

@@ -14,7 +14,13 @@
             handleClick(e) {
                 let me = this
 
-                me.$api.delete('/api/arcade-cabs/' + me.$route.params.cabId + '?token=' + localStorage.token, {expectStatus: 204}).then(() => {
+                let url = '/api/arcade-cabs/' + me.$route.params.cabId
+                if(me.$user.isAdmin() === false) {
+                    url += '/delete-cab'
+                }
+                url += '?token=' + localStorage.token
+
+                me.$api.delete(url , {expectStatus: 204}).then(() => {
                     me.$router.push('/cabs')
                 })
             }

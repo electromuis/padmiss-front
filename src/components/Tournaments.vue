@@ -2,7 +2,7 @@
     <div id="tournaments">
         Tournaments
 
-        <b-button @click="$router.push({path: `/tournaments/0/edit`})" variant="info" class="m-1">
+        <b-button v-if="$can('create-tournament')" @click="$router.push({path: `/tournaments/0/edit`})" variant="info" class="m-1">
             New
         </b-button>
 

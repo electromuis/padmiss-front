@@ -167,7 +167,7 @@
     }
 </script>
 
-<style>
+<style scoped>
 .array-item {
     margin-bottom: 12px;
 }
