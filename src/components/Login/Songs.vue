@@ -1,15 +1,29 @@
 <template>
-    <div id="settings">
-        <b-alert v-if="message" show variant="secondary">{{message}}</b-alert>
-        <vue-form-generator :schema="schema" :model="model" :options="formOptions" @validated="handleValidation" />
-        <b-button v-if="valid" v-on:click="handleClick">Save</b-button>
-        <b-button v-else v-on:click="handleClick" disabled>Save</b-button>
+    <div class="songs">
+        <form v-bind:class="[hovering ? 'drop hover' : 'drop']" ref="drop">
+
+            Drop here to add
+
+        </form>
+
+        <table class="table table-striped">
+            <tr v-for="song in songs">
+                <td>
+                    {{song}}
+                </td>
+                <td>
+                    <b-button v-on:click="() => {delChart(song)}">Remove</b-button>
+                </td>
+            </tr>
+        </table>
     </div>
 </template>
 
 <script>
     import VueFormGenerator from "vue-form-generator";
-    import "vue-form-generator/dist/vfg.css";  // optional full css additions
+    import axios from 'axios'
+
+    let chartApi = 'http://electromuis1.openode.io/'
 
     export default {
         name: "Songs",
@@ -30,18 +44,91 @@
             },
             handleValidation(valid, errors) {
                 this.valid = valid
+            },
+            delChart(c) {
+                let me = this
+                let filename = c.replace(/^.*[\\\/]/, '')
+
+                axios.post(chartApi + 'delete-chart', {token: localStorage.token, name: filename}).then(r => {
+                    me.songs = me.songs.filter(s => s !== c)
+                })
+            },
+            handleUpload(f) {
+                let me = this
+                console.log(f)
+                let reader = new FileReader();
+
+                let name = f.name
+                let ext = name.split('.').pop()
+                if(ext !== 'zip') {
+                    this.warnings.push(f.name + ' is not a valid stepfile')
+                }
+
+                reader.onload = function () {
+                    let data = reader.result;
+                    let check = 'data:application/zip;base64,';
+
+                    if(data.substr(0, check.length) !== check) {
+                        return
+                    }
+
+                    data = data.substr(check.length)
+
+                    axios.post(chartApi + 'add-chart', {token: localStorage.token, name: name, file: data}).then(r => {
+
+                        axios.get(chartApi + 'get-charts?token=' + localStorage.token).then(r => {
+                            if(r.data.files && Array.isArray(r.data.files)) {
+                                me.songs = r.data.files.map(s => s.url)
+                            }
+                        })
+
+                    })
+                };
+
+                reader.readAsDataURL(f);
             }
         },
 
         created() {
             let me = this
 
-            for (const [k, v] of Object.entries(me.$user.metaData)) {
-                if(k in me.model && v) {
-                    me.model[k] = v
-                }
-            }
 
+            // if(typeof this.$user.metaData.songs !== 'undefined') {
+            //     this.songs = this.$user.metaData.songs
+            // }
+
+            axios.get(chartApi + 'get-charts?token=' + localStorage.token).then(r => {
+                if(r.data.files && Array.isArray(r.data.files)) {
+                    me.songs = r.data.files.map(s => s.url)
+                }
+            })
+        },
+
+        mounted() {
+            let me = this
+
+            let e = ['drag', 'dragstart', 'dragend', 'dragover', 'dragenter', 'dragleave', 'drop']
+            e.forEach( function( evt ) {
+                this.$refs.drop.addEventListener(evt, function(e){
+                    e.preventDefault();
+                    e.stopPropagation();
+                }.bind(this), false);
+            }.bind(this));
+
+            me.$refs.drop.addEventListener('drop', e => {
+                for( let i = 0; i < e.dataTransfer.files.length; i++ ){
+                    me.handleUpload(e.dataTransfer.files[i])
+                }
+                me.hovering = false
+            })
+
+            me.$refs.drop.addEventListener('dragenter', e => {
+                me.hovering = true
+            })
+
+            me.$refs.drop.addEventListener('dragleave', e => {
+                me.hovering = false
+            })
         },
 
         data () {
@@ -49,38 +136,32 @@
                 valid: false,
                 success: false,
                 message: "",
-                model: {
-                    songs: []
-                },
-                schema: {
-                    fields: [
-                        {
-                            type: "array",
-                            inputType: "text",
-                            label: "Songs",
-                            model: "songs",
-                            newElementButtonLabelClasses: "btn btn-secondary new",
-                            removeElementButtonClasses: "btn btn-secondary remove",
-                            itemContainerClasses: "array-item",
-                            showRemoveButton: true,
-                        }
-                    ]
-                },
-                formOptions: {
-                    validateAfterLoad: true,
-                    validateAfterChanged: true,
-                    validateAsync: true
-                }
+                hovering: false,
+                songs: [],
+                warnings: []
             }
-        },
-
-        components: {
-            "vue-form-generator": VueFormGenerator.component
         }
     }
 </script>
 
 <style scoped>
+    .drop {
+        background: white;
+        border: 1px grey solid;
+        border-radius: 8px;
+
+        height: 150px;
+        line-height: 150px;
+        vertical-align: middle;
+        text-align: center;
+
+        margin-bottom: 20px;
+    }
+
+    .drop.hover {
+        background: blue;
+    }
+
     .array-item {
         margin-bottom: 12px;
     }
