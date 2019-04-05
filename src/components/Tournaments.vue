@@ -2,7 +2,7 @@
     <div id="tournaments">
         Tournaments
 
-        <b-button v-if="$can('create-tournament')" @click="$router.push({path: `/tournaments/0/edit`})" variant="info" class="m-1">
+        <b-button @click="$router.push({path: `/tournaments/0/edit`})" variant="info" class="m-1">
             New
         </b-button>
 
@@ -54,8 +54,11 @@
         created() {
             let me = this
 
-            this.$api.get('/api/tournaments').then((response) => {
-                me.values = response
+            this.$graph.query(
+                'Tournaments',
+                {docs: ['_id', 'name', 'status', {tournamentAdmin: ['_id']}, {tournamentManagers: ['_id']}]}
+            ).then(tournaments => {
+                me.values = tournaments.docs
             })
         },
 

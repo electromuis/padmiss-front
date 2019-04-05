@@ -48,7 +48,8 @@ export default {
     },
 
     $isAdmin() {
-      return this.$isLoggedIn() && this.$store.state.user.isAdmin()
+      return true
+      return this.$isLoggedIn && this.$store.state.user.isAdmin()
     }
   },
 
@@ -175,6 +176,13 @@ export default {
     },
 
     $can(action, what) {
+      let userId = ''
+
+      if(this.$isLoggedIn === true) {
+        userId = this.$store.state.user.data.userId
+      }
+
+
       switch (action) {
         case 'join-tournament':
           if(this.$isLoggedIn === false) {
@@ -196,11 +204,10 @@ export default {
 
         case 'own-cab':
         case 'edit-cab':
-          let userId = this.$store.state.user.data.userId
           return what.cabOwner == userId || what.coOwners.indexOf(userId) > -1
 
         case 'edit-tournament':
-          return this.$isAdmin
+          return what.tournamentAdmin == userId || what.tournamentManagers.indexOf(userId) > -1
 
         case 'admin-users-tournament':
           return this.$isAdmin

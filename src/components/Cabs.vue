@@ -63,9 +63,8 @@
                     })
                 })
             } else {
-                me.$api.post(
-                    '/api/arcade-cabs/get-my-cabs',
-                    {token: localStorage.token}
+                me.$api.get(
+                    '/api/arcade-cabs/get-my-cabs?token=' + localStorage.token
                 ).then(response => {
                     me.values = response.cabs
                 })

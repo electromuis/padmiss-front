@@ -593,7 +593,7 @@ export default {
             })
         },
 
-        async $getPlayers() {
+        async $getPlayers(form) {
             let me = this
 
             return new Promise((resolve, reject) => {
@@ -614,11 +614,22 @@ export default {
                             key: 'players',
                             value: mapped
                         })
+
+                        if(form === true) {
+                            mapped = mapped.map(p => ({name: p.nickname, id: p._id}))
+                        }
+
                         resolve(mapped)
                     })
                     .catch(reject)
                 } else {
-                    resolve(me.$store.state.players)
+                    let mapped = me.$store.state.players
+
+                    if(form === true) {
+                        mapped = mapped.map(p => ({name: p.nickname, id: p._id}))
+                    }
+
+                    resolve(mapped)
                 }
             })
         }
