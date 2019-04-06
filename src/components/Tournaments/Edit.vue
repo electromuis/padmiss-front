@@ -12,6 +12,7 @@
     import VueFormGenerator from "vue-form-generator";
     import Loading from 'vue-loading-overlay';
     import TournamentMixin from '../../mixins/TournamentMixin'
+    import moment from 'moment'
 
     export default {
         mixins: [TournamentMixin],
@@ -41,7 +42,9 @@
                 let me = this
                 let data = this.myTournament
                 data.token = localStorage.token
-                delete data.tournamentManagers
+                data.startDate = moment(data.startDate).format( 'L')
+                data.endDate = moment(data.endDate).format('L')
+                console.log(data)
 
                 if(me.loading === false) {
                     if(this.$route.params.tournamentId.length > 1) {
@@ -52,7 +55,7 @@
                         })
                     } else {
                         me.$api.post('/api/tournaments/create', data, {expectStatus: 201}).then((response) => {
-                            me.updateRelations(response._id).then(() => {
+                            me.updateRelations(response.tournament._id).then(() => {
                                 me.$router.push('/tournaments')
                             })
                         })
@@ -75,7 +78,7 @@
             })
 
             if(this.$route.params.tournamentId.length > 1) {
-                me.$loadTournament(true).then((r) => {
+                me.$loadTournament().then((r) => {
                     Object.entries(me.myTournament).forEach(([k, v]) => {
                         if(me.tournament[k]) {
                             me.myTournament[k] = v
@@ -96,6 +99,7 @@
                 success: false,
                 loading: true,
                 message: "",
+                tournament: {tournamentManagers: [], arcadeCabs: []},
                 myTournament: {
                     id: 0,
                     name: "",

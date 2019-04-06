@@ -16,6 +16,7 @@
     "fecha": "^3.0.2",
     "graphql-query-builder": "^1.0.7",
     "lodash": "^4.17.11",
+    "moment": "^2.24.0",
     "popper.js": "^1.12.9",
     "pug": "^2.0.3",
     "vfg-field-array": "0.0.1",

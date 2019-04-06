@@ -26,7 +26,7 @@
                     <td>
                         <b-button v-if="$can('join-tournament', row)" v-on:click="$router.push({path: `/tournaments/${row.id}/join`})">Join</b-button>
 
-                        <template v-if="$can('edit-tournament')">
+                        <template v-if="$can('edit-tournament', row)">
                             <b-button v-on:click="$router.push({path: `/tournaments/${row.id}/players`})">Players</b-button>
                             <b-button v-on:click="$router.push({path: `/tournaments/${row.id}/events`})">Events</b-button>
                             <b-button v-on:click="$router.push({path: `/tournaments/${row.id}/edit`})">Edit</b-button>
@@ -56,9 +56,25 @@
 
             this.$graph.query(
                 'Tournaments',
-                {docs: ['_id', 'name', 'status', {tournamentAdmin: ['_id']}, {tournamentManagers: ['_id']}]}
+                {docs: [
+                    '_id',
+                    'name',
+                    'status',
+                    {tournamentAdmin: ['_id']},
+                    {tournamentManagers: ['_id']},
+                    {players: ["_id"]},
+                    {playerJoinRequests: ["_id"]}
+                ]}
             ).then(tournaments => {
-                me.values = tournaments.docs
+                me.values = tournaments.docs.map(t => {
+                    t.tournamentAdmin = t.tournamentAdmin._id
+                    t.tournamentManagers = t.tournamentManagers.map(p => p._id)
+                    t.players = t.players.map(p => p._id)
+                    t.playerJoinRequests = t.playerJoinRequests.map(p => p._id)
+                    return t
+                })
+
+                console.log(me.values)
             })
         },
 

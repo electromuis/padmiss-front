@@ -22,6 +22,7 @@ export default {
     methods: {
         $loadTournament(full) {
             let me = this
+            console.log(me.$route.params.tournamentId)
 
             return new Promise((resolve, reject) => {
                this.$graph.query(
@@ -34,8 +35,8 @@ export default {
                        'appIds',
                        'startDate',
                        'endDate',
-                       {'tournamentAdmin': ['_id']},
-                       {'tournamentManagers': ['_id']},
+                       {'tournamentAdmin': [{player: '_id'}]},
+                       {'tournamentManagers': [{player: '_id'}]},
                        {'arcadeCabs': ['_id']},
 
                        {'playerJoinRequests': ['_id']},
@@ -44,8 +45,8 @@ export default {
                    ],
                    {'id': me.$route.params.tournamentId}
                ).then((tournament) => {
-                   tournament.tournamentAdmin = tournament.tournamentAdmin._id
-                   tournament.tournamentManagers = tournament.tournamentManagers.map(u => u._id)
+                   tournament.tournamentAdmin = tournament.tournamentAdmin.player._id
+                   tournament.tournamentManagers = tournament.tournamentManagers.map(u => u.player._id)
 
                    tournament.arcadeCabs = tournament.arcadeCabs.map(u => u._id)
 
@@ -597,16 +598,18 @@ export default {
             let me = this
 
             return new Promise((resolve, reject) => {
+                console.log(me.$store.state.players.length)
+
                 if(me.$store.state.players.length === 0) {
                     me.$graph.query(
                         'Players',
-                        [
+                        {docs: [
                             '_id',
                             'nickname',
                             'shortNickname',
                             {country: ['_id']},
                             //And the other fields
-                        ]
+                        ]}
                     ).then(players => {
                         let mapped = players.docs
 

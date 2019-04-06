@@ -80,19 +80,37 @@ export default {
               return reject(null)
             }
 
-            me.$api.get('/api/players/' + result.playerId).then(playerResult => {
-                let user = new User(Object.assign({}, result, playerResult))
+            me.$graph.query(
+                'Player',
+                [
+                  '_id',
+                'nickname',
+                'shortNickname',
+                {country: ['_id']},
+                'avatarIconUrl',
+                'playerLevel',
+                'accuracy',
+                'stamina',
+                'unlockedAchievements',
+                'totalSteps',
+                'totalPlayTimeSeconds',
+                'totalSongsPlayed',
+                ],
+                {id: result.playerId}
+            ).then(playerResult => {
+              if(playerResult.country) {
+                playerResult.country = playerResult.country._id
+              }
+              let user = new User(Object.assign({}, result, playerResult))
 
-                // Validation succeeded
-                me.$store.commit('SET', {
-                    key: 'user',
-                    value: user
-                })
+              // Validation succeeded
+              me.$store.commit('SET', {
+                key: 'user',
+                value: user
+              })
 
-                resolve()
-            })
-            .catch(reject)
-
+              resolve(user)
+            }).catch(reject)
 
           })
           // In case of errors, get rid of our token from local storage
