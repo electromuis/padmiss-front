@@ -1,4 +1,5 @@
 import Query from 'graphql-query-builder'
+import moment from 'moment'
 
 export default {
     'STATUS_OPTIONS': [
@@ -22,7 +23,7 @@ export default {
     methods: {
         $loadTournament(full) {
             let me = this
-            console.log(me.$route.params.tournamentId)
+            console.log(me.$route.params)
 
             return new Promise((resolve, reject) => {
                this.$graph.query(
@@ -45,8 +46,14 @@ export default {
                    ],
                    {'id': me.$route.params.tournamentId}
                ).then((tournament) => {
-                   tournament.tournamentAdmin = tournament.tournamentAdmin.player._id
-                   tournament.tournamentManagers = tournament.tournamentManagers.map(u => u.player._id)
+
+                   tournament.startDate = moment.unix(tournament.startDate).format( 'D-MMMM-YYYY')
+                   tournament.endDate = moment.unix(tournament.endDate).format('D-MMMM-YYYY')
+
+                   console.log(tournament.endDate)
+
+                   tournament.tournamentAdmin = tournament.tournamentAdmin.player
+                   tournament.tournamentManagers = tournament.tournamentManagers.map(u => u.player)
 
                    tournament.arcadeCabs = tournament.arcadeCabs.map(u => u._id)
 

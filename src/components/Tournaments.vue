@@ -24,13 +24,13 @@
                 <tr v-for="row in values">
                     <td>{{ row.name }}</td>
                     <td>
-                        <b-button v-if="$can('join-tournament', row)" v-on:click="$router.push({path: `/tournaments/${row.id}/join`})">Join</b-button>
+                        <b-button v-if="$can('join-tournament', row)" v-on:click="$router.push({path: `/tournaments/${row._id}/join`})">Join</b-button>
 
                         <template v-if="$can('edit-tournament', row)">
-                            <b-button v-on:click="$router.push({path: `/tournaments/${row.id}/players`})">Players</b-button>
-                            <b-button v-on:click="$router.push({path: `/tournaments/${row.id}/events`})">Events</b-button>
-                            <b-button v-on:click="$router.push({path: `/tournaments/${row.id}/edit`})">Edit</b-button>
-                            <b-button v-on:click="$router.push({path: `/tournaments/${row.id}/delete`})">Delete</b-button>
+                            <b-button v-on:click="$router.push({path: `/tournaments/${row._id}/players`})">Players</b-button>
+                            <b-button v-on:click="$router.push({path: `/tournaments/${row._id}/events`})">Events</b-button>
+                            <b-button v-on:click="$router.push({path: `/tournaments/${row._id}/edit`})">Edit</b-button>
+                            <b-button v-on:click="$router.push({path: `/tournaments/${row._id}/delete`})">Delete</b-button>
                         </template>
                     </td>
                 </tr>
@@ -73,8 +73,6 @@
                     t.playerJoinRequests = t.playerJoinRequests.map(p => p._id)
                     return t
                 })
-
-                console.log(me.values)
             })
         },
 

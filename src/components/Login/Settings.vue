@@ -21,11 +21,13 @@
         methods: {
             handleClick(e) {
                 let me = this
-                this.padmiss.updateSettings(this.model, () => {
+
+                this.$user.setData(me.model)
+                this.$user.save(me.$api).then(() => {
                     me.message = "Settings saved"
-                }, (data) => {
-                    if(data.message) {
-                        me.message = data.message
+                }).catch((e) => {
+                    if(e) {
+                        me.message = e
                     } else {
                         me.message = "Saving failed"
                     }

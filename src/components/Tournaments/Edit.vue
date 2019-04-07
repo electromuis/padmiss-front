@@ -24,27 +24,30 @@
                 let add = me.myTournament.tournamentManagers.filter(p => me.tournament.tournamentManagers.indexOf(p) === -1)
 
                 return Promise.all(remove.map(p => {
-                    return me.$api.post('/api/tournaments/' + tournamentId + '/remove-tournament-manager', {playerId: p})
+                    return me.$api.post('/api/tournaments/' + tournamentId + '/remove-tournament-manager', {playerId: p, token: localStorage.token})
                 })).then(() => {
                     return Promise.all(add.map(p => {
-                        return me.$api.post('/api/tournaments/' + tournamentId + '/add-tournament-manager', {playerId: p})
+                        return me.$api.post('/api/tournaments/' + tournamentId + '/add-tournament-manager', {playerId: p, token: localStorage.token})
                     }))
                 }).then(() => {
                     let remove = me.tournament.arcadeCabs.filter(p => me.myTournament.arcadeCabs.indexOf(p) === -1)
-                    return me.$api.post('/api/tournaments/' + tournamentId + '/remove-arcade-cabs', {arcadeCabs: remove})
+                    if(remove.length === 0) {
+                        return new Promise((r) => {r()})
+                    }
+                    return me.$api.post('/api/tournaments/' + tournamentId + '/remove-arcade-cabs', {arcadeCabs: remove, token: localStorage.token})
                 }).then(() => {
                     let add = me.myTournament.arcadeCabs.filter(p => me.tournament.arcadeCabs.indexOf(p) === -1)
-                    return me.$api.post('/api/tournaments/' + tournamentId + '/add-arcade-cabs', {arcadeCabs: add})
+                    if(add.length === 0) {
+                        return new Promise((r) => {r()})
+                    }
+                    return me.$api.post('/api/tournaments/' + tournamentId + '/add-arcade-cabs', {arcadeCabs: add, token: localStorage.token})
                 })
             },
 
             handleClick(e) {
                 let me = this
                 let data = this.myTournament
-                data.token = localStorage.token
-                data.startDate = moment(data.startDate).format( 'L')
-                data.endDate = moment(data.endDate).format('L')
-                console.log(data)
+                console.log(data.endDate)
 
                 if(me.loading === false) {
                     if(this.$route.params.tournamentId.length > 1) {
@@ -78,10 +81,11 @@
             })
 
             if(this.$route.params.tournamentId.length > 1) {
-                me.$loadTournament().then((r) => {
+                me.$loadTournament().then((tournament) => {
+
                     Object.entries(me.myTournament).forEach(([k, v]) => {
-                        if(me.tournament[k]) {
-                            me.myTournament[k] = v
+                        if(tournament[k]) {
+                            me.myTournament[k] = tournament[k]
                         }
                     })
 

@@ -31,15 +31,6 @@
         methods: {
             handleClick(e) {
                 let me = this
-                this.padmiss.updateSettings(this.model, () => {
-                    me.message = "Settings saved"
-                }, (data) => {
-                    if(data.message) {
-                        me.message = data.message
-                    } else {
-                        me.message = "Saving failed"
-                    }
-                })
 
             },
             handleValidation(valid, errors) {
@@ -51,6 +42,13 @@
 
                 axios.post(chartApi + 'delete-chart', {token: localStorage.token, name: filename}).then(r => {
                     me.songs = me.songs.filter(s => s !== c)
+
+                    me.$user.metaData.songs = me.songs
+                    me.$user.save(me.$api).then(r => {
+                        me.message = "Settings saved"
+                    }).catch(e => {
+                        me.message = "Saving failed"
+                    })
                 })
             },
             handleUpload(f) {
@@ -75,10 +73,16 @@
                     data = data.substr(check.length)
 
                     axios.post(chartApi + 'add-chart', {token: localStorage.token, name: name, file: data}).then(r => {
-
                         axios.get(chartApi + 'get-charts?token=' + localStorage.token).then(r => {
                             if(r.data.files && Array.isArray(r.data.files)) {
                                 me.songs = r.data.files.map(s => s.url)
+
+                                me.$user.metaData.songs = me.songs
+                                me.$user.save(me.$api).then(r => {
+                                    me.message = "Settings saved"
+                                }).catch(e => {
+                                    me.message = "Saving failed"
+                                })
                             }
                         })
 

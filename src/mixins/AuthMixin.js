@@ -2,6 +2,8 @@
 
 class User {
   constructor(data) {
+    this.id = data.userId
+
     this.fields = ['nickname','country','email','shortNickname', 'password', 'rfidUid', 'avatarIconUrl', 'playerId', 'userId']
     this.metaFields = ['songs']
 
@@ -37,6 +39,19 @@ class User {
 
   isAdmin() {
     return typeof this.data.isAdmin !== 'undefined' && this.data.isAdmin
+  }
+
+  save($api) {
+    let data = this.getData()
+    data.token = localStorage.token
+
+    if(!data.password || data.password.length === 0) {
+      delete data.password
+    }
+
+    console.log(data)
+
+    return $api.put('/api/users/' + this.id + '/edit', data)
   }
 }
 
@@ -95,6 +110,7 @@ export default {
                 'totalSteps',
                 'totalPlayTimeSeconds',
                 'totalSongsPlayed',
+                'metaData'
                 ],
                 {id: result.playerId}
             ).then(playerResult => {
@@ -168,16 +184,6 @@ export default {
             reject(err)
           })
       })
-    },
-
-    $saveUser() {
-        return new Promise((resolve, reject) => {
-            let me = this
-            let userData = me.$user.getData()
-            userData.token = localStorage.token
-
-            me.$api.post('/api/users/' + userData.userId + '/edit', userData).then(resolve, reject)
-        })
     },
 
     $signOut() {

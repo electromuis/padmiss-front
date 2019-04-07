@@ -32,6 +32,11 @@ class User {
         if(this.metaData !== undefined) {
             result.metaData = JSON.stringify(this.metaData)
         }
+
+        if(result.password && result.password.length === 0) {
+            delete result.password
+        }
+
         return result
     }
 }
