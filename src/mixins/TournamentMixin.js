@@ -36,8 +36,8 @@ export default {
                        'appIds',
                        'startDate',
                        'endDate',
-                       {'tournamentAdmin': [{player: '_id'}]},
-                       {'tournamentManagers': [{player: '_id'}]},
+                       {'tournamentAdmin': [{player: ['_id']}]},
+                       {'tournamentManagers': [{player: ['_id']}]},
                        {'arcadeCabs': ['_id']},
 
                        {'playerJoinRequests': ['_id']},
@@ -49,8 +49,8 @@ export default {
                    tournament.endDate = moment(tournament.endDate).calendar()
                    tournament.startDate = moment(tournament.startDate).calendar()
 
-                   tournament.tournamentAdmin = tournament.tournamentAdmin.player
-                   tournament.tournamentManagers = tournament.tournamentManagers.map(u => u.player)
+                   tournament.tournamentAdmin = tournament.tournamentAdmin.player._id
+                   tournament.tournamentManagers = tournament.tournamentManagers.map(u => u.player._id)
 
                    tournament.arcadeCabs = tournament.arcadeCabs.map(u => u._id)
 
@@ -65,43 +65,6 @@ export default {
                    me.$router.push('/tournaments')
                })
            })
-        },
-
-        $getCabValues(forTournament) {
-            let me = this
-
-            return new Promise(((resolve, reject) => {
-                if(forTournament === true) {
-                    this.$graph.query(
-                        'Tournament',
-                        [
-                            {'arcadeCabs': ['_id', 'name', 'cabLocation']}
-                        ],
-                        {'id': me.$route.params.tournamentId}
-                    ).then((tournament) => {
-                        let mapped = tournament.arcadeCabs.map((c) => {
-                            return {
-                                id: c._id,
-                                name: c.cabLocation + ' - ' + c.name
-                            }
-                        })
-                        resolve(mapped)
-                    }).catch(reject)
-                } else {
-                    me.$graph.query(
-                        "ArcadeCabs",
-                        {docs: ['_id', 'name', 'cabLocation']}
-                    ).then((cabs) => {
-                        let mapped = cabs.docs.map((c) => {
-                            return {
-                                id: c._id,
-                                name: c.cabLocation + ' - ' + c.name
-                            }
-                        })
-                        resolve(mapped)
-                    }).catch(reject)
-                }
-            }))
         },
 
         $loadEvent() {
@@ -578,6 +541,43 @@ export default {
             return true
         },
 
+        $getCabValues(forTournament) {
+            let me = this
+
+            return new Promise(((resolve, reject) => {
+                if(forTournament === true) {
+                    this.$graph.query(
+                        'Tournament',
+                        [
+                            {'arcadeCabs': ['_id', 'name', 'cabLocation']}
+                        ],
+                        {'id': me.$route.params.tournamentId}
+                    ).then((tournament) => {
+                        let mapped = tournament.arcadeCabs.map((c) => {
+                            return {
+                                id: c._id,
+                                name: c.cabLocation + ' - ' + c.name
+                            }
+                        })
+                        resolve(mapped)
+                    }).catch(reject)
+                } else {
+                    me.$graph.query(
+                        "ArcadeCabs",
+                        {docs: ['_id', 'name', 'cabLocation']}
+                    ).then((cabs) => {
+                        let mapped = cabs.docs.map((c) => {
+                            return {
+                                id: c._id,
+                                name: c.name
+                            }
+                        })
+                        resolve(mapped)
+                    }).catch(reject)
+                }
+            }))
+        },
+
         async $getPlayer(id) {
             let me = this
 
@@ -598,13 +598,13 @@ export default {
             })
         },
 
-        async $getPlayers(form) {
+        async $getPlayers() {
             let me = this
 
             return new Promise((resolve, reject) => {
-                console.log(me.$store.state.players.length)
+                // console.log(me.$store.state.players.length)
 
-                if(me.$store.state.players.length === 0) {
+                // if(me.$store.state.players.length === 0) {
                     me.$graph.query(
                         'Players',
                         {docs: [
@@ -615,29 +615,30 @@ export default {
                             //And the other fields
                         ]}
                     ).then(players => {
-                        let mapped = players.docs
+                        // me.$store.commit('SET', {
+                        //     key: 'players',
+                        //     value: mapped
+                        // })
 
-                        me.$store.commit('SET', {
-                            key: 'players',
-                            value: mapped
+                        let mapped = players.docs.map((c) => {
+                            return {
+                                id: c._id,
+                                name: c.nickname
+                            }
                         })
-
-                        if(form === true) {
-                            mapped = mapped.map(p => ({name: p.nickname, id: p._id}))
-                        }
 
                         resolve(mapped)
                     })
                     .catch(reject)
-                } else {
-                    let mapped = me.$store.state.players
-
-                    if(form === true) {
-                        mapped = mapped.map(p => ({name: p.nickname, id: p._id}))
-                    }
-
-                    resolve(mapped)
-                }
+                // } else {
+                //     let mapped = me.$store.state.players
+                //
+                //     if(form === true) {
+                //         mapped = mapped.map(p => ({name: p.nickname, id: p._id}))
+                //     }
+                //
+                //     resolve(mapped)
+                // }
             })
         }
     },

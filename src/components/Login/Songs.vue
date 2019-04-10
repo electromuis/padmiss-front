@@ -1,5 +1,9 @@
 <template>
     <div class="songs">
+        <div v-for="warning in warnings" class="alert-warning">
+            {{warning}}
+        </div>
+
         <form v-bind:class="[hovering ? 'drop hover' : 'drop']" ref="drop">
 
             Drop here to add
@@ -64,9 +68,17 @@
 
                 reader.onload = function () {
                     let data = reader.result;
-                    let check = 'data:application/zip;base64,';
+                    let checks = ['data:application/zip;base64,', 'data:application/x-zip-compressed;base64,'];
 
-                    if(data.substr(0, check.length) !== check) {
+                    let check = false
+                    checks.forEach(c => {
+                        if(check === false && data.substr(0, c.length) === c) {
+                            check = c
+                        }
+                    })
+
+                    if(f === false) {
+                        me.warnings.push('Err reading: ' + f.name)
                         return
                     }
 

@@ -32,13 +32,13 @@
                 }).then(() => {
                     let remove = me.tournament.arcadeCabs.filter(p => me.myTournament.arcadeCabs.indexOf(p) === -1)
                     if(remove.length === 0) {
-                        return new Promise((r) => {r()})
+                        return;
                     }
                     return me.$api.post('/api/tournaments/' + tournamentId + '/remove-arcade-cabs', {arcadeCabs: remove, token: localStorage.token})
                 }).then(() => {
                     let add = me.myTournament.arcadeCabs.filter(p => me.tournament.arcadeCabs.indexOf(p) === -1)
                     if(add.length === 0) {
-                        return new Promise((r) => {r()})
+                        return;
                     }
                     return me.$api.post('/api/tournaments/' + tournamentId + '/add-arcade-cabs', {arcadeCabs: add, token: localStorage.token})
                 })
@@ -72,9 +72,7 @@
 
         created() {
             let me = this
-            this.$getPlayers(true).then(players => {
-                console.log(players)
-
+            this.$getPlayers().then(players => {
                 me.schema.fields.filter(x => x.model === 'tournamentManagers')[0].items.values = players
 
                 return this.$getCabValues()
@@ -88,11 +86,13 @@
                 return false
             }).then(tournament => {
                 if(tournament) {
-                    console.log(tournament)
-
                     Object.entries(me.myTournament).forEach(([k, v]) => {
                         if(tournament[k]) {
-                            me.myTournament[k] = tournament[k]
+                            if(Array.isArray(tournament[k])) {
+                                me.myTournament[k] = [...tournament[k]]
+                            } else {
+                                me.myTournament[k] = tournament[k]
+                            }
                         }
                     })
                 }
@@ -193,16 +193,16 @@
     }
 </script>
 
-<style scoped>
-.array-item {
-    margin-bottom: 12px;
-}
-.btn.remove {
-    margin-left: 12px;
-}
-.array-item {
-    display: flex;
-    -ms-flex-wrap: wrap;
-    flex-wrap: wrap;
-}
+<style>
+    .array-item {
+        margin-bottom: 12px;
+    }
+    .btn.remove {
+        margin-left: 12px;
+    }
+    .array-item {
+        display: flex;
+        -ms-flex-wrap: wrap;
+        flex-wrap: wrap;
+    }
 </style>
