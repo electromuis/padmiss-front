@@ -26,8 +26,10 @@
                     <td>
                         <b-button v-on:click="$router.push({path: $tournamentPath + `/events/${row._id}/players`})">Players</b-button>
                         <b-button v-on:click="$router.push({path: $tournamentPath + `/events/${row._id}/parts`})">Parts</b-button>
-                        <b-button v-on:click="$router.push({path: $tournamentPath + `/events/${row._id}/edit`})">Edit</b-button>
-                        <b-button v-on:click="$router.push({path: $tournamentPath + `/events/${row._id}/delete`})">Delete</b-button>
+                        <template v-if="$can('edit-tournament', tournament)">
+                            <b-button v-on:click="$router.push({path: $tournamentPath + `/events/${row._id}/edit`})">Edit</b-button>
+                            <b-button v-on:click="$router.push({path: $tournamentPath + `/events/${row._id}/delete`})">Delete</b-button>
+                        </template>
                     </td>
                 </tr>
             </tbody>
@@ -37,11 +39,12 @@
 
 <script>
     import TournamentMixin from '../../mixins/TournamentMixin'
+    import AuthMixin from '../../mixins/AuthMixin'
 
     export default {
         name: "Events",
 
-        mixins: [TournamentMixin],
+        mixins: [TournamentMixin, AuthMixin],
 
         data() {
             return {
@@ -59,8 +62,18 @@
             // })
 
             me.$loadTournament().then((tournament) => {
-                me.$api.get('/api/tournament-events?tournamentId=' + tournament._id).then((events) => {
-                    me.values = events
+
+                me.$graph.query(
+                    'TournamentEvents',
+                    {docs: [
+                        '_id',
+                        'name',
+                        'status'
+                    ]},
+                    {tournamentId: tournament._id},
+                    true
+                ).then(events => {
+                    me.values = events.docs
                 })
             })
 

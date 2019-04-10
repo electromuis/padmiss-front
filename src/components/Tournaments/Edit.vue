@@ -47,7 +47,7 @@
             handleClick(e) {
                 let me = this
                 let data = this.myTournament
-                console.log(data.endDate)
+                data.token = localStorage.token
 
                 if(me.loading === false) {
                     if(this.$route.params.tournamentId.length > 1) {
@@ -73,28 +73,32 @@
         created() {
             let me = this
             this.$getPlayers(true).then(players => {
+                console.log(players)
+
                 me.schema.fields.filter(x => x.model === 'tournamentManagers')[0].items.values = players
-            })
 
-            this.$getCabValues().then((cabs) => {
+                return this.$getCabValues()
+            }).then(cabs => {
                 me.schema.fields.filter(x => x.model === 'arcadeCabs')[0].items.values = cabs
-            })
 
-            if(this.$route.params.tournamentId.length > 1) {
-                me.$loadTournament().then((tournament) => {
+                if(this.$route.params.tournamentId.length > 1) {
+                    return me.$loadTournament()
+                }
+
+                return false
+            }).then(tournament => {
+                if(tournament) {
+                    console.log(tournament)
 
                     Object.entries(me.myTournament).forEach(([k, v]) => {
                         if(tournament[k]) {
                             me.myTournament[k] = tournament[k]
                         }
                     })
+                }
 
-                    me.loading = false
-                })
-            }
-            else {
                 me.loading = false
-            }
+            })
         },
 
         data () {
@@ -132,7 +136,7 @@
                         },
                         {
                             type: "input",
-                            inputType: "date",
+                            inputType: "text",
                             label: "Start date",
                             model: "startDate",
                             required: "true",
@@ -140,7 +144,7 @@
                         },
                         {
                             type: "input",
-                            inputType: "date",
+                            inputType: "text",
                             label: "End date",
                             model: "endDate",
                             required: "true",

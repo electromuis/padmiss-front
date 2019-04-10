@@ -2,7 +2,7 @@
     <loading v-if="loading" :active="true"></loading>
     <div v-else id="edit">
         <b-alert v-if="message" show variant="secondary">{{message}}</b-alert>
-        <vue-form-generator :schema="schema" :model="myPart" :options="formOptions" @validated="handleValidation" />
+        <vue-form-generator :schema="schema" :model="myMatch" :options="formOptions" @validated="handleValidation" />
         <b-button v-if="valid" v-on:click="handleClick">Save</b-button>
         <b-button v-else v-on:click="handleClick" disabled>Save</b-button>
     </div>
@@ -11,56 +11,51 @@
 <script>
     import VueFormGenerator from "vue-form-generator";
     import Loading from 'vue-loading-overlay';
-    import TournamentsMixin from '../../../../mixins/TournamentMixin'
+    import TournamentsMixin from '../../../../../../mixins/TournamentMixin'
 
     export default {
         mixins: [TournamentsMixin],
 
         methods: {
-            updateRelations(partId) {
+            closeForm() {
+
+            },
+
+            updateRelations(matchId) {
                 let me = this
 
                 return new Promise(() => {
-                    let remove = me.part.arcadeCabs.filter(p => me.myPart.arcadeCabs.indexOf(p) === -1)
+                    let remove = me.match.players.filter(p => me.myMatch.players.indexOf(p) === -1)
                     if(remove.length === 0) {
                         return new Promise((r) => {r()})
                     }
-                    return me.$api.post('/api/tournament-event-parts/' + partId + '/remove-arcade-cabs', {arcadeCabs: remove, token: localStorage.token})
+                    return me.$api.post('/api/matches/' + matchId + '/remove-players', {players: remove, token: localStorage.token})
                 }).then(() => {
-                    let add = me.myPart.arcadeCabs.filter(p => me.part.arcadeCabs.indexOf(p) === -1)
+                    let add = me.myMatch.arcadeCabs.filter(p => me.match.players.indexOf(p) === -1)
                     if(add.length === 0) {
                         return new Promise((r) => {r()})
                     }
-                    return me.$api.post('/api/tournament-event-parts/' + partId + '/add-arcade-cabs', {arcadeCabs: add, token: localStorage.token})
+                    return me.$api.post('/api/matches/' + matchId + '/add-arcade-cabs', {players: add, token: localStorage.token})
                 })
             },
 
             handleClick(e) {
                 let me = this
                 if(me.loading === false) {
-                    let data = this.myPart
+                    let data = this.myMatch
                     data.token = localStorage.token
-                    data.tournamentEventId = this.event._id
-                    data.tournamentId = this.tournament._id
 
-                    if(this.$route.params.partId.length > 1) {
-                        me.$api.put('/api/tournament-event-parts/' + this.$route.params.partId + '/edit', data, {expectStatus: 201}).then((part) => {
-                            me.updateRelations(part._id).then(() => {
-                                me.$router.push(me.$eventPath + "/parts")
+                    if(this.$props.matchId.length > 1) {
+                        me.$api.put('/api/matches/' + this.$props.matchId + '/edit', data, {expectStatus: 201}).then((match) => {
+                            me.updateRelations(match._id).then(() => {
+                                me.closeForm()
                             })
                         })
                     } else {
-                        me.$api.post('/api/tournament-event-parts/create', data, {expectStatus: 201}).then((part) => {
-                            me.part = part
-
-                            me.updateRelations(part._id).then(() => {
-                                me.$router.push(me.$eventPath + "/parts")
+                        me.$api.post('/api/rounds/' + this.$props.roundId + '/create-match', data, {expectStatus: 201}).then((match) => {
+                            me.updateRelations(match._id).then(() => {
+                                me.closeForm()
                             })
-
-                            // me.genElimination().then((r) => {
-                            //     console.log("Generation result: " + r)
-                            //     me.$router.push(me.$eventPath + "/parts")
-                            // })
                         })
                     }
                 }
@@ -72,6 +67,17 @@
 
         created() {
             let me = this
+
+            this.$graph.query(
+                'Match',
+                [
+                    {players: '_id'},
+                    {games: [
+
+                    ]}
+                ]
+            )
+
             this.$loadTournament().then((r) => {
                 return this.$getCabValues()
             }).then(cabs => {
@@ -100,14 +106,11 @@
                 success: false,
                 loading: true,
                 message: "",
-                tournament: {},
-                event: {},
-                part: {},
-                myPart: {
-                    name: "",
-                    status: "New",
-                    roundType: "",
-                    arcadeCabs: []
+                myMatch: {
+                    players: [],
+                    games: [],
+                    arcadeCab: "",
+                    status: ""
                 },
                 schema: {
                     fields: [
@@ -128,17 +131,10 @@
                             validator: VueFormGenerator.validators.string
                         },
                         {
-                            type: "array",
-                            label: "Cabs",
-                            model: "arcadeCabs",
-                            newElementButtonLabelClasses: "btn btn-secondary new",
-                            removeElementButtonClasses: "btn btn-secondary remove",
-                            itemContainerClasses: "array-item",
-                            showRemoveButton: true,
-                            items: {
-                                type: "select",
-                                values: []
-                            }
+                            type: "select",
+                            label: "Cab",
+                            model: "arcadeCab",
+                            values: []
                         }
                     ]
                 },
@@ -153,6 +149,11 @@
         components: {
             "vue-form-generator": VueFormGenerator.component,
             "loading": Loading
+        },
+
+        props: {
+            roundId: String,
+            matchId: String
         }
     }
 </script>

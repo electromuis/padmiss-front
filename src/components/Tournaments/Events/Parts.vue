@@ -51,18 +51,16 @@
             let me = this
 
             me.$loadTournament().then((tournament) => {
-                me.$loadEvent().then((event) => {
-                    me.$graph.query(
-                        "TournamentEventParts",
-                        {docs: ["_id", "name","status"]},
-                        {tournamentEventId: event._id},
-                        true
-                    ).then((parts) => {
-                        console.log({tournamentEventId: event._id})
-
-                        me.values = parts.docs
-                    })
-                })
+                return me.$loadEvent()
+            }).then(event => {
+                return me.$graph.query(
+                    "TournamentEventParts",
+                    {docs: ["_id", "name","status"]},
+                    {tournamentEventId: event._id},
+                    true
+                )
+            }).then(parts => {
+                me.values = parts.docs
             })
         },
 

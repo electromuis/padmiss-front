@@ -25,10 +25,10 @@
                     <td>{{ row.name }}</td>
                     <td>
                         <b-button v-if="$can('join-tournament', row)" v-on:click="$router.push({path: `/tournaments/${row._id}/join`})">Join</b-button>
+                        <b-button v-on:click="$router.push({path: `/tournaments/${row._id}/events`})">Events</b-button>
 
                         <template v-if="$can('edit-tournament', row)">
                             <b-button v-on:click="$router.push({path: `/tournaments/${row._id}/players`})">Players</b-button>
-                            <b-button v-on:click="$router.push({path: `/tournaments/${row._id}/events`})">Events</b-button>
                             <b-button v-on:click="$router.push({path: `/tournaments/${row._id}/edit`})">Edit</b-button>
                             <b-button v-on:click="$router.push({path: `/tournaments/${row._id}/delete`})">Delete</b-button>
                         </template>

@@ -46,11 +46,8 @@ export default {
                    ],
                    {'id': me.$route.params.tournamentId}
                ).then((tournament) => {
-
-                   tournament.startDate = moment.unix(tournament.startDate).format( 'D-MMMM-YYYY')
-                   tournament.endDate = moment.unix(tournament.endDate).format('D-MMMM-YYYY')
-
-                   console.log(tournament.endDate)
+                   tournament.endDate = moment(tournament.endDate).calendar()
+                   tournament.startDate = moment(tournament.startDate).calendar()
 
                    tournament.tournamentAdmin = tournament.tournamentAdmin.player
                    tournament.tournamentManagers = tournament.tournamentManagers.map(u => u.player)

@@ -2,7 +2,7 @@
     <loading v-if="loading" :active="true"></loading>
     <div v-else id="edit">
         <b-alert v-if="message" show variant="secondary">{{message}}</b-alert>
-        <vue-form-generator :schema="schema" :model="event" :options="formOptions" @validated="handleValidation" />
+        <vue-form-generator :schema="schema" :model="myEvent" :options="formOptions" @validated="handleValidation" />
         <b-button v-if="valid" v-on:click="handleClick">Save</b-button>
         <b-button v-else v-on:click="handleClick" disabled>Save</b-button>
     </div>
@@ -20,16 +20,16 @@
             handleClick(e) {
                 let me = this
                 if(me.loading === false) {
-                    let data = this.event
+                    let data = this.myEvent
                     data.token = localStorage.token
                     data.tournamentId = this.tournament._id
 
                     if(this.$route.params.eventId.length > 1) {
-                        me.$api.put('/api/tournament-events/' + this.$route.params.eventId, data, {expectStatus: 201}).then(() => {
+                        me.$api.put('/api/tournament-events/' + this.$route.params.eventId + '/edit', data, {expectStatus: 201}).then(() => {
                             me.$router.push(me.$tournamentPath + "/events")
                         })
                     } else {
-                        me.$api.post('/api/tournament-events', data, {expectStatus: 201}).then(() => {
+                        me.$api.post('/api/tournament-events/create', data, {expectStatus: 201}).then(() => {
                             me.$router.push(me.$tournamentPath + "/events")
                         })
                     }
@@ -42,15 +42,20 @@
 
         created() {
             let me = this
-            this.$loadTournament().then((r) => {
+            this.$loadTournament().then(t => {
                 if(me.$route.params.eventId.length > 1) {
-                    console.log(me.$route.params.eventId)
-                    me.$loadEvent().then((r) => {
-                        me.loading = false
-                    })
-                } else {
-                    me.loading = false
+                    return me.$loadEvent()
                 }
+            }).then(event => {
+                if(event) {
+                    Object.entries(me.myEvent).forEach(([k, v]) => {
+                        if(event[k]) {
+                            me.myEvent[k] = event[k]
+                        }
+                    })
+                }
+
+                me.loading = false
             })
         },
 
@@ -61,9 +66,9 @@
                 loading: true,
                 message: "",
                 tournament: {},
-                event: {
+                event: {},
+                myEvent: {
                     name: "",
-                    status: "New",
                     isCountedToTournamentPoints: true
                 },
                 schema: {
@@ -75,12 +80,6 @@
                             model: "name",
                             required: "true",
                             validator: VueFormGenerator.validators.string
-                        },
-                        {
-                            type: "select",
-                            label: "Status",
-                            model: "status",
-                            values: TournamentsMixin.STATUS_OPTIONS
                         },
                         {
                             type: "select",
