@@ -2,7 +2,7 @@
     <div id="tournaments">
         Events
 
-        <b-button @click="$router.push({path: $tournamentPath + `/events/0/edit`})" variant="info" class="m-1">
+        <b-button v-if="$can('edit-tournament', tournament)" @click="$router.push({path: $tournamentPath + `/events/0/edit`})" variant="info" class="m-1">
             New
         </b-button>
 
@@ -57,10 +57,6 @@
         created() {
             let me = this
 
-            // this.$api.get('/api/tournaments').then((response) => {
-            //     me.values = response
-            // })
-
             me.$loadTournament().then((tournament) => {
 
                 me.$graph.query(
@@ -77,15 +73,6 @@
                 })
             })
 
-            // me.$api.get('/api/tournaments/' + this.$route.params.id).then((tournament) => {
-            //     me.tournament = tournament
-            //
-            //     me.$api.get('/api/tournament-events?tournamentId=' + tournament.id).then((events) => {
-            //
-            //
-            // }).except((err) => {
-            //     me.$router.push('/tournaments')
-            // })
         },
 
         components: {

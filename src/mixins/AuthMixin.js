@@ -201,9 +201,11 @@ export default {
 
     $can(action, what) {
       let userId = ''
+      let playerId = ''
 
       if(this.$isLoggedIn === true) {
         userId = this.$store.state.user.data.userId
+        playerId = this.$store.state.user.data.playerId
       }
 
 
@@ -217,6 +219,9 @@ export default {
             return false
           }
 
+          if(!what) {
+            return false
+          }
           if(what.playerJoinRequests.indexOf(this.$store.state.user.data.playerId) > -1) {
             return false
           }
@@ -228,10 +233,17 @@ export default {
 
         case 'own-cab':
         case 'edit-cab':
+          if(!what) {
+            return false
+          }
           return what.cabOwner == userId || what.coOwners.indexOf(userId) > -1
 
         case 'edit-tournament':
-          return what.tournamentAdmin == userId || what.tournamentManagers.indexOf(userId) > -1
+          if(!what) {
+            return false
+          }
+          return (what.tournamentAdmin == userId || what.tournamentManagers.indexOf(userId) > -1) ||
+              (what.tournamentAdmin == playerId || what.tournamentManagers.indexOf(playerId) > -1)
 
         case 'admin-users-tournament':
           return this.$isAdmin

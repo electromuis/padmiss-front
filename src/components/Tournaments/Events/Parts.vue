@@ -2,7 +2,7 @@
     <div id="tournaments">
         Parts
 
-        <b-button @click="$router.push({path: $eventPath + `/parts/0/edit`})" variant="info" class="m-1">
+        <b-button v-if="$can('edit-tournament', tournament)" @click="$router.push({path: $eventPath + `/parts/0/edit`})" variant="info" class="m-1">
             New
         </b-button>
 
@@ -20,11 +20,14 @@
                     <td>{{ row.status }}</td>
                     <td>
                         <b-button v-on:click="$router.push({path: $eventPath + `/parts/${row._id}/rounds`})">Rounds</b-button>
-                        <b-button v-on:click="$router.push({path: $eventPath + `/parts/${row._id}/edit`})">Edit</b-button>
-                        <b-button v-on:click="$router.push({path: $eventPath + `/parts/${row._id}/delete`})">Delete</b-button>
-                        <b-button v-on:click="$router.push({path: $eventPath + `/parts/${row._id}/structure`})">Structure</b-button>
-                        <b-button v-on:click="$router.push({path: $eventPath + `/parts/${row._id}/charts`})">Charts</b-button>
-                        <b-button v-if="row.status === 'New'" v-on:click="$router.push({path: $eventPath + `/parts/${row._id}/start`})">Start</b-button>
+
+                        <template v-if="$can('edit-tournament', tournament)">
+                            <b-button v-on:click="$router.push({path: $eventPath + `/parts/${row._id}/edit`})">Edit</b-button>
+                            <b-button v-on:click="$router.push({path: $eventPath + `/parts/${row._id}/delete`})">Delete</b-button>
+                            <b-button v-on:click="$router.push({path: $eventPath + `/parts/${row._id}/structure`})">Structure</b-button>
+                            <b-button v-on:click="$router.push({path: $eventPath + `/parts/${row._id}/charts`})">Charts</b-button>
+                            <b-button v-if="row.status === 'New'" v-on:click="$router.push({path: $eventPath + `/parts/${row._id}/start`})">Start</b-button>
+                        </template>
                     </td>
                 </tr>
             </tbody>
@@ -34,14 +37,15 @@
 
 <script>
     import TournamentMixin from '../../../mixins/TournamentMixin'
+    import AuthMixin from '../../../mixins/AuthMixin'
 
     export default {
-        mixins: [TournamentMixin],
+        mixins: [TournamentMixin, AuthMixin],
 
         data() {
             return {
                 path: "",
-                tournament: {},
+                tournament: null,
                 event: {},
                 values: []
             }

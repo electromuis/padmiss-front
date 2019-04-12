@@ -16,7 +16,7 @@
             handleClick(e) {
                 let me = this
 
-                me.$api.delete('/api/tournament-event-parts/' + me.$route.params.partId + '?token=' + localStorage.token, {expectStatus: 204}).then(() => {
+                me.$api.delete('/api/tournament-event-parts/' + me.$route.params.partId + '/delete-tournament-event-part?token=' + localStorage.token, {expectStatus: 204}).then(() => {
                     me.$router.push(me.$eventPath + '/parts')
                 })
             }

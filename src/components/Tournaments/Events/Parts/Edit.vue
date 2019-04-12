@@ -20,16 +20,16 @@
             updateRelations(partId) {
                 let me = this
 
-                return new Promise(() => {
+                return new Promise((r) => {r()}).then(() => {
                     let remove = me.part.arcadeCabs.filter(p => me.myPart.arcadeCabs.indexOf(p) === -1)
                     if(remove.length === 0) {
-                        return new Promise((r) => {r()})
+                        return
                     }
                     return me.$api.post('/api/tournament-event-parts/' + partId + '/remove-arcade-cabs', {arcadeCabs: remove, token: localStorage.token})
                 }).then(() => {
                     let add = me.myPart.arcadeCabs.filter(p => me.part.arcadeCabs.indexOf(p) === -1)
                     if(add.length === 0) {
-                        return new Promise((r) => {r()})
+                        return
                     }
                     return me.$api.post('/api/tournament-event-parts/' + partId + '/add-arcade-cabs', {arcadeCabs: add, token: localStorage.token})
                 })
@@ -40,20 +40,18 @@
                 if(me.loading === false) {
                     let data = this.myPart
                     data.token = localStorage.token
-                    data.tournamentEventId = this.event._id
-                    data.tournamentId = this.tournament._id
 
                     if(this.$route.params.partId.length > 1) {
                         me.$api.put('/api/tournament-event-parts/' + this.$route.params.partId + '/edit', data, {expectStatus: 201}).then((part) => {
-                            me.updateRelations(part._id).then(() => {
+                            me.updateRelations(part.tournamentEventPart._id).then(() => {
                                 me.$router.push(me.$eventPath + "/parts")
                             })
                         })
                     } else {
-                        me.$api.post('/api/tournament-event-parts/create', data, {expectStatus: 201}).then((part) => {
+                        me.$api.post('/api/tournament-events/' + this.event._id + '/create-event-part', data, {expectStatus: 201}).then((part) => {
                             me.part = part
 
-                            me.updateRelations(part._id).then(() => {
+                            me.updateRelations(part.tournamentEventPart._id).then(() => {
                                 me.$router.push(me.$eventPath + "/parts")
                             })
 
@@ -85,7 +83,11 @@
                 if(part) {
                     Object.entries(me.myPart).forEach(([k, v]) => {
                         if(part[k]) {
-                            me.myPart[k] = part[k]
+                            if(Array.isArray(part[k])) {
+                                me.myPart[k] = [...part[k]]
+                            } else {
+                                me.myPart[k] = part[k]
+                            }
                         }
                     })
                 }
@@ -102,7 +104,7 @@
                 message: "",
                 tournament: {},
                 event: {},
-                part: {},
+                part: {arcadeCabs: []},
                 myPart: {
                     name: "",
                     status: "New",
