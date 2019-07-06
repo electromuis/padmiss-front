@@ -27,7 +27,7 @@
     import VueFormGenerator from "vue-form-generator";
     import axios from 'axios'
 
-    let chartApi = 'http://electromuis1.openode.io/'
+    let chartApi = 'https://electromuis1.openode.io/'
 
     export default {
         name: "Songs",

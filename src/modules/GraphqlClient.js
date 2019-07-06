@@ -8,15 +8,20 @@ export default class {
                 filter = {}
             } else {
                 if(encodeFilter === true) {
-                    let newFilter = {
-                        queryString: JSON.stringify(filter)
-                    }
+                    let newFilter = {}
                     if(filter.limit) {
                         newFilter.limit = filter.limit
                     }
+                    delete filter.limit
                     if(filter.sort) {
                         newFilter.sort = filter.sort
                     }
+                    delete filter.sort
+                    if(filter.offset) {
+                        newFilter.offset = filter.offset
+                    }
+                    delete filter.offset
+                    newFilter.queryString = JSON.stringify(filter)
                     filter = newFilter
                 }
             }
