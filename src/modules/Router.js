@@ -14,6 +14,7 @@ import Settings from '../components/Login/Settings.vue'
 import Home from '../components/Home.vue'
 import Scores from '../components/Scores.vue'
 import MyScores from '../components/Scores/My.vue'
+import PostScores from '../components/Scores/Post.vue'
 import Tournaments from '../components/Tournaments.vue'
 import EditTournaments from '../components/Tournaments/Edit.vue'
 import DeleteTournaments from '../components/Tournaments/Delete.vue'
@@ -109,6 +110,16 @@ const routes = [
     name: 'scores-my',
     meta: {
       title: 'My scores',
+      public: true,
+      parent: 'scores'
+    },
+  },
+  {
+    path: '/scores/post',
+    component: PostScores,
+    name: 'scores-post',
+    meta: {
+      title: 'Post score',
       public: true,
       parent: 'scores'
     },

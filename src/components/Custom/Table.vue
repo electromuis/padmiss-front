@@ -1,3 +1,4 @@
+<script src="../../../../padmiss-stepstore/index.js"></script>
 <template>
     <div>
         <div class="form-group">

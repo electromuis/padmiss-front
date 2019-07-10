@@ -21,6 +21,7 @@ export default {
     ],
 
     methods: {
+
         $loadTournament(full) {
             let me = this
             console.log(me.$route.params)
