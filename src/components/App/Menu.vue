@@ -13,6 +13,7 @@
                 <b-nav-item v-if="$isLoggedIn" to="/cabs">Cabs</b-nav-item>
                 <b-nav-item to="/scores">Scores</b-nav-item>
                 <b-nav-item v-if="$isLoggedIn" to="/scores/my">My scores</b-nav-item>
+                <b-nav-item v-if="$isLoggedIn" to="/profile">Profile</b-nav-item>
             </b-navbar-nav>
 
             <b-navbar-nav class="ml-auto">

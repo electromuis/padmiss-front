@@ -11,6 +11,7 @@ Vue.use(VueRouter)
 import Register from '../components/Register.vue'
 import Login from '../components/Login.vue'
 import Settings from '../components/Login/Settings.vue'
+import Profile from '../components/Login/Profile.vue'
 import Home from '../components/Home.vue'
 import Scores from '../components/Scores.vue'
 import MyScores from '../components/Scores/My.vue'
@@ -65,6 +66,15 @@ const routes = [
     name: 'settings',
     meta: {
       title: 'Settings',
+      public: true,
+    },
+  },
+  {
+    path: '/profile',
+    component: Profile,
+    name: 'profile',
+    meta: {
+      title: 'Profile',
       public: true,
     },
   },

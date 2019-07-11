@@ -158,15 +158,40 @@ export default {
             if (result.success === true) {
               // Login successful -> set user to state and save token to local storage
 
-              me.$store.commit('SET', {
-                key: 'user',
-                value: new User(result),
-              })
               localStorage.token = result.token
 
-              // TODO: Also get player data, or make the backend return also that data with the result
+              me.$graph.query(
+                  'Player',
+                  [
+                    '_id',
+                    'nickname',
+                    'shortNickname',
+                    {country: ['_id']},
+                    'avatarIconUrl',
+                    'playerLevel',
+                    'accuracy',
+                    'stamina',
+                    'unlockedAchievements',
+                    'totalSteps',
+                    'totalPlayTimeSeconds',
+                    'totalSongsPlayed',
+                    'metaData'
+                  ],
+                  {id: result.playerId}
+              ).then(playerResult => {
+                if(playerResult.country) {
+                  playerResult.country = playerResult.country._id
+                }
+                let user = new User(Object.assign({}, result, playerResult))
 
-              resolve()
+                // Validation succeeded
+                me.$store.commit('SET', {
+                  key: 'user',
+                  value: user
+                })
+
+                resolve(user)
+              }).catch(reject)
             }
             else {
               // Login failed -> delete possible token from local storage and show login failed message

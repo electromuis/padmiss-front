@@ -11,7 +11,7 @@
                 <tr>
                     <td>Name</td>
                     <td>Actions</td>
-                    <td>Token</td>
+                    <td>API Key</td>
                 </tr>
             </thead>
             <tbody>
