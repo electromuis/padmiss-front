@@ -1,3 +1,4 @@
+<script src="../../main.js"></script>
 <template>
     <loading v-if="loading" :active="true"></loading>
     <div v-else id="edit">
@@ -108,10 +109,8 @@
                             values: [true, false]
                         },
                         {
-                            type: "input",
-                            inputType: "text",
-                            label: "Song",
-                            model: "song"
+                            type: "songSelect",
+                            label: "Song"
                         },
                         {
                             type: "input",

@@ -1,8 +1,8 @@
 <template>
     <div>
-<!--        <b-button v-if="canPost" variant="info" class="m-1" @click="$router.push({path: `/scores/post`})">-->
-<!--            Post score-->
-<!--        </b-button>-->
+        <b-button v-if="canPost" variant="info" class="m-1" @click="$router.push({path: `/scores/post`})">
+            Post score
+        </b-button>
 
         <Table :cols="cols" :query="query"></Table>
     </div>

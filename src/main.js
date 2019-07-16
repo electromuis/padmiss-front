@@ -9,11 +9,14 @@ import Vue from 'vue'
 import BootstrapVue from "bootstrap-vue"
 
 import fieldArray from "vfg-field-array/src/components/field-array.vue";
+import songSelect from './components/Custom/SongSelect.vue'
 
 import fieldComponents from "vue-form-generator/src/utils/fieldsLoader.js";
 fieldArray.components = fieldComponents
+songSelect.components = fieldComponents
 
 Vue.component("fieldArray", fieldArray);
+Vue.component("fieldSongSelect", songSelect);
 
 // Config
 import config from 'ClientConfig'
