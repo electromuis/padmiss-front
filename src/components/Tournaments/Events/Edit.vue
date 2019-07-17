@@ -22,14 +22,14 @@
                 if(me.loading === false) {
                     let data = this.myEvent
                     data.token = localStorage.token
-                    data.tournamentId = this.tournament._id
+                    // data.tournamentId = this.tournament._id
 
                     if(this.$route.params.eventId.length > 1) {
                         me.$api.put('/api/tournament-events/' + this.$route.params.eventId + '/edit', data, {expectStatus: 201}).then(() => {
                             me.$router.push(me.$tournamentPath + "/events")
                         })
                     } else {
-                        me.$api.post('/api/tournament-events/create', data, {expectStatus: 201}).then(() => {
+                        me.$api.post('/api/tournaments/' + this.tournament._id + '/create-event', data, {expectStatus: 201}).then(() => {
                             me.$router.push(me.$tournamentPath + "/events")
                         })
                     }

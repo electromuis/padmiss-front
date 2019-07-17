@@ -21,6 +21,8 @@
                 let me = this
 
                 return new Promise((r) => {r()}).then(() => {
+                    console.log(me.part)
+
                     let remove = me.part.arcadeCabs.filter(p => me.myPart.arcadeCabs.indexOf(p) === -1)
                     if(remove.length === 0) {
                         return

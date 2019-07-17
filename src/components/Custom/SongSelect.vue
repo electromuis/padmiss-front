@@ -18,8 +18,8 @@
 
         <div v-if="song != null" class="form-group">
             Level:
-            <select v-model="level" class="form-control">
-                <option v-for="l in levels" :value="l">{{l}}</option>
+            <select v-model="value" class="form-control">
+                <option v-for="c in charts" :value="c._id">{{c.difficultyLevel}}</option>
             </select>
         </div>
     </div>
@@ -34,8 +34,34 @@
         mixins: [VueFormGenerator.abstractField],
 
         methods: {
+            searchPacks() {
+                me.charts = []
+                me.songs = []
+                me.packs = ['Loading ...']
+
+                this.$graph.query(
+                    'Stepcharts',
+                    {docs: [
+                            'groups'
+                        ]},
+                    {limit: 1000000000}
+                ).then(response => {
+                    let groups = ['All']
+                    response.docs.forEach(s => {
+                        s.groups.forEach(g => {
+                            if(groups.indexOf(g) < 0) {
+                                groups.push(g)
+                            }
+                        })
+                    })
+                    me.packs = groups
+
+                    me.searchSongs()
+                })
+            },
+
             searchSongs() {
-                me.levels = null
+                me.charts = null
 
                 let query = {
                     limit: 1000000000,
@@ -75,35 +101,18 @@
 
         created() {
             me = this
-            // this.$graph.query(
-            //     'Stepcharts',
-            //     {docs: [
-            //         'groups'
-            //     ]},
-            //     {limit: 1000000000}
-            // ).then(response => {
-            //     let groups = []
-            //     response.docs.forEach(s => {
-            //         s.groups.forEach(g => {
-            //             groups.push(g)
-            //         })
-            //     })
-            //     me.packs = groups
-            //     console.log(groups)
-            // })
 
-            me.searchSongs()
+            me.searchPacks()
         },
 
         data() {
             return {
                 packs: ['All'],
                 songs: [],
-                levels: [],
+                charts: [],
 
                 pack: 'All',
                 song: null,
-                level: null,
 
                 packSearch: null,
                 songSearch: null,
@@ -122,22 +131,17 @@
             song() {
                 me.$graph.query(
                     'Stepcharts',
-                    {docs: ['difficultyLevel']},
+                    {docs: ['difficultyLevel', '_id']},
                     {
                         limit: 20,
                         "song.title": me.song
                     },
                     true
                 ).then(r => {
-                    let levels = []
+                    me.charts = r.docs
 
-                    r.docs.forEach(c => {
-                        levels.push(c.difficultyLevel)
-                    })
-
-                    me.levels = levels
-                    if(levels.length == 1) {
-                        me.level = levels[0]
+                    if(me.charts.length === 1) {
+                        me.value = me.charts[0]._id
                     }
                 })
             }

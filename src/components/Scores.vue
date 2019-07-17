@@ -46,7 +46,7 @@
                     {
                         field: 'scoreValue',
                         name: 'Score',
-                        morph: (v) =>  v*100 + ' %'
+                        morph: (v) =>  (Math.round(v*10000) / 100) + ' %'
                     },
                     {
                         field: 'stepChart.song.title',

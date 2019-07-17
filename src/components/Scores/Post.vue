@@ -1,4 +1,3 @@
-<script src="../../main.js"></script>
 <template>
     <loading v-if="loading" :active="true"></loading>
     <div v-else id="edit">
@@ -15,14 +14,20 @@
 
     export default {
         methods: {
-
             handleClick(e) {
                 let me = this
-                let data = this.score
+                let data = Object.assign({}, this.score)
+                data.scoreValue = data.scoreValue / 100
 
-                let url =
                 me.$api.post('/post-score', data).then(response => {
-                    console.log(response)
+                    if(!response.success) {
+                        throw response.message
+                    }
+                    else {
+                        message = 'Submitted successfull'
+                    }
+                }).catch(e => {
+                    message = e
                 })
             },
             handleValidation(valid, errors) {
@@ -45,12 +50,17 @@
                     }
                 })
 
+                if(cabs.length === 1) {
+                    me.score.apiKey = cabs[0].apiKey
+                }
+
                 return me.$graph.query(
                     'Players',
                     [{docs: [
                         '_id',
                         'nickname'
-                    ]}]
+                    ]}],
+                    {sort: 'nickname'}
                 )
             })
             .then(response => {
@@ -73,15 +83,42 @@
                 loading: true,
                 message: "",
                 score: {
+                    chart: "",
                     apiKey: "",
                     playerId: "",
                     passed: true,
-                    song: "",
+                    cabSide: 'Left',
                     scoreValue: "",
                     fantastics: 0,
-                    excelents: 0,
+                    excellents: 0,
                     greats: 0,
-                    decents: 0
+                    decents: 0,
+                    wayoffs: 0,
+                    misses: 0,
+
+                    holds: 0,
+                    holdsTotal: 0,
+                    rolls: 0,
+                    rollsTotal: 0,
+                    minesHit: 0,
+                    minesAvoided: 0,
+                    minesTotal: 0,
+                    jumps: 0,
+                    jumpsTotal: 0,
+                    hands: 0,
+                    handsTotal: 0,
+
+                    musicRate: 1,
+                    timingWindows: {
+                        "rollTimingWindow" : 0.3515,
+                        "holdTimingWindow" : 0.3215,
+                        "mineTimingWindow" : 0.0715,
+                        "wayoffTimingWindow" : 0.1365,
+                        "decentTimingWindow" : 0.1365,
+                        "greatTimingWindow" : 0.1035,
+                        "excellentTimingWindow" : 0.0445,
+                        "fantasticTimingWindow" : 0.023
+                    }
                 },
                 schema: {
                     fields: [
@@ -110,13 +147,15 @@
                         },
                         {
                             type: "songSelect",
-                            label: "Song"
+                            label: "Song",
+                            model: "chart"
                         },
                         {
                             type: "input",
                             inputType: "text",
                             label: "Percentage",
-                            model: "scoreValue"
+                            model: "scoreValue",
+                            placeholder: '50.01'
                         },
                         {
                             type: "input",
@@ -128,7 +167,19 @@
                             type: "input",
                             inputType: "num",
                             label: "Excelents",
-                            model: "excelents"
+                            model: "excellents"
+                        },
+                        {
+                            type: "input",
+                            inputType: "num",
+                            label: "Wayoffs",
+                            model: "wayoffs"
+                        },
+                        {
+                            type: "input",
+                            inputType: "num",
+                            label: "Misses",
+                            model: "misses"
                         },
                     ]
                 },

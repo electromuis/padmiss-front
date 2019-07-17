@@ -30,6 +30,10 @@
                     '/register',
                     me.model
                 ).then(r => {
+                    if(!r.success) {
+                        throw r.message
+                    }
+                    console.log(r)
                     me.message = "Registration sucessfull"
                 }).catch(e => {
                     me.message = e

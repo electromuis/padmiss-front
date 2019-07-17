@@ -73,14 +73,11 @@ class NotesWriter {
                 return
             }
 
-            // console.log([l, mode])
-
             if(mode === "normal") {
                 let match = re1.exec(l)
                 if(match) {
                     me.handleLine(match)
                 } else {
-                    console.log(l)
                     if(l === '#NOTES:') {
 
                         if(chart !== null) {
@@ -92,7 +89,6 @@ class NotesWriter {
                         mode = "chart"
                         c = 0
                     } else {
-                        console.log([1, l, "buffer"])
                         buff = l
                         mode = "buffer"
                     }
@@ -139,8 +135,6 @@ class NotesWriter {
                     notes.push(l)
                 }
             }
-
-            // console.log(mode)
         })
 
         if(chart !== null) {
@@ -279,7 +273,6 @@ class NotesWriter {
             return
         }
 
-        console.log(bpms)
         let fromBeat = 0
         let bpm = 0
 
@@ -330,8 +323,6 @@ class NotesWriter {
                 duration = 60 * beats / Math.abs(bpm)
             }
 
-            console.log([duration, length, fromBeat, toBeat, bpm, beats])
-
             length += duration
 
             fromBeat = toBeat
@@ -355,7 +346,6 @@ class NotesWriter {
                 let val = parseFloat(pts[1])
 
                 //todo test negative stops
-                console.log(val)
                 length += val
             })
         }
