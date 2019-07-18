@@ -5,10 +5,9 @@
     <div v-else>
       <Menu />
       <Breadcrumb />
-      <div v-if="wrapper" class="container">
+      <div class="container main-wrapper">
         <router-view></router-view>
       </div>
-      <router-view v-else></router-view>
     </div>
   </div>
 </template>
@@ -26,8 +25,7 @@
     mixins: [AuthMixin],
     data() {
       return {
-          loading: true,
-          wrapper: true
+          loading: true
       }
     },
     created() {
@@ -45,3 +43,13 @@
     }
   }
 </script>
+
+<style lang="scss">
+  @import 'assets/custom.scss';
+  @import '~bootstrap/scss/bootstrap.scss';
+  /*@import '~bootstrap-vue/src/index.scss';*/
+
+  .main-wrapper {
+    padding-top: 20px;
+  }
+</style>

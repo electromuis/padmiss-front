@@ -1,6 +1,10 @@
 <template>
     <loading v-if="loading" :active="true"></loading>
-    <Table v-else :cols="cols" :query="query"></Table>
+    <div v-else>
+        <h1>My scores</h1>
+        <br/>&nbsp;
+        <Table :cols="cols" :query="query"></Table>
+    </div>
 </template>
 
 <script>
@@ -31,7 +35,7 @@
                     {
                         field: 'scoreValue',
                         name: 'Score',
-                        morph: (v) =>  v*100 + ' %'
+                        morph: (v) =>  (Math.round(v*10000) / 100) + ' %'
                     },
                     {
                         field: 'stepChart.song.title',

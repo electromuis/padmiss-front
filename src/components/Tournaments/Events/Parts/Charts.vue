@@ -6,7 +6,7 @@
 
             <input class="form-control" v-model="group" placeholder="My awesome pack" />
         </div>
-        <form v-bind:class="[hovering ? 'drop hover' : 'drop']" ref="drop">
+        <form v-bind:class="[hovering ? 'drop hover' : 'drop']" ref="drop" @click="selectFiles" >
 
             Drop here to add
 
@@ -108,6 +108,10 @@
         },
 
         methods: {
+            selectFiles() {
+                console.log(123)
+            },
+
             addChart(chart) {
                 let me = this
                 let id = chart._id
@@ -158,7 +162,7 @@
                     }, {expectStatus: 201}).then(response => {
                         response._id = response.id
 
-                        me.addChart(response).then(resolve)
+                        // me.addChart(response).then(resolve)
 
                     }).catch(reject)
                 }))

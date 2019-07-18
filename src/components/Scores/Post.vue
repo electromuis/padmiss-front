@@ -1,10 +1,15 @@
 <template>
     <loading v-if="loading" :active="true"></loading>
     <div v-else id="edit">
+        <h1>Post score</h1>
+        <br/>
+
         <b-alert v-if="message" show variant="secondary">{{message}}</b-alert>
-        <vue-form-generator :schema="schema" :model="score" :options="formOptions" @validated="handleValidation" />
-        <b-button v-if="valid" v-on:click="handleClick">Save</b-button>
-        <b-button v-else v-on:click="handleClick" disabled>Save</b-button>
+        <form>
+            <vue-form-generator :schema="schema" :model="score" :options="formOptions" @validated="handleValidation" />
+            <b-button v-if="valid" v-on:click="handleClick" variant="primary" type="submit">Save</b-button>
+            <b-button v-else v-on:click="handleClick" disabled>Save</b-button>
+        </form>
     </div>
 </template>
 
@@ -19,15 +24,41 @@
                 let data = Object.assign({}, this.score)
                 data.scoreValue = data.scoreValue / 100
 
+                let fields = [
+                    'fantastics',
+                    'excellents',
+                    'greats',
+                    'decents',
+                    'wayoffs',
+                    'misses',
+                    'holds',
+                    'holdsTotal',
+                    'rolls',
+                    'rollsTotal',
+                    'minesHit',
+                    'minesAvoided',
+                    'minesTotal',
+                    'jumps',
+                    'jumpsTotal',
+                    'hands',
+                    'handsTotal',
+                ]
+
+                fields.forEach(f => {
+                    if(typeof data[f] !== 'undefined') {
+                        data[f] = parseInt(data[f])
+                    }
+                })
+
                 me.$api.post('/post-score', data).then(response => {
                     if(!response.success) {
                         throw response.message
                     }
                     else {
-                        message = 'Submitted successfull'
+                        me.message = 'Submitted successfull'
                     }
                 }).catch(e => {
-                    message = e
+                    me.message = e
                 })
             },
             handleValidation(valid, errors) {
@@ -60,7 +91,7 @@
                         '_id',
                         'nickname'
                     ]}],
-                    {sort: 'nickname'}
+                    {sort: 'nickname', limit: 100000}
                 )
             })
             .then(response => {
@@ -128,7 +159,9 @@
                             model: "apiKey",
                             required: "true",
                             validator: VueFormGenerator.validators.string,
-                            values: []
+                            values: [],
+
+                            fieldClasses: "col-md-6"
                         },
                         {
                             type: "select",
@@ -136,50 +169,66 @@
                             model: "playerId",
                             required: "true",
                             validator: VueFormGenerator.validators.string,
-                            values: []
+                            values: [],
+
+                            fieldClasses: "col-md-6"
                         },
                         {
                             type: "select",
                             label: "Passed",
                             model: "passed",
                             required: "true",
-                            values: [true, false]
+                            values: [true, false],
+
+                            fieldClasses: "col-md-6"
                         },
                         {
                             type: "songSelect",
                             label: "Song",
-                            model: "chart"
+                            model: "chart",
+
+                            fieldClasses: "col-md-6"
                         },
                         {
                             type: "input",
                             inputType: "text",
                             label: "Percentage",
                             model: "scoreValue",
-                            placeholder: '50.01'
+                            placeholder: '50.01',
+
+                            fieldClasses: "col-md-6"
                         },
                         {
                             type: "input",
                             inputType: "num",
                             label: "Fantastics",
-                            model: "fantastics"
+                            model: "fantastics",
+
+                            fieldClasses: "col-md-6"
                         },
                         {
                             type: "input",
                             inputType: "num",
                             label: "Excelents",
-                            model: "excellents"
+                            model: "excellents",
+
+                            fieldClasses: "col-md-6"
                         },
                         {
                             type: "input",
                             inputType: "num",
                             label: "Wayoffs",
-                            model: "wayoffs"
+                            model: "wayoffs",
+
+                            fieldClasses: "col-md-6"
                         },
                         {
                             type: "input",
                             inputType: "num",
                             label: "Misses",
-                            model: "misses"
+                            model: "misses",
+
+                            fieldClasses: "col-md-6"
                         },
                     ]
                 },

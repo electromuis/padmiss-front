@@ -1,8 +1,11 @@
 <template>
     <div id="settings">
+        <h1>Settings</h1>
+        <br/>
+
         <b-alert v-if="message" show variant="secondary">{{message}}</b-alert>
         <vue-form-generator :schema="schema" :model="model" :options="formOptions" @validated="handleValidation" />
-        <b-button v-if="valid" v-on:click="handleClick">Save</b-button>
+        <b-button v-if="valid" v-on:click="handleClick" variant="primary">Save</b-button>
         <b-button v-else v-on:click="handleClick" disabled>Save</b-button>
     </div>
 </template>

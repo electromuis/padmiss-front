@@ -1,9 +1,8 @@
 <template>
     <b-navbar toggleable="md" type="dark" variant="info">
         <b-navbar-toggle target="nav_collapse"></b-navbar-toggle>
-        <b-navbar-brand to="home">Home</b-navbar-brand>
+        <b-navbar-brand to="/"><img alt="logo" src="/assets/logo.png" class="logo" /></b-navbar-brand>
         <b-collapse is-nav id="nav_collapse">
-
             <b-navbar-nav>
                 <b-nav-item v-if="!$isLoggedIn" to="/register">Register</b-nav-item>
                 <b-nav-item v-if="!$isLoggedIn" to="/login">Login</b-nav-item>
@@ -41,5 +40,8 @@
 </script>
 
 <style scoped>
+    .logo {
+        max-height: 36px;
+    }
 
 </style>

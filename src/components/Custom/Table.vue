@@ -3,9 +3,9 @@
     <div>
         <div class="form-group">
             <div class="form-label">
-                Result ammount:
+                Result amount:
             </div>
-            <select v-model="query.limit" @change="() => loadPage(1)" class="form-control">
+            <select v-model="query.limit" @change="() => loadPage(1)" class="form-control col-md-3">
                 <option value="10">10</option>
                 <option value="25">25</option>
                 <option value="50">50</option>
@@ -26,8 +26,13 @@
                         Loading ...
                     </td>
                 </tr>
-                <tr v-else v-for="r in rows">
+                <tr v-else-if="rows.length > 0" v-for="r in rows">
                     <td v-for="c in $props.cols">{{readField(r, c)}}</td>
+                </tr>
+                <tr v-else>
+                    <td :colspan="$props.cols.length">
+                        Nothing found ...
+                    </td>
                 </tr>
             </tbody>
         </table>

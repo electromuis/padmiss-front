@@ -1,10 +1,12 @@
 <template>
     <div id="tournaments">
-        Cabs
+        <h1>Cabs</h1>
 
         <b-button v-if="$can('create-cab')" @click="$router.push({path: `/cabs/0/edit`})" variant="info" class="m-1">
             New
         </b-button>
+        <br/>
+        <br/>
 
         <table class="table table-striped">
             <thead>

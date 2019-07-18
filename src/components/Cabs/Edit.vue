@@ -1,9 +1,12 @@
 <template>
     <loading v-if="loading" :active="true"></loading>
     <div v-else id="edit">
+        <h1>Cab</h1>
+        <br/>
+
         <b-alert v-if="message" show variant="secondary">{{message}}</b-alert>
         <vue-form-generator :schema="schema" :model="cab" :options="formOptions" @validated="handleValidation" />
-        <b-button v-if="valid" v-on:click="handleClick">Save</b-button>
+        <b-button v-if="valid" v-on:click="handleClick" variant="primary">Save</b-button>
         <b-button v-else v-on:click="handleClick" disabled>Save</b-button>
     </div>
 </template>

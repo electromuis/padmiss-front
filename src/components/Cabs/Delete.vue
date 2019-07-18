@@ -3,7 +3,7 @@
         Are you sure you want to delete this cab?
 
         <b-button v-on:click="$router.push(`/cabs`)">No</b-button>
-        <b-button v-on:click="handleClick">Delete</b-button>
+        <b-button v-on:click="handleClick" variant="danger">Delete</b-button>
     </div>
 </template>
 

@@ -1,8 +1,11 @@
 <template>
     <div>
+        <h1>Scores</h1>
+
         <b-button v-if="canPost" variant="info" class="m-1" @click="$router.push({path: `/scores/post`})">
             Post score
         </b-button>
+        <br/>&nbsp;
 
         <Table :cols="cols" :query="query"></Table>
     </div>

@@ -1,26 +1,46 @@
 <template>
-    <div>
-        <div class="form-group">
-            Pack: <input v-model="packSearch" placeholder="Search ..." class="form-control"/>
+    <div class="col-md-6">
+        <div class="row form-group">
+            <div class="col-md-3">
+                <label for="search-pack">Pack: </label>
+            </div>
 
-            <select v-model="pack" class="form-control">
-                <option v-for="p in packs" :value="p">{{p}}</option>
-            </select>
+            <div class="col-md-4">
+                <input id="search-pack" v-model="packSearch" placeholder="Search ..." class="form-control"/>
+            </div>
+
+            <div class="col-md-5">
+                <select v-model="pack" class="form-control">
+                    <option v-for="p in packs" :value="p">{{p}}</option>
+                </select>
+            </div>
         </div>
 
-        <div v-if="songs != null" class="form-group">
-            Song: <input v-model="songSearch" placeholder="Search ..." class="form-control"/>
+        <div v-if="songs != null" class="row form-group">
+            <div class="col-md-3">
+                <label for="search-song">Song: </label>
+            </div>
 
-            <select v-model="song" class="form-control">
-                <option v-for="s in songs" :value="s">{{s}}</option>
-            </select>
+            <div class="col-md-4">
+                <input id="search-song" v-model="songSearch" placeholder="Search ..." class="form-control"/>
+            </div>
+
+            <div class="col-md-5">
+                <select v-model="song" class="form-control">
+                    <option v-for="s in songs" :value="s">{{s}}</option>
+                </select>
+            </div>
         </div>
 
-        <div v-if="song != null" class="form-group">
-            Level:
-            <select v-model="value" class="form-control">
-                <option v-for="c in charts" :value="c._id">{{c.difficultyLevel}}</option>
-            </select>
+        <div v-if="song != null" class="row form-group">
+            <div class="col-md-3">
+                <label for="chart">Level: </label>
+            </div>
+            <div class="col-md-9">
+                <select id="chart" v-model="value" class="form-control">
+                    <option v-for="c in charts" :value="c._id">{{c.difficultyLevel}}</option>
+                </select>
+            </div>
         </div>
     </div>
 </template>
@@ -75,6 +95,10 @@
                     }
                 }
 
+                if(me.pack && me.pack != 'All') {
+                    query['groups'] = me.pack
+                }
+
                 me.$graph.query(
                     'Stepcharts',
                     {docs: [
@@ -120,8 +144,12 @@
         },
 
         watch: {
-            packSearch() {
+            packSearch: _.debounce(() => {
+                me.searchPacks()
+            }, 200),
 
+            pack() {
+                me.searchSongs()
             },
 
             songSearch: _.debounce(() => {

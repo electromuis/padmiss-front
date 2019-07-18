@@ -1,9 +1,14 @@
 <template>
     <div id="login">
+        <h1>Login</h1>
+        <br/>
+
         <b-alert v-if="message" show variant="secondary">{{message}}</b-alert>
-        <vue-form-generator :schema="schema" :model="model" :options="formOptions" @validated="handleValidation" />
-        <b-button v-if="valid" v-on:click="handleClick">Login</b-button>
-        <b-button v-else v-on:click="handleClick" disabled>Login</b-button>
+        <form class="form-horizontal">
+            <vue-form-generator :schema="schema" :model="model" :options="formOptions" @validated="handleValidation" />
+            <b-button v-if="valid" v-on:click="handleClick" type="submit" variant="primary">Login</b-button>
+            <b-button v-else v-on:click="handleClick" disabled>Login</b-button>
+        </form>
     </div>
 </template>
 
@@ -41,18 +46,6 @@
                         }
                     })
 
-                // padmiss.login(this.model.email, this.model.password, () => {
-                //     me.message = "Login successfull"
-                //     me.$router.push('/')
-                // }, (data) => {
-                //     if(data.message) {
-                //         me.message = data.message
-                //     } else {
-                //         me.message = "Login failed"
-                //     }
-                // })
-
-
             },
             handleValidation(valid, errors) {
                 this.valid = valid
@@ -76,7 +69,9 @@
                             label: "Email",
                             model: "email",
                             required: "true",
-                            validator: VueFormGenerator.validators.email
+                            validator: VueFormGenerator.validators.email,
+
+                            fieldClasses: "col-md-6"
                         },
                         {
                             type: "input",
@@ -84,7 +79,9 @@
                             label: "Password",
                             model: "password",
                             required: true,
-                            validator: VueFormGenerator.validators.string
+                            validator: VueFormGenerator.validators.string,
+
+                            fieldClasses: "col-md-6"
                         }
                     ]
                 },

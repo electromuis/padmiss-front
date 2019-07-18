@@ -1,5 +1,7 @@
 <template>
     <div class="songs">
+        <h1>Custom songs</h1>
+        <br/>
         <div v-for="warning in warnings" class="alert-warning">
             {{warning}}
         </div>
