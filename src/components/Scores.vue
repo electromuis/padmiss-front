@@ -15,11 +15,13 @@
     import Table from './Custom/Table.vue'
     import TournamentMixin from './../mixins/TournamentMixin'
 
+    let me = null
+
     export default {
         mixins: [TournamentMixin],
 
         created() {
-            let me = this
+            me = this
 
             me.$api.get(
                 '/api/arcade-cabs/get-my-cabs?token=' + localStorage.token
@@ -58,6 +60,17 @@
                     {
                         field: 'stepChart.song.artist',
                         name: 'Artist'
+                    },
+                    {
+                        type: 'actions',
+                        actions: [
+                            {
+                                text: 'Details',
+                                action(r) {
+                                    me.$router.push('/scores/details/' + r._id)
+                                }
+                            }
+                        ]
                     }
                 ],
                 query: {
@@ -70,9 +83,9 @@
                         'scoreValue',
                         {'player': ['nickname']},
                         {'stepChart': [
-                                {'song': ['title', 'artist']},
-                                'difficultyLevel'
-                            ]}
+                            {'song': ['title', 'artist']},
+                            'difficultyLevel'
+                        ]}
                     ]
                 }
             }

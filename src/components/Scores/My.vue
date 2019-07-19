@@ -11,8 +11,12 @@
     import Table from './../Custom/Table.vue'
     import Loading from 'vue-loading-overlay';
 
+    let me = null
+
     export default {
         created() {
+            me = this
+
             this.query.filter = {
                 player: this.$user.data.playerId
             }
@@ -44,6 +48,17 @@
                     {
                         field: 'stepChart.song.artist',
                         name: 'Artist'
+                    },
+                    {
+                        type: 'actions',
+                        actions: [
+                            {
+                                text: 'Details',
+                                action(r) {
+                                    me.$router.push('/scores/my/details/' + r._id)
+                                }
+                            }
+                        ]
                     }
                 ],
                 query: {

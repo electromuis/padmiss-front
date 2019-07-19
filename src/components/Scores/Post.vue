@@ -4,12 +4,17 @@
         <h1>Post score</h1>
         <br/>
 
-        <b-alert v-if="message" show variant="secondary">{{message}}</b-alert>
-        <form>
-            <vue-form-generator :schema="schema" :model="score" :options="formOptions" @validated="handleValidation" />
-            <b-button v-if="valid" v-on:click="handleClick" variant="primary" type="submit">Save</b-button>
-            <b-button v-else v-on:click="handleClick" disabled>Save</b-button>
-        </form>
+        <div v-if="success">
+            Score saved successfully! <b-button @click="score = defaultScore(); success = false; message = '';">Submit another</b-button>
+        </div>
+        <div v-else>
+            <b-alert v-if="message" show variant="secondary">{{message}}</b-alert>
+            <form>
+                <vue-form-generator :schema="schema" :model="score" :options="formOptions" @validated="handleValidation" />
+                <b-button v-if="valid" v-on:click="handleClick" variant="primary" type="submit">Save</b-button>
+                <b-button v-else v-on:click="handleClick" disabled>Save</b-button>
+            </form>
+        </div>
     </div>
 </template>
 
@@ -17,8 +22,60 @@
     import VueFormGenerator from "vue-form-generator";
     import Loading from 'vue-loading-overlay';
 
+    let validateNum = function(val) {
+        let parsed = parseInt(val)
+        if(isNaN(parsed)) {
+            return 'Not a number'
+        }
+        if(parsed < 0) {
+            return 'Should be bigger than 0'
+        }
+        return true
+    }
+
     export default {
         methods: {
+            defaultScore() {
+                return {
+                    chart: "",
+                    apiKey: "",
+                    playerId: "",
+                    passed: true,
+                    cabSide: 'Left',
+                    scoreValue: "",
+                    fantastics: 0,
+                    excellents: 0,
+                    greats: 0,
+                    decents: 0,
+                    wayoffs: 0,
+                    misses: 0,
+
+                    holds: 0,
+                    holdsTotal: 0,
+                    rolls: 0,
+                    rollsTotal: 0,
+                    minesHit: 0,
+                    minesAvoided: 0,
+                    minesTotal: 0,
+                    jumps: 0,
+                    jumpsTotal: 0,
+                    hands: 0,
+                    handsTotal: 0,
+
+                    musicRate: 1,
+                    timingWindows: {
+                        "rollTimingWindow" : 0.3515,
+                        "holdTimingWindow" : 0.3215,
+                        "mineTimingWindow" : 0.0715,
+                        "wayoffTimingWindow" : 0.1365,
+                        "decentTimingWindow" : 0.1365,
+                        "greatTimingWindow" : 0.1035,
+                        "excellentTimingWindow" : 0.0445,
+                        "fantasticTimingWindow" : 0.023
+                    }
+                }
+            },
+
             handleClick(e) {
                 let me = this
                 let data = Object.assign({}, this.score)
@@ -56,9 +113,11 @@
                     }
                     else {
                         me.message = 'Submitted successfull'
+                        me.success = true
                     }
                 }).catch(e => {
                     me.message = e
+                    me.success = false
                 })
             },
             handleValidation(valid, errors) {
@@ -203,6 +262,7 @@
                             inputType: "num",
                             label: "Fantastics",
                             model: "fantastics",
+                            validator: validateNum,
 
                             fieldClasses: "col-md-6"
                         },
@@ -211,6 +271,7 @@
                             inputType: "num",
                             label: "Excelents",
                             model: "excellents",
+                            validator: validateNum,
 
                             fieldClasses: "col-md-6"
                         },
@@ -219,6 +280,7 @@
                             inputType: "num",
                             label: "Wayoffs",
                             model: "wayoffs",
+                            validator: validateNum,
 
                             fieldClasses: "col-md-6"
                         },
@@ -227,6 +289,7 @@
                             inputType: "num",
                             label: "Misses",
                             model: "misses",
+                            validator: validateNum,
 
                             fieldClasses: "col-md-6"
                         },

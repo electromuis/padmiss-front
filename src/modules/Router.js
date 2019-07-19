@@ -14,6 +14,7 @@ import Settings from '../components/Login/Settings.vue'
 import Profile from '../components/Login/Profile.vue'
 import Home from '../components/Home.vue'
 import Scores from '../components/Scores.vue'
+import ScoreDetails from '../components/Scores/Details.vue'
 import MyScores from '../components/Scores/My.vue'
 import PostScores from '../components/Scores/Post.vue'
 import Tournaments from '../components/Tournaments.vue'
@@ -115,6 +116,16 @@ const routes = [
     },
   },
   {
+    path: '/scores/details/:scoreId',
+    component: ScoreDetails,
+    name: 'scores-details',
+    meta: {
+      title: 'Score details',
+      public: true,
+      parent: 'scores'
+    },
+  },
+  {
     path: '/scores/my',
     component: MyScores,
     name: 'scores-my',
@@ -122,6 +133,16 @@ const routes = [
       title: 'My scores',
       public: true,
       parent: 'scores'
+    },
+  },
+  {
+    path: '/scores/my/details/:scoreId',
+    component: ScoreDetails,
+    name: 'scores-my-details',
+    meta: {
+      title: 'My score details',
+      public: true,
+      parent: 'scores-my'
     },
   },
   {

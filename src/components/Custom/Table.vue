@@ -1,4 +1,3 @@
-<script src="../../../../padmiss-stepstore/index.js"></script>
 <template>
     <div>
         <div class="form-group">
@@ -27,7 +26,14 @@
                     </td>
                 </tr>
                 <tr v-else-if="rows.length > 0" v-for="r in rows">
-                    <td v-for="c in $props.cols">{{readField(r, c)}}</td>
+                    <td v-for="c in $props.cols">
+                        <template v-if="c.type === 'actions'">
+                            <a v-for="a in c.actions" href="javascript:void(0)" @click="() => {a.action(r)}">{{a.text}}</a>
+                        </template>
+                        <template v-else>
+                            {{readField(r, c)}}
+                        </template>
+                    </td>
                 </tr>
                 <tr v-else>
                     <td :colspan="$props.cols.length">
