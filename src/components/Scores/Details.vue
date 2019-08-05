@@ -129,7 +129,7 @@
             let me = this
             let scoreId = me.$route.params.scoreId
 
-            me.$graph.query(
+            me.$graph(
                 'Score',
                 [
                     'scoreValue',

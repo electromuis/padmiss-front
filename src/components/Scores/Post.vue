@@ -144,7 +144,7 @@
                     me.score.apiKey = cabs[0].apiKey
                 }
 
-                return me.$graph.query(
+                return me.$graph(
                     'Players',
                     [{docs: [
                         '_id',

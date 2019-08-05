@@ -5,7 +5,7 @@ export default {
 
             return new Promise((resolve, reject) => {
                 if(this.$store.state.countries.length === 0) {
-                    this.$graph.query(
+                    this.$graph(
                         'Countries',
                         {docs: ['_id', 'name']},
                         {sort: "name", limit: 1000},

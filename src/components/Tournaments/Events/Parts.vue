@@ -57,7 +57,7 @@
             me.$loadTournament().then((tournament) => {
                 return me.$loadEvent()
             }).then(event => {
-                return me.$graph.query(
+                return me.$graph(
                     "TournamentEventParts",
                     {docs: ["_id", "name","status"]},
                     {tournamentEventId: event._id},

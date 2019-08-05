@@ -59,7 +59,7 @@
                 me.songs = []
                 me.packs = ['Loading ...']
 
-                this.$graph.query(
+                this.$graph(
                     'Stepcharts',
                     {docs: [
                             'groups'
@@ -99,7 +99,7 @@
                     query['groups'] = me.pack
                 }
 
-                me.$graph.query(
+                me.$graph(
                     'Stepcharts',
                     {docs: [
                         {song: ['title']}
@@ -157,7 +157,7 @@
             }, 200),
 
             song() {
-                me.$graph.query(
+                me.$graph(
                     'Stepcharts',
                     {docs: ['difficultyLevel', '_id']},
                     {

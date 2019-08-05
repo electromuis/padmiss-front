@@ -198,7 +198,7 @@
 
                 let tournament = await this.$loadTournament()
                 let part = await this.$loadPart()
-                let rounds = await this.$graph.query(
+                let rounds = await this.$graph(
                     'Rounds',
                     {docs: [
                             '_id',
@@ -224,7 +224,7 @@
                     r.number = nr
                     r.type = type
 
-                    let matches = await me.$graph.query(
+                    let matches = await me.$graph(
                         'Matches',
                         {docs: [
                                 '_id',
@@ -249,7 +249,7 @@
                         m.players = []
 
                         for(let y = 0; y < ids.length; y++) {
-                            let player = await me.$graph.query(
+                            let player = await me.$graph(
                                 'Player',
                                 [
                                     '_id',

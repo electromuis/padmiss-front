@@ -19,6 +19,7 @@ import MyScores from '../components/Scores/My.vue'
 import PostScores from '../components/Scores/Post.vue'
 import Tournaments from '../components/Tournaments.vue'
 import EditTournaments from '../components/Tournaments/Edit.vue'
+import DetailsTournaments from '../components/Tournaments/Details.vue'
 import DeleteTournaments from '../components/Tournaments/Delete.vue'
 import PlayersTournaments from '../components/Tournaments/Players.vue'
 import JoinTournaments from '../components/Tournaments/Join.vue'
@@ -153,6 +154,16 @@ const routes = [
       title: 'Post score',
       public: true,
       parent: 'scores'
+    },
+  },
+  {
+    path: '/tournaments/:tournamentId/details',
+    component: DetailsTournaments,
+    name: 'tournament-details',
+    meta: {
+      title: 'Tournament details',
+      public: true,
+      parent: 'tournaments'
     },
   },
   {

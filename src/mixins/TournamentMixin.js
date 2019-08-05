@@ -27,7 +27,7 @@ export default {
             console.log(me.$route.params)
 
             return new Promise((resolve, reject) => {
-               this.$graph.query(
+               this.$graph(
                    'Tournament',
                    [
                        '_id',
@@ -72,7 +72,7 @@ export default {
             let me = this
 
             return new Promise((resolve, reject) => {
-                this.$graph.query(
+                this.$graph(
                     'TournamentEvent',
                     [
                         '_id',
@@ -100,7 +100,7 @@ export default {
             let me = this
 
             return new Promise(((resolve, reject) => {
-                this.$graph.query(
+                this.$graph(
                     'TournamentEventPart',
                     [
                         "_id",
@@ -130,7 +130,7 @@ export default {
             let me = this
 
             return new Promise(((resolve, reject) => {
-                this.$graph.query(
+                this.$graph(
                     'Round',
                     [
                         "_id",
@@ -161,7 +161,7 @@ export default {
             }
 
             let cabs = await this.$getCabValues(true)
-            let event = await this.$graph.query(
+            let event = await this.$graph(
                 'TournamentEvent',
                 [{players: ['_id']}],
                 {id: me.event._id}
@@ -418,7 +418,7 @@ export default {
             let cabs = await this.$getCabValues(true)
 
             if(this.part.roundType === 'SingleElimination' || this.part.roundType === 'DoubleElimination') {
-                let result = await this.$graph.query(
+                let result = await this.$graph(
                     'TournamentEvent',
                     [{players: ['_id']}],
                     {id: me.event._id}
@@ -547,7 +547,7 @@ export default {
 
             return new Promise(((resolve, reject) => {
                 if(forTournament === true) {
-                    this.$graph.query(
+                    this.$graph(
                         'Tournament',
                         [
                             {'arcadeCabs': ['_id', 'name', 'cabLocation']}
@@ -563,7 +563,7 @@ export default {
                         resolve(mapped)
                     }).catch(reject)
                 } else {
-                    me.$graph.query(
+                    me.$graph(
                         "ArcadeCabs",
                         {docs: ['_id', 'name', 'cabLocation']}
                     ).then((cabs) => {
@@ -606,7 +606,7 @@ export default {
                 // console.log(me.$store.state.players.length)
 
                 // if(me.$store.state.players.length === 0) {
-                    me.$graph.query(
+                    me.$graph(
                         'Players',
                         {docs: [
                             '_id',

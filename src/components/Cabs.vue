@@ -54,7 +54,7 @@
             let me = this
 
             if(me.$user.isAdmin()) {
-                this.$graph.query(
+                this.$graph(
                     'ArcadeCabs',
                     {docs: ['_id', 'name', {'cabOwner': ['_id']}, {'coOwners': ['_id']}]}
                 ).then((response) => {

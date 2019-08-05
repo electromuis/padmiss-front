@@ -68,7 +68,7 @@
         created() {
             let me = this
 
-            this.$graph.query(
+            this.$graph(
                 'Match',
                 [
                     {players: '_id'},

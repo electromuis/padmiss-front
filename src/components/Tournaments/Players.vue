@@ -20,17 +20,8 @@
 
         methods: {
             handleMove(player, from, to) {
-
                 let me = this
-
                 this.loading = true
-                if(this.$can('admin-users-tournament', me.tournament)) {
-                    this.updateTournament().then(() => {
-                        this.loading = false
-                    })
-
-                    return
-                }
 
 
                 if(from === 'join' && to === 'current') {
@@ -107,14 +98,12 @@
         created() {
             let me = this
 
-            if(this.$can('admin-users-tournament', me.tournament)) {
-                me.moves = null
-            }
-
             Promise.all([
-                me.$graph.query(
+                me.$graph(
                     'Players',
-                    {docs: ['_id', 'nickname']}
+                    {docs: ['_id', 'nickname']},
+                    {limit: 100000},
+                    true
                 ),
                 me.$loadTournament(true)
             ])

@@ -26,6 +26,7 @@
                     <td>
                         <b-button v-if="$can('join-tournament', row)" v-on:click="$router.push({path: `/tournaments/${row._id}/join`})">Join</b-button>
                         <b-button v-on:click="$router.push({path: `/tournaments/${row._id}/events`})">Events</b-button>
+                        <b-button v-on:click="$router.push({path: `/tournaments/${row._id}/details`})">Details</b-button>
 
                         <template v-if="$can('edit-tournament', row)">
                             <b-button v-on:click="$router.push({path: `/tournaments/${row._id}/players`})">Players</b-button>
@@ -54,7 +55,7 @@
         created() {
             let me = this
 
-            this.$graph.query(
+            this.$graph(
                 'Tournaments',
                 {docs: [
                     '_id',
