@@ -37,10 +37,10 @@
                     <td>Percentage</td>
                     <td>{{Math.round(score.scoreValue * 10000) / 100}} %</td>
                 </tr>
-                <tr>
-                    <td>EX Points</td>
-                    <td>{{exScore()}}</td>
-                </tr>
+<!--                <tr>-->
+<!--                    <td>EX Points</td>-->
+<!--                    <td>{{exScore()}}</td>-->
+<!--                </tr>-->
                 <tr>
                     <td>Seconds survided</td>
                     <td>{{Math.round(score.secondsSurvived)}}</td>
@@ -51,7 +51,7 @@
                 </tr>
                 <tr>
                     <td>Player</td>
-                    <td>{{score.player.nickname}}, from {{score.player.country.name}}</td>
+                    <td>{{score.player.nickname}}</td>
                 </tr>
 
                 <tr>

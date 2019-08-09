@@ -98,7 +98,6 @@
                 if(me.pack && me.pack != 'All') {
                     query['groups'] = me.pack
                 }
-
                 me.$graph.query(
                     'Stepcharts',
                     {docs: [

@@ -33,6 +33,26 @@
         return true
     }
 
+    let fields = [
+        'fantastics',
+        'excellents',
+        'greats',
+        'decents',
+        'wayoffs',
+        'misses',
+        'holds',
+        'holdsTotal',
+        'rolls',
+        'rollsTotal',
+        'minesHit',
+        'minesAvoided',
+        'minesTotal',
+        'jumps',
+        'jumpsTotal',
+        'hands',
+        'handsTotal',
+    ]
+
     export default {
         methods: {
             defaultScore() {
@@ -76,30 +96,26 @@
                 }
             },
 
+            unCamelCase (str){
+                str = str
+                // insert a space between lower & upper
+                    .replace(/([a-z])([A-Z])/g, '$1 $2')
+                    // space before last upper in a sequence followed by lower
+                    .replace(/\b([A-Z]+)([A-Z])([a-z])/, '$1 $2$3')
+                    // uppercase the first character
+                    .replace(/^./, function(str){ return str.toUpperCase(); })
+
+                str = str.charAt(0).toUpperCase() + str.slice(1)
+
+                return str
+            },
+
             handleClick(e) {
                 let me = this
                 let data = Object.assign({}, this.score)
                 data.scoreValue = data.scoreValue / 100
 
-                let fields = [
-                    'fantastics',
-                    'excellents',
-                    'greats',
-                    'decents',
-                    'wayoffs',
-                    'misses',
-                    'holds',
-                    'holdsTotal',
-                    'rolls',
-                    'rollsTotal',
-                    'minesHit',
-                    'minesAvoided',
-                    'minesTotal',
-                    'jumps',
-                    'jumpsTotal',
-                    'hands',
-                    'handsTotal',
-                ]
+
 
                 fields.forEach(f => {
                     if(typeof data[f] !== 'undefined') {
@@ -143,6 +159,18 @@
                 if(cabs.length === 1) {
                     me.score.apiKey = cabs[0].apiKey
                 }
+
+                fields.forEach(f => {
+                    me.schema.fields.push({
+                            type: "input",
+                            inputType: "num",
+                            label: me.unCamelCase(f),
+                            model: f,
+                            validator: validateNum,
+
+                            fieldClasses: "col-md-6"
+                    })
+                })
 
                 return me.$graph.query(
                     'Players',
@@ -257,42 +285,42 @@
 
                             fieldClasses: "col-md-6"
                         },
-                        {
-                            type: "input",
-                            inputType: "num",
-                            label: "Fantastics",
-                            model: "fantastics",
-                            validator: validateNum,
-
-                            fieldClasses: "col-md-6"
-                        },
-                        {
-                            type: "input",
-                            inputType: "num",
-                            label: "Excelents",
-                            model: "excellents",
-                            validator: validateNum,
-
-                            fieldClasses: "col-md-6"
-                        },
-                        {
-                            type: "input",
-                            inputType: "num",
-                            label: "Wayoffs",
-                            model: "wayoffs",
-                            validator: validateNum,
-
-                            fieldClasses: "col-md-6"
-                        },
-                        {
-                            type: "input",
-                            inputType: "num",
-                            label: "Misses",
-                            model: "misses",
-                            validator: validateNum,
-
-                            fieldClasses: "col-md-6"
-                        },
+                        // {
+                        //     type: "input",
+                        //     inputType: "num",
+                        //     label: "Fantastics",
+                        //     model: "fantastics",
+                        //     validator: validateNum,
+                        //
+                        //     fieldClasses: "col-md-6"
+                        // },
+                        // {
+                        //     type: "input",
+                        //     inputType: "num",
+                        //     label: "Excelents",
+                        //     model: "excellents",
+                        //     validator: validateNum,
+                        //
+                        //     fieldClasses: "col-md-6"
+                        // },
+                        // {
+                        //     type: "input",
+                        //     inputType: "num",
+                        //     label: "Wayoffs",
+                        //     model: "wayoffs",
+                        //     validator: validateNum,
+                        //
+                        //     fieldClasses: "col-md-6"
+                        // },
+                        // {
+                        //     type: "input",
+                        //     inputType: "num",
+                        //     label: "Misses",
+                        //     model: "misses",
+                        //     validator: validateNum,
+                        //
+                        //     fieldClasses: "col-md-6"
+                        // },
                     ]
                 },
                 formOptions: {
