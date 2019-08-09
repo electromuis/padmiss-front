@@ -62,7 +62,7 @@
             let me = this
 
             Promise.all([
-                me.$graph.query(
+                me.$graph(
                     'Players',
                     {docs: ['_id', 'nickname']}
                 ),

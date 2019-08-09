@@ -53,7 +53,7 @@
             },
 
             loadData() {
-                return this.$graph.query(
+                return this.$graph(
                     'Rounds',
                     {
                         docs: [

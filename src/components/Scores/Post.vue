@@ -172,7 +172,7 @@
                     })
                 })
 
-                return me.$graph.query(
+                return me.$graph(
                     'Players',
                     [{docs: [
                         '_id',

@@ -29,7 +29,7 @@
         created() {
             let me = this
 
-            me.$graph.query(
+            me.$graph(
                 'ArcadeCab',
                 [
                     '_id',

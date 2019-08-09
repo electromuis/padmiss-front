@@ -59,7 +59,7 @@
 
             me.$loadTournament().then((tournament) => {
 
-                me.$graph.query(
+                me.$graph(
                     'TournamentEvents',
                     {docs: [
                         '_id',

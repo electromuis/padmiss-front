@@ -69,7 +69,7 @@
 
             me.$loadPart().then((part) => {
                 part.stepCharts.forEach(c => {
-                    me.$graph.query(
+                    me.$graph(
                         'Stepchart',
                         ['stepArtist', 'stepChartHash'],
                         {id: c}

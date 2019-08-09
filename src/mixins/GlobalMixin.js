@@ -23,7 +23,7 @@ export default Vue.mixin({
     },
 
     $graph() {
-      return GraphqlClient
+      return GraphqlClient.query
     }
   },
 

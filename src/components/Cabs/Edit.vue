@@ -86,7 +86,7 @@
             if(this.$route.params.cabId.length > 1) {
                 me.schema.fields = me.schema.fields.filter(x => x.model !== 'apiKey')
 
-                me.$graph.query(
+                me.$graph(
                     'ArcadeCab',
                     [
                         '_id',

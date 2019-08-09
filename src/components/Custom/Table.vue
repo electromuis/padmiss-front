@@ -102,7 +102,7 @@
                     Object.assign(filter, query.filter)
                 }
 
-                this.$graph.query(
+                this.$graph(
                     me.query.table,
                     [
                         'totalDocs',

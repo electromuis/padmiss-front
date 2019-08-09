@@ -95,7 +95,7 @@ export default {
               return reject(null)
             }
 
-            me.$graph.query(
+            me.$graph(
                 'Player',
                 [
                   '_id',
@@ -160,7 +160,7 @@ export default {
 
               localStorage.token = result.token
 
-              me.$graph.query(
+              me.$graph(
                   'Player',
                   [
                     '_id',
