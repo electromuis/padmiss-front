@@ -12,6 +12,7 @@ import Register from '../components/Register.vue'
 import Login from '../components/Login.vue'
 import Settings from '../components/Login/Settings.vue'
 import Profile from '../components/Login/Profile.vue'
+import Recover from '../components/Login/Recover.vue'
 import Home from '../components/Home.vue'
 import Scores from '../components/Scores.vue'
 import ScoreDetails from '../components/Scores/Details.vue'
@@ -95,6 +96,16 @@ const routes = [
     name: 'login',
     meta: {
       title: 'Login',
+      public: true,
+    },
+  },,
+  {
+    path: '/login/recover',
+    component: Recover,
+    name: 'login-recover',
+    meta: {
+      paren: 'login',
+      title: 'Recover',
       public: true,
     },
   },

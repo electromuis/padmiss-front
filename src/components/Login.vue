@@ -7,7 +7,8 @@
         <form class="form-horizontal">
             <vue-form-generator :schema="schema" :model="model" :options="formOptions" @validated="handleValidation" />
             <b-button v-if="valid" v-on:click="handleClick" type="submit" variant="primary">Login</b-button>
-            <b-button v-else v-on:click="handleClick" disabled>Login</b-button>
+            <b-button v-else @click="handleClick" disabled>Login</b-button>
+            <b-button @click="$router.push('/login/recover')" type="submit" variant="primary">Recover</b-button>
         </form>
     </div>
 </template>
