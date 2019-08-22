@@ -13,6 +13,7 @@ import Login from '../components/Login.vue'
 import Settings from '../components/Login/Settings.vue'
 import Profile from '../components/Login/Profile.vue'
 import Recover from '../components/Login/Recover.vue'
+import ChangeRecover from '../components/Login/Recover/Change.vue'
 import Home from '../components/Home.vue'
 import Scores from '../components/Scores.vue'
 import ScoreDetails from '../components/Scores/Details.vue'
@@ -98,7 +99,7 @@ const routes = [
       title: 'Login',
       public: true,
     },
-  },,
+  },
   {
     path: '/login/recover',
     component: Recover,
@@ -108,6 +109,16 @@ const routes = [
       title: 'Recover',
       public: true,
     },
+  },
+  {
+      path: '/forgot-password/receive-new-password/:userId/:token',
+      component: ChangeRecover,
+      name: 'login-recover-change',
+      meta: {
+          paren: 'login-recover',
+          title: 'Recover',
+          public: true,
+      },
   },
   {
     path: '/tournaments',

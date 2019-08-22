@@ -45,10 +45,19 @@
             }
         },
 
+        created() {
+            console.log(me.$route.params.scoreId)
+            // this.$graph(
+            //     'Player',
+            //     ['']
+            // )
+
+        },
+
         data () {
             return {
-                email: '',
-                message: ''
+                loading: true,
+                user: {}
             }
         }
     }
