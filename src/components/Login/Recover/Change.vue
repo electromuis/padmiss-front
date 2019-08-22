@@ -1,95 +1,107 @@
 <template>
-    <div class="recover">
-        <h1>Recover account</h1>
+    <div id="login">
+        <h1>Change password</h1>
         <br/>
-        <b-alert v-if="message" show variant="secondary">{{message}}</b-alert>
-        <form>
-            <div class="form-group">
-                Email:
-                <input class="form-control" v-model="email" type="email"/>
-            </div>
 
-            <b-button v-if="email" v-on:click="handleClick" type="submit" variant="primary">Recover</b-button>
-            <b-button v-else type="submit">Recover</b-button>
-        </form>
+        <b-alert v-if="message" show variant="secondary">{{message}}</b-alert>
+        <div v-if="success">
+            <b-button @click="$router.push('/login')" variant="primary">Click here to login</b-button>
+        </div>
+        <div v-else>
+            <form class="form-horizontal" onsubmit="return false">
+                <vue-form-generator :schema="schema" :model="model" :options="formOptions" @validated="handleValidation" />
+                <b-button v-if="valid" v-on:click="handleClick" type="submit" variant="primary">Change password</b-button>
+                <b-button v-else @click="handleClick" disabled>Change password</b-button>
+            </form>
+        </div>
     </div>
 </template>
 
 <script>
     import VueFormGenerator from "vue-form-generator";
-    import axios from 'axios'
-
-    let chartApi = 'https://electromuis1.openode.io/'
+    import "vue-form-generator/dist/vfg.css";
+    import AuthMixin from "../../../mixins/AuthMixin"
 
     export default {
-        name: "Songs",
+        name: "Login",
+
+        mixins: [AuthMixin],
+
+        mounted() {
+            if (this.$isLoggedIn === true) {
+                me.$router.push('/')
+            }
+        },
 
         methods: {
             handleClick(e) {
                 let me = this
-                let email = encodeURIComponent(me.email)
-                me.message = 'Loading ...'
-
-                let frontUrl = location.protocol+'//'+location.hostname+(location.port ? ':'+location.port: '') + '/#';
 
                 me.$api.post(
-                    '/forgot-password/user/' + email,
-                    {
-                        'frontUrl': frontUrl
-                    }
+                    '/forgot-password/receive-new-password/' + me.$route.params.userId + '/' + me.$route.params.token,
+                    {password: me.model.password}
                 ).then(response => {
                     me.message = response.message
+
+                    if(response.success === true) {
+                        me.success = true
+                    }
                 }).catch(e => {
                     me.message = 'Unknown error'
                 })
+
+            },
+            handleValidation(valid, errors) {
+                this.valid = valid
             }
-        },
-
-        created() {
-            console.log(me.$route.params.scoreId)
-            // this.$graph(
-            //     'Player',
-            //     ['']
-            // )
-
         },
 
         data () {
+
             return {
-                loading: true,
-                user: {}
+                valid: false,
+                message: "",
+                success: false,
+                model: {
+                    password: ""
+                },
+                schema: {
+                    fields: [
+                        {
+                            type: "input",
+                            inputType: "password",
+                            label: "New password",
+                            model: "password",
+                            validator: VueFormGenerator.validators.string
+                        },
+                        {
+                            type: "input",
+                            inputType: "password",
+                            label: "Repeat password",
+                            model: "d",
+                            validator: function(value, field, model) {
+                                if(model.password.length === 0) {
+                                    return null
+                                }
+                                return value === model.password ? null : ["Passwords should be the same"]
+                            }
+                        }
+                    ]
+                },
+                formOptions: {
+                    validateAfterLoad: true,
+                    validateAfterChanged: true,
+                    validateAsync: true
+                }
             }
+        },
+
+        components: {
+            "vue-form-generator": VueFormGenerator.component
         }
     }
 </script>
 
 <style scoped>
-    .drop {
-        background: white;
-        border: 1px grey solid;
-        border-radius: 8px;
 
-        height: 150px;
-        line-height: 150px;
-        vertical-align: middle;
-        text-align: center;
-
-        margin-bottom: 20px;
-    }
-
-    .drop.hover {
-        background: blue;
-    }
-
-    .array-item {
-        margin-bottom: 12px;
-    }
-    .btn.remove {
-        margin-left: 12px;
-    }
-    .array-item {
-        display: flex;
-        -ms-flex-wrap: wrap;
-        flex-wrap: wrap;
-    }
 </style>

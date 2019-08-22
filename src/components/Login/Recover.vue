@@ -3,7 +3,7 @@
         <h1>Recover account</h1>
         <br/>
         <b-alert v-if="message" show variant="secondary">{{message}}</b-alert>
-        <form>
+        <form onsubmit="return false">
             <div class="form-group">
                 Email:
                 <input class="form-control" v-model="email" type="email"/>

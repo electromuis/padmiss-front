@@ -5,7 +5,7 @@
 
         <div v-if="success">
             Registration sucessfull, You can now login here:
-            <b-button @click="$router.push(`/login`)">Login</b-button>
+            <b-button @click="$router.push(`/login`)" variant="primary">Login</b-button>
             <br/>&nbsp;
         </div>
         <div>

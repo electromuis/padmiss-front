@@ -4,7 +4,7 @@
         <br/>
 
         <b-alert v-if="message" show variant="secondary">{{message}}</b-alert>
-        <form class="form-horizontal">
+        <form class="form-horizontal" onsubmit="return false">
             <vue-form-generator :schema="schema" :model="model" :options="formOptions" @validated="handleValidation" />
             <b-button v-if="valid" v-on:click="handleClick" type="submit" variant="primary">Login</b-button>
             <b-button v-else @click="handleClick" disabled>Login</b-button>
@@ -25,7 +25,7 @@
 
         mounted() {
             if (this.$isLoggedIn === true) {
-                me.$router.push('/')
+                this.$router.push('/')
             }
         },
 
