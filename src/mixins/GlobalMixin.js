@@ -5,6 +5,7 @@ import Vue from 'vue'
 import config from 'ClientConfig'
 import ApiClient from '../modules/ApiClient'
 import GraphqlClient from "../modules/GraphqlClient";
+import CabClient from "../modules/CabClient";
 
 const eventBus = new Vue()
 
@@ -24,6 +25,10 @@ export default Vue.mixin({
 
     $graph() {
       return GraphqlClient.query
+    },
+
+    $cab() {
+      return CabClient
     }
   },
 

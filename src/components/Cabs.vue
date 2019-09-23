@@ -14,6 +14,7 @@
                     <td>Name</td>
                     <td>Actions</td>
                     <td>API Key</td>
+                    <td>Status</td>
                 </tr>
             </thead>
             <tbody>
@@ -30,6 +31,9 @@
                             {{row.apiKey}}
                         </template>
                     </td>
+                    <td>
+                        {{row.status}}
+                    </td>
                 </tr>
             </tbody>
         </table>
@@ -43,6 +47,24 @@
         name: "Event",
 
         mixins: [AuthMixin],
+
+        methods: {
+            checkCab(c) {
+                let me = this
+
+                c.status = "Offline"
+
+                me.$cab.ping(c._id).then(r => {
+                    if(r) {
+                        c.status = "Online+"
+                    }
+                    else if(me.$cab.isOnline(c._id)) {
+                        c.status = "Online"
+                    }
+                })
+
+            }
+        },
 
         data() {
             return {
@@ -61,6 +83,9 @@
                     me.values = response.docs.map(c => {
                         c.cabOwner = c.cabOwner._id
                         c.coOwners = c.coOwners.map(o => o._id)
+
+                        me.checkCab(c)
+
                         return c
                     })
                 })
@@ -68,6 +93,10 @@
                 me.$api.get(
                     '/api/arcade-cabs/get-my-cabs?token=' + localStorage.token
                 ).then(response => {
+                    response.cabs.forEach(c => {
+                        me.checkCab(c)
+                    })
+
                     me.values = response.cabs
                 })
             }
