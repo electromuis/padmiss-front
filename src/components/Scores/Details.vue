@@ -19,7 +19,7 @@
                 </tr>
                 <tr>
                     <td>Level</td>
-                    <td>{{score.stepChart.difficultyLevel}}</td>
+                    <td><a @click="$router.push('/charts/' + score.stepChart._id + '/scores')" href="#">{{score.stepChart.difficultyLevel}}</a></td>
                 </tr>
                 <tr>
                     <td>Stepartist</td>
@@ -157,6 +157,7 @@
                         ]}
                     ]},
                     {stepChart: [
+                        '_id',
                         'stepArtist',
                         'difficultyLevel',
                         'groups',

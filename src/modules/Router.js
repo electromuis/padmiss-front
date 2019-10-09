@@ -15,25 +15,34 @@ import Profile from '../components/Login/Profile.vue'
 import Recover from '../components/Login/Recover.vue'
 import ChangeRecover from '../components/Login/Recover/Change.vue'
 import Home from '../components/Home.vue'
+
 import Scores from '../components/Scores.vue'
 import ScoreDetails from '../components/Scores/Details.vue'
 import MyScores from '../components/Scores/My.vue'
 import PostScores from '../components/Scores/Post.vue'
+
+import Charts from '../components/Charts.vue'
+import ChartsScores from '../components/Charts/Scores.vue'
+
 import Tournaments from '../components/Tournaments.vue'
 import EditTournaments from '../components/Tournaments/Edit.vue'
 import DetailsTournaments from '../components/Tournaments/Details.vue'
 import DeleteTournaments from '../components/Tournaments/Delete.vue'
 import PlayersTournaments from '../components/Tournaments/Players.vue'
 import JoinTournaments from '../components/Tournaments/Join.vue'
+
 import Events from '../components/Tournaments/Events.vue'
 import PlayersEvents from '../components/Tournaments/Events/Players.vue'
 import EditEvents from '../components/Tournaments/Events/Edit.vue'
 import DeleteEvents from '../components/Tournaments/Events/Delete.vue'
-import Charts from "../components/Tournaments/Events/Parts/Charts.vue"
+import EventCharts from "../components/Tournaments/Events/Parts/Charts.vue"
+
 import Songs from "../components/Login/Songs.vue"
+
 import Cabs from "../components/Cabs.vue"
 import EditCabs from "../components/Cabs/Edit.vue"
 import DeleteCabs from "../components/Cabs/Delete.vue"
+
 import Parts from "../components/Tournaments/Events/Parts.vue"
 import EditParts from "../components/Tournaments/Events/Parts/Edit.vue"
 import DeleteParts from "../components/Tournaments/Events/Parts/Delete.vue"
@@ -179,6 +188,35 @@ const routes = [
     },
   },
   {
+    path: '/charts',
+    component: Charts,
+    name: 'charts',
+    meta: {
+      title: 'Charts',
+      public: true,
+    },
+  },
+  {
+    path: '/charts/:chartId/scores',
+    component: ChartsScores,
+    name: 'charts-scores',
+    meta: {
+      title: 'Chart scores',
+      public: true,
+      parent: 'charts'
+    },
+  },
+  {
+    path: '/charts/:chartId/scores/:scoreId/details',
+    component: ScoreDetails,
+    name: 'charts-scores-details',
+    meta: {
+      title: 'Chart score details',
+      public: true,
+      parent: 'charts-scores'
+    },
+  },
+  {
     path: '/tournaments/:tournamentId/details',
     component: DetailsTournaments,
     name: 'tournament-details',
@@ -280,7 +318,7 @@ const routes = [
   },
   {
     path: '/tournaments/:tournamentId/events/:eventId/parts/:partId/charts',
-    component: Charts,
+    component: EventCharts,
     name: 'tournament-events-parts-charts',
     meta: {
       title: 'Tournament events parts charts',

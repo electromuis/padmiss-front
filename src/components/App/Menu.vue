@@ -11,6 +11,7 @@
                 <b-nav-item v-if="$isLoggedIn" to="/tournaments">Tournaments</b-nav-item>
                 <b-nav-item v-if="$isLoggedIn" to="/cabs">Cabs</b-nav-item>
                 <b-nav-item to="/scores">Scores</b-nav-item>
+                <b-nav-item to="/charts">Charts</b-nav-item>
                 <b-nav-item v-if="$isLoggedIn" to="/scores/my">My scores</b-nav-item>
                 <b-nav-item v-if="$isLoggedIn" to="/profile">Profile</b-nav-item>
             </b-navbar-nav>

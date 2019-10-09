@@ -44,10 +44,14 @@
         </table>
 
         <ul class="pagination table-pagination" v-if="!loading">
-            <li class="page-item"><a class="page-link" @click="() => loadPage(page - 1)">Previous</a></li>
-            <li v-for="i in pages" :class="page === i ? 'page-item active' : 'page-item'"><a class="page-link" @click="() => loadPage(i)">{{i}}</a></li>
-            <li class="page-item"><a class="page-link" @click="() => loadPage(page + 1)">Next</a></li>
+            <li class="page-item" v-if="page > 1"><a class="page-link" @click="() => loadPage(page - 1)">Previous</a></li>
+            <li v-for="i in pageRange()" :class="page === i ? 'page-item active' : 'page-item'"><a class="page-link" @click="() => loadPage(i)">{{i}}</a></li>
+            <li class="page-item" v-if="page < pages"><a class="page-link" @click="() => loadPage(page + 1)">Next</a></li>
         </ul>
+
+        <div class="form-group">
+            <input placeholder="Page #" v-model="pageFilter" @change="() => loadPage(pageFilter)" class="form-control col-md-3">
+        </div>
     </div>
 </template>
 
@@ -76,12 +80,30 @@
             },
 
             pageRange() {
-                return [1,2,3]
+                let start = this.page
+                start -=5
+                if(start < 1) {
+                    start = 1
+                }
+
+                let range = []
+
+                for(let i=0; i<10; i++) {
+                    let p = start + i
+                    if(p > this.pages) {
+                        break
+                    }
+
+                    range.push(p)
+                }
+
+                return range
             },
 
             loadPage(page) {
                 let me = this
-                if(page > me.pages || page < 1) {
+                page = parseInt(page)
+                if (isNaN(page) || page > Math.max(me.pages, 1) || page < 1) {
                     return
                 }
 
@@ -90,15 +112,14 @@
                 let filter = {sort: query.sort}
                 me.loading = true
 
-                if(query.limit !== 'all') {
+                if (query.limit !== 'all') {
                     filter.limit = parseInt(query.limit)
                     filter.offset = (me.page - 1) * parseInt(query.limit)
-                }
-                else {
+                } else {
                     filter.limit = 9999999
                 }
 
-                if(me.query.filter) {
+                if (me.query.filter) {
                     Object.assign(filter, query.filter)
                 }
 
@@ -114,10 +135,9 @@
                     true
                 ).then(response => {
                     me.rows = response.docs
-                    if(query.limit === 'all') {
+                    if (query.limit === 'all') {
                         me.pages = 1
-                    }
-                    else {
+                    } else {
                         me.pages = Math.ceil(response.totalDocs / query.limit)
                     }
                     me.loading = false
@@ -135,6 +155,7 @@
                 rows: [],
                 pages: 1,
                 page: 1,
+                pageFilter: '',
                 loading: true
             }
         },
