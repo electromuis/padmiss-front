@@ -27,6 +27,10 @@ export default Vue.mixin({
       return GraphqlClient.query
     },
 
+    $multiGraph() {
+      return GraphqlClient.multiQuery
+    },
+
     $cab() {
       return CabClient
     }

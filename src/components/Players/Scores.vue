@@ -1,7 +1,7 @@
 <template>
     <loading v-if="loading" :active="true"></loading>
     <div v-else>
-        <h1>My scores</h1>
+        <h1>Scores</h1>
         <br/>&nbsp;
         <Table :cols="cols" :query="query"></Table>
     </div>
@@ -18,15 +18,18 @@
             me = this
 
             this.query.filter = {
-                player: this.$user.data.playerId
+                player: this.$props.player
             }
+            console.log(this.query)
             this.loading = false
         },
 
         data() {
+            let me = this
+
             return {
                 loading: true,
-
+                
                 cols: [
                     {
                         field: 'playedAt',
@@ -55,7 +58,7 @@
                             {
                                 text: 'Details',
                                 action(r) {
-                                    me.$router.push('/scores/my/details/' + r._id)
+                                    me.$router.push('/players/' + me.$props.player + '/score/' + r._id)
                                 }
                             }
                         ]
@@ -64,7 +67,7 @@
                 query: {
                     table: 'Scores',
                     sort: '-playedAt',
-                    limit: 25,
+                    limit: 10,
                     fields: [
                         '_id',
                         'playedAt',
@@ -81,6 +84,10 @@
         components: {
             Table,
             Loading
+        },
+
+        props: {
+            player: String
         }
     }
 </script>

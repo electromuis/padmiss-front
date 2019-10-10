@@ -62,21 +62,24 @@
                 if(!colConfig.field) {
                     return ''
                 }
+                try {
+                    let pts = colConfig.field.split('.')
 
-                let pts = colConfig.field.split('.')
-
-                let v = row
-                pts.forEach(p => {
-                    if(typeof v[p] !== 'undefined') {
+                    let v = row
+                    let done = false
+                    pts.forEach(p => {
                         v = v[p]
+                    })
+
+                    if (colConfig.morph) {
+                        v = colConfig.morph(v)
                     }
-                })
 
-                if(colConfig.morph) {
-                    v = colConfig.morph(v)
+                    return v
                 }
-
-                return v
+                catch (e) {
+                    return ''
+                }
             },
 
             pageRange() {

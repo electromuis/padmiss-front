@@ -1,6 +1,6 @@
 <template>
     <div>
-        <h1>Charts</h1>
+        <h1>Players</h1>
 
         <div class="form-group">
             <div class="form-label">
@@ -32,19 +32,13 @@
                     this.query.filter = {
                         '$or': [
                             {
-                                'song.title': {
+                                'nickname': {
                                     '$regex': this.filter,
                                     "$options": 'i'
                                 }
                             },
                             {
-                                'song.artist': {
-                                    '$regex': this.filter,
-                                    "$options": 'i'
-                                }
-                            },
-                            {
-                                'song.artist': {
+                                'shortNickname': {
                                     '$regex': this.filter,
                                     "$options": 'i'
                                 }
@@ -65,51 +59,39 @@
                 filter: '',
                 cols: [
                     {
-                        field: 'created',
-                        name: 'Date submitted'
+                        field: 'nickname',
+                        name: 'Nickname'
                     },
                     {
-                        field: 'difficultyLevel',
-                        name: 'Difficulty'
+                        field: 'shortNickname',
+                        name: 'Short'
                     },
                     {
-                        field: 'song.title',
-                        name: 'Song'
-                    },
-                    {
-                        field: 'song.artist',
-                        name: 'Artist'
-                    },
-                    {
-                        field: 'groups',
-                        name: 'In packs',
-                        morph: (v) => {v.join(', ')}
+                        field: 'country.name',
+                        name: 'Country'
                     },
                     {
                         type: 'actions',
                         actions: [
                             {
-                                text: 'Scores',
+                                text: 'Details',
                                 action(r) {
-                                    me.$router.push('/charts/' + r._id + '/scores')
+                                    me.$router.push('/players/' + r._id + '/details')
                                 }
                             }
                         ]
                     }
                 ],
                 query: {
-                    table: 'Stepcharts',
-                    sort: '-created',
+                    table: 'Players',
+                    sort: '+nickname',
                     limit: 10,
                     fields: [
                         '_id',
-                        'created',
-                        'difficultyLevel',
-                        'groups',
-                        'durationSeconds',
-                        {'song': [
-                            'title',
-                            'artist'
+                        'nickname',
+                        'shortNickname',
+                        {'country': [
+                            'name'
                         ]}
                     ]
                 }

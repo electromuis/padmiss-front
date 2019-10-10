@@ -51,7 +51,7 @@
                 </tr>
                 <tr>
                     <td>Player</td>
-                    <td>{{score.player.nickname}}</td>
+                    <td><a @click="$router.push('/players/' + score.player._id + '/details')" href="#">{{score.player.nickname}}</a></td>
                 </tr>
 
                 <tr>
@@ -151,6 +151,7 @@
                         'name'
                     ]},
                     {player: [
+                        '_id',
                         'nickname',
                         {country: [
                             'name'

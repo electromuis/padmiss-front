@@ -16,6 +16,9 @@ import Recover from '../components/Login/Recover.vue'
 import ChangeRecover from '../components/Login/Recover/Change.vue'
 import Home from '../components/Home.vue'
 
+import Players from '../components/Players.vue'
+import PlayerDetails from '../components/Players/Details.vue'
+
 import Scores from '../components/Scores.vue'
 import ScoreDetails from '../components/Scores/Details.vue'
 import MyScores from '../components/Scores/My.vue'
@@ -23,6 +26,7 @@ import PostScores from '../components/Scores/Post.vue'
 
 import Charts from '../components/Charts.vue'
 import ChartsScores from '../components/Charts/Scores.vue'
+
 
 import Tournaments from '../components/Tournaments.vue'
 import EditTournaments from '../components/Tournaments/Edit.vue'
@@ -136,6 +140,35 @@ const routes = [
     meta: {
       title: 'Tournaments',
       public: true,
+    },
+  },
+  {
+    path: '/players',
+    component: Players,
+    name: 'players',
+    meta: {
+      title: 'Players',
+      public: true,
+    },
+  },
+  {
+    path: '/players/:playerId/details',
+    component: PlayerDetails,
+    name: 'players-details',
+    meta: {
+      title: 'Player details',
+      public: true,
+      parent: 'players'
+    },
+  },
+  {
+    path: '/players/:playerId/score/:scoreId',
+    component: ScoreDetails,
+    name: 'players-details-score',
+    meta: {
+      title: 'Player score details',
+      public: true,
+      parent: 'players-details'
     },
   },
   {
