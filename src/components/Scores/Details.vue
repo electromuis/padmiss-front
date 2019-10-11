@@ -3,6 +3,11 @@
     <div v-else id="details">
         <h1>Score details</h1>
         <br/>
+        <template v-if="$isLoggedIn && $user.data.playerId === score.player._id">
+            <b-button v-if="!isFavorite" variant="info" class="m-1" @click="toggleFavorite(true)">Add to favorites</b-button>
+            <b-button v-else variant="info" class="m-1" @click="toggleFavorite(false)">Remove from favorites</b-button>
+        </template>
+        <br/>&nbsp
 
         <table class="table table-striped">
             <tbody>
@@ -76,7 +81,7 @@
 
                 <tr>
                     <td>Date</td>
-                    <td>{{score.playedAt}}</td>
+                    <td>{{ moment(score.playedAt).format('DD-MM-Y HH:MM') }}</td>
                 </tr>
             </tbody>
         </table>
@@ -86,6 +91,8 @@
 <script>
     import VueFormGenerator from "vue-form-generator";
     import Loading from 'vue-loading-overlay';
+    import AuthMixin from "../../mixins/AuthMixin";
+    import moment from 'moment'
 
     let validateNum = function(val) {
         let parsed = parseInt(val)
@@ -99,7 +106,41 @@
     }
 
     export default {
+        mixins: [AuthMixin],
+
         methods: {
+            toggleFavorite(flag) {
+                let me = this
+
+                if(
+                    !this.$isLoggedIn||
+                    this.$user.data.playerId !== score.player._id
+                ) {
+                    return
+                }
+
+                if(!this.$user.metaData.favoriteScores) {
+                    this.$user.metaData.favoriteScores = []
+                }
+
+                if(this.$user.metaData.favoriteScores.indexOf(this.score._id) < 0) {
+                    if(flag) {
+                        this.$user.metaData.favoriteScores.push(this.score._id)
+                    }
+                }
+                else {
+                    if(!flag) {
+                        this.$user.metaData.favoriteScores =
+                            this.$user.metaData.favoriteScores
+                            .filter(s => s != me.score._id)
+                    }
+                }
+
+                this.$user.save(me.$api).then(() => {
+                    me.isFavorite = flag
+                })
+            },
+
             exScore() {
                 let points = 0
 
@@ -132,6 +173,7 @@
             me.$graph(
                 'Score',
                 [
+                    '_id',
                     'scoreValue',
                     'secondsSurvived',
                     'originalScore',
@@ -171,6 +213,14 @@
                 {id: scoreId}
             ).then(score => {
                 me.score = score
+
+                if(
+                    this.$user.metaData.favoriteScores &&
+                    this.$user.metaData.favoriteScores.indexOf(this.score._id) > -1
+                ) {
+                    me.isFavorite = true
+                }
+
                 me.loading = false
             })
         },
@@ -178,6 +228,7 @@
         data () {
             return {
                 loading: true,
+                isFavorite: false,
                 score: {}
             }
         },

@@ -14,6 +14,7 @@
 <script>
     import Table from './Custom/Table.vue'
     import TournamentMixin from './../mixins/TournamentMixin'
+    import moment from 'moment'
 
     let me = null
 
@@ -38,7 +39,9 @@
                 cols: [
                     {
                         field: 'playedAt',
-                        name: 'Date'
+                        sort: 'playedAt',
+                        name: 'Date',
+                        morph: (v) => moment(v).format('DD-MM-Y HH:MM')
                     },
                     {
                         field: 'player.nickname',
@@ -50,6 +53,7 @@
                     },
                     {
                         field: 'scoreValue',
+                        sort: 'scoreValue',
                         name: 'Score',
                         morph: (v) =>  (Math.round(v*10000) / 100) + ' %'
                     },

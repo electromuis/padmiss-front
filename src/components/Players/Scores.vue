@@ -1,7 +1,7 @@
 <template>
     <loading v-if="loading" :active="true"></loading>
     <div v-else>
-        <h1>Scores</h1>
+        <h1>{{showTitle}}</h1>
         <br/>&nbsp;
         <Table :cols="cols" :query="query"></Table>
     </div>
@@ -10,6 +10,7 @@
 <script>
     import Table from './../Custom/Table.vue'
     import Loading from 'vue-loading-overlay';
+    import moment from 'moment'
 
     let me = null
 
@@ -17,10 +18,11 @@
         created() {
             me = this
 
-            this.query.filter = {
-                player: this.$props.player
+            this.query.filter = this.$props.filter
+            if(this.$props.title) {
+                this.showTitle = this.$props.title
             }
-            console.log(this.query)
+
             this.loading = false
         },
 
@@ -29,11 +31,14 @@
 
             return {
                 loading: true,
+                showTitle: 'Scores',
                 
                 cols: [
                     {
                         field: 'playedAt',
-                        name: 'Date'
+                        sort: 'playedAt',
+                        name: 'Date',
+                        morph: (v) => moment(v).format('DD-MM-Y HH:MM')
                     },
                     {
                         field: 'stepChart.difficultyLevel',
@@ -41,6 +46,7 @@
                     },
                     {
                         field: 'scoreValue',
+                        sort: 'scoreValue',
                         name: 'Score',
                         morph: (v) =>  (Math.round(v*10000) / 100) + ' %'
                     },
@@ -58,7 +64,7 @@
                             {
                                 text: 'Details',
                                 action(r) {
-                                    me.$router.push('/players/' + me.$props.player + '/score/' + r._id)
+                                    me.$router.push('/players/' + r.player._id + '/score/' + r._id)
                                 }
                             }
                         ]
@@ -72,6 +78,7 @@
                         '_id',
                         'playedAt',
                         'scoreValue',
+                        {'player': ['_id']},
                         {'stepChart': [
                             {'song': ['title', 'artist']},
                             'difficultyLevel'
@@ -87,7 +94,8 @@
         },
 
         props: {
-            player: String
+            filter: Object,
+            title: String
         }
     }
 </script>

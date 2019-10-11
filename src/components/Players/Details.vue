@@ -11,8 +11,8 @@
                         <img :src="player.avatarIconUrl" style="max-width: 70vw;" />
                     </td>
                 </tr>
-                <tr v-if="$props.profile">
-                    <td>Padmiss GUID</td>
+                <tr>
+                    <td>Player padmiss GUID</td>
                     <td>{{player._id}}</td>
                 </tr>
                 <tr>
@@ -39,7 +39,14 @@
             </tbody>
         </table>
 
-        <Scores :player="player._id" />
+        <template v-if="favoriteScores.length > 0">
+            <br/>
+            <Scores :filter="{_id: favoriteScores}" title="Favorites" /><br/>
+        </template>
+
+        <Scores :filter="{player: player._id}" title="Player scores"/>
+
+
     </div>
 </template>
 
@@ -55,14 +62,8 @@
 
         created() {
             let me = this
-            let playerId = null
-
-            if(me.$route.params.playerId) {
-                playerId = me.$route.params.playerId
-            }
-            else if(me.$props.player) {
-                playerId = me.$props.player
-            }
+            let playerId = me.$route.params.playerId
+            console.log(playerId)
 
             me.$multiGraph({
                 player: [
@@ -90,6 +91,15 @@
             }).then(result => {
                 me.player = result.player
                 me.player.scores = result.scores.totalDocs
+                try {
+                    let meta = JSON.parse(me.player.metaData)
+                    if(Array.isArray(meta.favoriteScores)) {
+                        me.favoriteScores = meta.favoriteScores
+                    }
+                } catch (e) {
+                    throw e
+                }
+            }).then(r => {
                 me.loading = false
             })
         },
@@ -97,6 +107,7 @@
         data () {
             return {
                 loading: true,
+                favoriteScores: [],
                 player: {}
             }
         },
@@ -105,11 +116,6 @@
             "vue-form-generator": VueFormGenerator.component,
             "loading": Loading,
             Scores: Scores
-        },
-
-        props: {
-            player: String,
-            profile: Boolean
         }
     }
 </script>

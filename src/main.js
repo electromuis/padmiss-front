@@ -18,6 +18,9 @@ songSelect.components = fieldComponents
 Vue.component("fieldArray", fieldArray);
 Vue.component("fieldSongSelect", songSelect);
 
+import moment from 'moment'
+Vue.prototype.moment = moment
+
 // Config
 import config from 'ClientConfig'
 

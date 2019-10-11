@@ -5,7 +5,7 @@ class User {
     this.id = data.userId
 
     this.fields = ['nickname','country','email','shortNickname', 'password', 'rfidUid', 'avatarIconUrl', 'playerId', 'userId']
-    this.metaFields = ['songs']
+    this.metaFields = ['songs', 'favoriteScores']
 
     this.data = {}
     this.metaData = {}
@@ -48,8 +48,6 @@ class User {
     if(!data.password || data.password.length === 0) {
       delete data.password
     }
-
-    console.log(data)
 
     return $api.put('/api/users/' + this.id + '/edit', data)
   }
@@ -118,6 +116,7 @@ export default {
                 playerResult.country = playerResult.country._id
               }
               let user = new User(Object.assign({}, result, playerResult))
+              console.log(user)
 
               // Validation succeeded
               me.$store.commit('SET', {

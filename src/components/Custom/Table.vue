@@ -16,7 +16,14 @@
         <table class="table table-striped table-bordered">
             <thead>
             <tr>
-                <th v-for="c in $props.cols" class="th-sm">{{c.name}}</th>
+                <th v-for="c in $props.cols" class="th-sm header-col" @click="setSort(c)">
+                    {{c.name}}
+
+                    <template v-if="c.sort">
+                        <i class="fas fa-sort-amount-up" v-if="$props.query.sort === ('+'+c.sort)"></i>
+                        <i class="fas fa-sort-amount-down" v-else-if="$props.query.sort === ('-'+c.sort)"></i>
+                    </template>
+                </th>
             </tr>
             </thead>
             <tbody>
@@ -49,8 +56,8 @@
             <li class="page-item" v-if="page < pages"><a class="page-link" @click="() => loadPage(page + 1)">Next</a></li>
         </ul>
 
-        <div class="form-group">
-            <input placeholder="Page #" v-model="pageFilter" @change="() => loadPage(pageFilter)" class="form-control col-md-3">
+        <div class="form-group" v-if="pages > 10">
+            <input :placeholder="'Page 1-' + pages" v-model="pageFilter" @change="() => loadPage(pageFilter)" class="form-control col-md-3">
         </div>
     </div>
 </template>
@@ -58,6 +65,20 @@
 <script>
     export default {
         methods: {
+            setSort(col) {
+                if(!col.sort) {
+                    return
+                }
+                let set = '+' + col.sort
+
+                if(this.$props.query.sort === ('+' + col.sort)) {
+                    set = '-' + col.sort
+                }
+
+                this.query.sort = set
+                this.loadPage(1)
+            },
+
             readField(row, colConfig) {
                 if(!colConfig.field) {
                     return ''
@@ -177,5 +198,11 @@
     .table-pagination {
         max-width: 100%;
         flex-wrap: wrap;
+    }
+
+    .header-col:hover,
+    .header-col:hover i{
+        text-decoration: underline;
+        color: darkgrey;
     }
 </style>

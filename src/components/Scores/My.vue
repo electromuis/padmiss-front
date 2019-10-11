@@ -10,6 +10,7 @@
 <script>
     import Table from './../Custom/Table.vue'
     import Loading from 'vue-loading-overlay';
+    import moment from 'moment'
 
     let me = null
 
@@ -30,7 +31,9 @@
                 cols: [
                     {
                         field: 'playedAt',
-                        name: 'Date'
+                        sort: 'playedAt',
+                        name: 'Date',
+                        morph: (v) => moment(v).format('DD-MM-Y HH:MM')
                     },
                     {
                         field: 'stepChart.difficultyLevel',
@@ -38,6 +41,7 @@
                     },
                     {
                         field: 'scoreValue',
+                        sort: 'scoreValue',
                         name: 'Score',
                         morph: (v) =>  (Math.round(v*10000) / 100) + ' %'
                     },

@@ -16,6 +16,7 @@
 <script>
     import Table from './Custom/Table.vue'
     import TournamentMixin from './../mixins/TournamentMixin'
+    import moment from 'moment'
 
     let me = null
 
@@ -66,7 +67,8 @@
                 cols: [
                     {
                         field: 'created',
-                        name: 'Date submitted'
+                        name: 'Date submitted',
+                        morph: (v) => moment(v).format('DD-MM-Y HH:MM')
                     },
                     {
                         field: 'difficultyLevel',
