@@ -216,7 +216,7 @@
 
                 if(
                     this.$user.metaData.favoriteScores &&
-                    this.$user.metaData.favoriteScores.indexOf(this.score._id) > -1
+                    this.$user.metaData.favoriteScores.indexOf(me.score._id) > -1
                 ) {
                     me.isFavorite = true
                 }

@@ -13,42 +13,44 @@
                 <option value="all">All</option>
             </select>
         </div>
-        <table class="table table-striped table-bordered">
-            <thead>
-            <tr>
-                <th v-for="c in $props.cols" class="th-sm header-col" @click="setSort(c)">
-                    {{c.name}}
+        <div class="table-wrapper">
+            <table class="table table-striped table-bordered">
+                <thead>
+                <tr>
+                    <th v-for="c in $props.cols" class="th-sm header-col" @click="setSort(c)">
+                        {{c.name}}
 
-                    <template v-if="c.sort">
-                        <i class="fas fa-sort-amount-up" v-if="$props.query.sort === ('+'+c.sort)"></i>
-                        <i class="fas fa-sort-amount-down" v-else-if="$props.query.sort === ('-'+c.sort)"></i>
-                    </template>
-                </th>
-            </tr>
-            </thead>
-            <tbody>
-                <tr v-if="loading">
-                    <td :colspan="$props.cols.length">
-                        Loading ...
-                    </td>
-                </tr>
-                <tr v-else-if="rows.length > 0" v-for="r in rows">
-                    <td v-for="c in $props.cols">
-                        <template v-if="c.type === 'actions'">
-                            <a v-for="a in c.actions" href="javascript:void(0)" @click="() => {a.action(r)}">{{a.text}}</a>
+                        <template v-if="c.sort">
+                            <i class="fas fa-sort-amount-up" v-if="$props.query.sort === ('+'+c.sort)"></i>
+                            <i class="fas fa-sort-amount-down" v-else-if="$props.query.sort === ('-'+c.sort)"></i>
                         </template>
-                        <template v-else>
-                            {{readField(r, c)}}
-                        </template>
-                    </td>
+                    </th>
                 </tr>
-                <tr v-else>
-                    <td :colspan="$props.cols.length">
-                        Nothing found ...
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    <tr v-if="loading">
+                        <td :colspan="$props.cols.length">
+                            Loading ...
+                        </td>
+                    </tr>
+                    <tr v-else-if="rows.length > 0" v-for="r in rows">
+                        <td v-for="c in $props.cols">
+                            <template v-if="c.type === 'actions'">
+                                <a v-for="a in c.actions" href="javascript:void(0)" @click="() => {a.action(r)}">{{a.text}}</a>
+                            </template>
+                            <template v-else>
+                                {{readField(r, c)}}
+                            </template>
+                        </td>
+                    </tr>
+                    <tr v-else>
+                        <td :colspan="$props.cols.length">
+                            Nothing found ...
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
 
         <ul class="pagination table-pagination" v-if="!loading">
             <li class="page-item" v-if="page > 1"><a class="page-link" @click="() => loadPage(page - 1)">Previous</a></li>
@@ -204,5 +206,10 @@
     .header-col:hover i{
         text-decoration: underline;
         color: darkgrey;
+    }
+
+    .table-wrapper {
+        max-width: 100%;
+        overflow-x: scroll;
     }
 </style>

@@ -1,0 +1,16 @@
+{
+  "short_name": "Padmiss",
+  "name": "Padmiss client",
+  "icons": [
+    {
+      "src": "/assets/pwa.png",
+      "type": "image/png",
+      "sizes": "96x96"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#FFFFFF",
+  "display": "standalone",
+  "scope": "/",
+  "theme_color": "#FFFFFF"
+}

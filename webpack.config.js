@@ -1,6 +1,7 @@
 var path = require('path')
 var webpack = require('webpack')
 const ExtractTextPlugin = require("extract-text-webpack-plugin")
+const SWPrecacheWebpackPlugin = require('sw-precache-webpack-plugin')
 
 var configPath = getConfig()
 
@@ -63,7 +64,17 @@ module.exports = {
   performance: {
     hints: false
   },
-  plugins: [new ExtractTextPlugin("main.css")],
+  plugins: [
+      new ExtractTextPlugin("main.css"),
+      new SWPrecacheWebpackPlugin({
+        cacheId: 'padmiss-pwa',
+        filename: 'service-worker-cache.js',
+        staticFileGlobs: ['dist/**/*.{js,css}', '/'],
+        minify: true,
+        stripPrefix: 'dist/',
+        dontCacheBustUrlsMatching: /\.\w{6}\./
+      })
+  ],
   devtool: '#eval-source-map'
 }
 
