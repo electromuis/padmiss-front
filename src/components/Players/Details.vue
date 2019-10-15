@@ -39,6 +39,8 @@
             </tbody>
         </table>
 
+        <Pie :scores="scores"></Pie>
+
         <template v-if="favoriteScores.length > 0">
             <br/>
             <Scores :filter="{_id: favoriteScores}" title="Favorites" /><br/>
@@ -54,6 +56,7 @@
     import VueFormGenerator from "vue-form-generator";
     import Loading from 'vue-loading-overlay';
     import Scores from "./Scores.vue";
+    import Pie from './Scores/Pie.vue';
 
     export default {
         methods: {
@@ -84,13 +87,23 @@
                 ],
                 scores: [
                     'Scores',
-                    ['totalDocs'],
-                    {player: playerId},
+                    [
+                        {docs: [
+                            '_id',
+                            'playedAt',
+                            {'stepChart': [
+                                'difficultyLevel'
+                            ]}
+                        ]},
+                        'totalDocs'
+                    ],
+                    {player: playerId, limit: 999999},
                     true
                 ]
             }).then(result => {
                 me.player = result.player
                 me.player.scores = result.scores.totalDocs
+                me.scores = result.scores.docs
                 try {
                     let meta = JSON.parse(me.player.metaData)
                     if(Array.isArray(meta.favoriteScores)) {
@@ -108,14 +121,16 @@
             return {
                 loading: true,
                 favoriteScores: [],
-                player: {}
+                player: {},
+                scores: []
             }
         },
 
         components: {
             "vue-form-generator": VueFormGenerator.component,
             "loading": Loading,
-            Scores: Scores
+            Scores: Scores,
+            Pie: Pie
         }
     }
 </script>

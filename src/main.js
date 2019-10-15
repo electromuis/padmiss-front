@@ -44,6 +44,9 @@ else {
 
 Vue.use(BootstrapVue)
 
+import VueGoogleCharts from 'vue-google-charts'
+Vue.use(VueGoogleCharts)
+
 // Router & Store
 import store from './modules/Store'
 import router from './modules/Router'
