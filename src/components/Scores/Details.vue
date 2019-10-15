@@ -27,6 +27,11 @@
                     <td><a @click="$router.push('/charts/' + score.stepChart._id + '/scores')" href="#">{{score.stepChart.difficultyLevel}}</a></td>
                 </tr>
                 <tr>
+                    <td colspan="2">
+                        <Density :chart="score.stepChart.stepData" />
+                    </td>
+                </tr>
+                <tr>
                     <td>Stepartist</td>
                     <td>{{score.stepChart.stepArtist}}</td>
                 </tr>
@@ -92,7 +97,7 @@
     import VueFormGenerator from "vue-form-generator";
     import Loading from 'vue-loading-overlay';
     import AuthMixin from "../../mixins/AuthMixin";
-    import moment from 'moment'
+    import Density from "../Charts/Density.vue";
 
     let validateNum = function(val) {
         let parsed = parseInt(val)
@@ -204,6 +209,7 @@
                         'stepArtist',
                         'difficultyLevel',
                         'groups',
+                        'stepData',
                         {song: [
                             'title',
                             'artist'
@@ -236,7 +242,8 @@
 
         components: {
             "vue-form-generator": VueFormGenerator.component,
-            "loading": Loading
+            "loading": Loading,
+            Density: Density
         }
     }
 </script>

@@ -1,4 +1,31 @@
 import crc32 from 'crc/crc32';
+import _ from 'lodash'
+
+const doesRowHaveStep = row => row.includes("1") || row.includes("2") || row.includes("4")
+
+const beatToSeconds = (bpmChanges, stops, beat) => {
+    const bpmWindows = _.zip(bpmChanges, _.tail(bpmChanges))
+    let length = 0;
+
+    bpmWindows.forEach(([first, second]) => {
+        const firstBeat = parseFloat(first[0])
+        const secondBeat = second ? parseFloat(second[0]) : Infinity
+        const firstBpm = parseFloat(first[1])
+        const maxBeats = secondBeat - firstBeat
+        const beatsOnRange = Math.max(Math.min((beat - firstBeat), maxBeats), 0)
+        length += (beatsOnRange / firstBpm) * 60
+    })
+
+    if (stops) {
+        stops.forEach(([stopBeat, stopSeconds]) => {
+            if (parseFloat(stopBeat) < parseFloat(beat)) {
+                length += parseFloat(stopSeconds);
+            }
+        })
+    }
+
+    return length;
+}
 
 class NotesWriter {
     constructor() {
@@ -36,6 +63,78 @@ class NotesWriter {
         this.chartFields = ['type', 'credit', 'diff', 'level', 'meter']
         this.out = []
         this.charts = []
+    }
+
+    notesToSeconds(chart) {
+        let me = this
+
+        let bpms = []
+        let stops = []
+
+        this.info['BPMS'].forEach(b => {
+            let pts = b.split('=')
+            if(pts.length !== 2) {
+                return
+            }
+
+            let beat = parseFloat(pts[0])
+            bpms.push([beat, parseFloat(pts[1])])
+        })
+
+        if(typeof this.info['STOPS'] !== 'undefined') {
+            this.info['STOPS'].forEach(b => {
+                let pts = b.split('=')
+                if(pts.length !== 2) {
+                    return
+                }
+
+                let beat = parseFloat(pts[0])
+                stops.push([beat, parseFloat(pts[1])])
+            })
+        }
+
+        let ret = []
+        let m = 0;
+        chart.notes.forEach(measure => {
+            let step = measure.length / 4
+
+            for(let i=0; i<4; i++) {
+                let beatNotes = measure.slice(i*step, (i*step)+step)
+
+                let d = 0
+                beatNotes.forEach(b => {
+                    if(doesRowHaveStep(b)) {
+                        let beat = (m * 4) + i + (d / step)
+
+                        let s = beatToSeconds(bpms, stops, beat)
+                        ret.push(s)
+                    }
+
+                    d ++
+                })
+            }
+
+            m ++
+        })
+
+        return ret;
+    }
+
+    density(chart, range) {
+        let timeData = this.notesToSeconds(chart)
+        let ret = {}
+
+        timeData.forEach(t => {
+            let i = Math.floor(t / range)
+            if(!ret[i]) {
+                ret[i] = 1
+            }
+            else {
+                ret[i] ++
+            }
+        })
+
+        return Object.values(ret)
     }
 
     setData(data) {

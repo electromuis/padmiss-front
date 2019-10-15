@@ -26,6 +26,7 @@
     import Table from './../Custom/Table.vue'
     import Loading from 'vue-loading-overlay';
     import moment from 'moment'
+    import NotesWriter from '../../modules/NotesWriter'
 
     let me = null
 
@@ -40,6 +41,7 @@
                     'stepArtist',
                     'difficultyLevel',
                     'groups',
+                    'stepData',
                     {song: [
                             'title',
                             'artist'
