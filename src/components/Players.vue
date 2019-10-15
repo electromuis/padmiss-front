@@ -60,11 +60,13 @@
                 cols: [
                     {
                         field: 'nickname',
-                        name: 'Nickname'
+                        name: 'Nickname',
+                        sort: 'nickname'
                     },
                     {
                         field: 'shortNickname',
-                        name: 'Short'
+                        name: 'Short',
+                        sort: 'shortNickname'
                     },
                     {
                         field: 'country.name',
@@ -84,7 +86,7 @@
                 ],
                 query: {
                     table: 'Players',
-                    sort: '+nickname',
+                    sort: 'nickname',
                     limit: 10,
                     fields: [
                         '_id',

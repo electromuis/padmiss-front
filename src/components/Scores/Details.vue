@@ -114,7 +114,7 @@
 
                 if(
                     !this.$isLoggedIn||
-                    this.$user.data.playerId !== score.player._id
+                    this.$user.data.playerId !== me.score.player._id
                 ) {
                     return
                 }
@@ -215,8 +215,9 @@
                 me.score = score
 
                 if(
-                    this.$user.metaData.favoriteScores &&
-                    this.$user.metaData.favoriteScores.indexOf(me.score._id) > -1
+                    me.$isLoggedIn &&
+                    me.$user.metaData.favoriteScores &&
+                    me.$user.metaData.favoriteScores.indexOf(me.score._id) > -1
                 ) {
                     me.isFavorite = true
                 }
