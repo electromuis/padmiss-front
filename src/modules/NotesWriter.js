@@ -125,7 +125,7 @@ class NotesWriter {
         let ret = {}
 
         timeData.forEach(t => {
-            let i = Math.floor(t / range)
+            let i = Math.round(t / range)
             if(!ret[i]) {
                 ret[i] = 1
             }

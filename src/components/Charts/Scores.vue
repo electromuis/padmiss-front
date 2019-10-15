@@ -11,9 +11,15 @@
                 <tr>
                     <td>Song</td>
                     <td>{{chart.song.title}}</td>
-                </tr><tr>
+                </tr>
+                <tr>
                     <td>Difficulity</td>
                     <td>{{chart.difficultyLevel}}</td>
+                </tr>
+                <tr>
+                    <td colspan="2">
+                        <Density :chart="chart.stepData" />
+                    </td>
                 </tr>
             </tbody>
         </table>
@@ -26,7 +32,7 @@
     import Table from './../Custom/Table.vue'
     import Loading from 'vue-loading-overlay';
     import moment from 'moment'
-    import NotesWriter from '../../modules/NotesWriter'
+    import Density from "../Charts/Density.vue";
 
     let me = null
 
@@ -43,9 +49,9 @@
                     'groups',
                     'stepData',
                     {song: [
-                            'title',
-                            'artist'
-                        ]}
+                        'title',
+                        'artist'
+                    ]}
                 ],
                 {id: chartId}
             ).then(chart => {
@@ -129,7 +135,8 @@
 
         components: {
             Table,
-            Loading
+            Loading,
+            Density
         }
     }
 </script>

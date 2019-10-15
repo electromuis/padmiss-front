@@ -53,7 +53,7 @@
 <!--                </tr>-->
                 <tr>
                     <td>Seconds survided</td>
-                    <td>{{Math.round(score.secondsSurvived)}}</td>
+                    <td>{{moment.utc(score.secondsSurvived * 1000).format('mm:ss')}}</td>
                 </tr>
                 <tr>
                     <td>Passed</td>

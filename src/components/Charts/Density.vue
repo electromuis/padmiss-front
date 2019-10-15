@@ -1,19 +1,22 @@
 <template>
-    <GChart
-        ref="graph"
-        type="LineChart"
-        :data="data"
-        :options="options"
-    />
+    <div>
+        <GChart
+            ref="graph"
+            type="AreaChart"
+            :data="data"
+            :options="options"
+        />
+    </div>
 </template>
 
 <script>
     import NotesWriter from "../../modules/NotesWriter";
     import { GChart } from 'vue-google-charts'
+    let me = null
 
     export default  {
         created() {
-            let me = this
+            me = this
             let width = null;
 
             if(this.$props.width) {
@@ -34,22 +37,23 @@
             let chart = writer.charts[0]
             let length = writer.calcLength(chart)
 
-            let range = 1;
+            let range = null;
             if(width) {
-                range = Math.floor(width / length)
+                // range = Math.max(Math.floor((length / width) * 25), 5)
             }
+            range = 4
 
             let data = writer.density(chart, range)
             let i = 0
 
             data.forEach(d => {
-                let time = me.moment(Math.round(i*range)).format('MM:SS')
+                let time = me.moment.utc(i*range * 1000).format('mm:ss')
 
-                me.data.push([time, d*range])
+                me.data.push([time, Math.floor(d / range)])
                 i++
             })
 
-            console.log(me.data)
+            console.log([width, length, range, me.data])
         },
 
         data() {
@@ -66,3 +70,11 @@
         props: ['chart', 'width']
     }
 </script>
+
+<style>
+    .magic-svg {
+        width:0;
+        height:0;
+        position:absolute;
+    }
+</style>
