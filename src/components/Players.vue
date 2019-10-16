@@ -6,7 +6,7 @@
             <div class="form-label">
                 Filter:
             </div>
-            <input v-model="filter" @change="updateFilter()" class="form-control col-md-12" />
+            <input v-model="filter" class="form-control col-md-12" />
         </div>
 
         <Table ref="table" :cols="cols" :query="query"></Table>
@@ -98,6 +98,12 @@
                     ]
                 }
             }
+        },
+
+        watch: {
+            filter: _.debounce(() => {
+                me.updateFilter()
+            }, 200)
         },
 
         components: {

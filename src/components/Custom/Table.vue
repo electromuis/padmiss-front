@@ -21,7 +21,7 @@
                         {{c.name}}
 
                         <template v-if="c.sort">
-                            <i class="fas fa-sort-amount-up" v-if="$props.query.sort === ('+'+c.sort)"></i>
+                            <i class="fas fa-sort-amount-up" v-if="$props.query.sort === (+c.sort)"></i>
                             <i class="fas fa-sort-amount-down" v-else-if="$props.query.sort === ('-'+c.sort)"></i>
                         </template>
                     </th>
@@ -71,9 +71,9 @@
                 if(!col.sort) {
                     return
                 }
-                let set = '+' + col.sort
+                let set = col.sort
 
-                if(this.$props.query.sort === ('+' + col.sort)) {
+                if(this.$props.query.sort === ( col.sort)) {
                     set = '-' + col.sort
                 }
 

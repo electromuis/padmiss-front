@@ -45,7 +45,7 @@
                 </tr>
                 <tr>
                     <td>Percentage</td>
-                    <td>{{Math.round(score.scoreValue * 10000) / 100}} %</td>
+                    <td>{{(Math.round(score.scoreValue * 10000) / 100).toFixed(2)}} %</td>
                 </tr>
 <!--                <tr>-->
 <!--                    <td>EX Points</td>-->

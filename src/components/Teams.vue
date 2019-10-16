@@ -46,7 +46,7 @@
                 ],
                 query: {
                     table: 'Teams',
-                    sort: '+name',
+                    sort: 'name',
                     limit: 10,
                     fields: [
                         '_id',

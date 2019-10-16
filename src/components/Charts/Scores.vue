@@ -105,7 +105,7 @@
                         field: 'scoreValue',
                         sort: 'scoreValue',
                         name: 'Score',
-                        morph: (v) =>  (Math.round(v*10000) / 100) + ' %'
+                        morph: (v) =>  (Math.round(v*10000) / 100).toFixed(2) + ' %'
                     },
                     {
                         type: 'actions',

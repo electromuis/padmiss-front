@@ -6,7 +6,7 @@
             <div class="form-label">
                 Filter:
             </div>
-            <input v-model="filter" @change="updateFilter()" class="form-control col-md-12" />
+            <input v-model="filter" class="form-control col-md-12" />
         </div>
 
         <Table ref="table" :cols="cols" :query="query"></Table>
@@ -67,11 +67,13 @@
                 cols: [
                     {
                         field: 'created',
+                        sort: 'created',
                         name: 'Date submitted',
                         morph: (v) => moment(v).format('DD-MM-Y HH:MM')
                     },
                     {
                         field: 'difficultyLevel',
+                        sort: 'difficultyLevel',
                         name: 'Difficulty'
                     },
                     {
@@ -116,6 +118,12 @@
                     ]
                 }
             }
+        },
+
+        watch: {
+            filter: _.debounce(() => {
+                me.updateFilter()
+            }, 200),
         },
 
         components: {
