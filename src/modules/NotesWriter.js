@@ -27,6 +27,61 @@ const beatToSeconds = (bpmChanges, stops, beat) => {
     return length;
 }
 
+const isStreamMeasure = (rows, minStream) => {
+    if (rows.filter(doesRowHaveStep).length < minStream) {
+        return false;
+    }
+
+    let rowWithLastNote = 0;
+    let noteGapThreshold = rows.length / minStream;
+
+
+    for (let i = 0; i < rows.length; i++) {
+        if (doesRowHaveStep(rows[i])) {
+            if (i - rowWithLastNote > noteGapThreshold) {
+                return false;
+            } else {
+                rowWithLastNote = i;
+            }
+        }
+    }
+
+    return true;
+}
+
+const streamMeasures = (notes, minStream) => {
+    return notes
+        .map(rows => {
+            return isStreamMeasure(rows, minStream) ? 1 : 0;
+        })
+}
+//
+// const breakdown = (notes, minStream) => {
+//     const breakdownItems = notes
+//         .reduce((breakdown, [measureNumber, rows]) => {
+//             const isStream = isStreamMeasure(rows, minStream)
+//             const last = _.last(breakdown)
+//
+//             if (!last || last.isStream !== isStream) {
+//                 return [...breakdown, { count: 1, isStream }]
+//             } else {
+//                 const allButLast = _.initial(breakdown)
+//                 return [...allButLast, { count: last.count + 1, isStream: last.isStream }]
+//             }
+//         }, [])
+//         // filter breaks of one measure out
+//         .filter(({ isStream, count }) => isStream || count > 1)
+//
+//     // filter out breaks from start and end
+//     const noBreak = item => !item.isStream
+//     const breaksStripped = _.dropRightWhile(_.dropWhile(breakdownItems, noBreak), noBreak)
+//
+//     return breaksStripped
+//         .map(({ isStream, count }) => isStream ? '' + count : `(${count})`)
+//         .join(' ')
+// }
+
+
 class NotesWriter {
     constructor() {
         this.data = ""
@@ -63,6 +118,28 @@ class NotesWriter {
         this.chartFields = ['type', 'credit', 'diff', 'level', 'meter']
         this.out = []
         this.charts = []
+    }
+
+    breakdown(chart) {
+        let streamSpeed = 16
+
+        let list = streamMeasures(chart.notes, streamSpeed)
+        let ret = []
+
+        let p = 0
+        let last = 0
+        list.forEach(l => {
+            if(l === last) {
+                p ++
+            }
+            else {
+                ret.push(last, p)
+                p = 0
+                last = l
+            }
+        })
+
+        return ret
     }
 
     notesToSeconds(chart) {

@@ -37,11 +37,7 @@
             let chart = writer.charts[0]
             let length = writer.calcLength(chart)
 
-            let range = null;
-            if(width) {
-                // range = Math.max(Math.floor((length / width) * 25), 5)
-            }
-            range = 4
+            let range = 3;
 
             let data = writer.density(chart, range)
             let i = 0
@@ -53,7 +49,8 @@
                 i++
             })
 
-            console.log([width, length, range, me.data])
+            let breakdown = writer.breakdown(chart)
+            console.log(breakdown)
         },
 
         data() {
