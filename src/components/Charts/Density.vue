@@ -6,6 +6,10 @@
             :data="data"
             :options="options"
         />
+        <br/>
+        <template v-if="breakdown">
+        Streams: {{breakdown}}
+        </template>
     </div>
 </template>
 
@@ -53,7 +57,7 @@
                 i++
             })
 
-            console.log([width, length, range, me.data])
+            me.breakdown = writer.breakdown(chart)
         },
 
         data() {
@@ -63,7 +67,8 @@
                 ],
                 options: {
 
-                }
+                },
+                breakdown: ''
             }
         },
 
