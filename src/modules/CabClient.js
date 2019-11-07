@@ -1,23 +1,29 @@
 import ApiClient from './ApiClient'
+import ApiClientInstance from './ApiClientInstance'
 import axios from 'axios'
+import config from "ClientConfig";
+
+let cabs = null
 
 export default class {
 
-  static async init() {
-    if(typeof this.cabs !== 'undefined') {
-      return
-    }
+  static init() {
+    return new Promise(resolve => {
+      if(cabs !== null) {
+        return
+      }
 
-    let cabs = {}
+      cabs = {}
 
-    await ApiClient.get('/api/arcade-cabs/live').then(response => {
+      ApiClient.get('/api/arcade-cabs/live').then(response => {
 
-      response.cabs.forEach(c => {
-        cabs[c._id] = c
+        response.cabs.forEach(c => {
+          cabs[c._id] = c
+        })
+
+        resolve(cabs)
       })
     })
-
-    this.cabs = cabs
   }
 
   static ping(id) {
@@ -25,33 +31,61 @@ export default class {
 
     return me
         .init()
-        .then(r => new Promise(resolve => {
+        .then(r => new Promise((resolve, reject) => {
+          console.log(123)
+          this.isOnline(id).then(r => {
+            if (!r) {
+              console.log(123)
+              reject()
+              return
+            }
 
-        if(!this.isOnline(id)) {
-          resolve(false)
-        }
+            let url = 'http://' + me.cabs[id].ip + '/info'
 
-        try {
-          let url = 'http://' + this.cabs[id].ip + '/info'
+            axios.get(url).then(response => {
+              if (response.data.status != 'OK') {
+                reject()
+                return
+              }
 
-          axios.get(url).then(response => {
-            console.log(response.data)
-
-            resolve(response.data.status == 'OK')
+              resolve(response.data)
+            })
           })
-        }
-        catch (e) {
-          console.log(e)
-
-          resolve(false)
-        }
-      })
+        })
     )
   }
 
   static async isOnline(id) {
     await this.init()
 
-    return typeof this.cabs[id] !== 'undefined'
+    return typeof cabs[id] !== 'undefined'
+  }
+
+  static client(id) {
+    let me = this
+
+    return new Promise(resolve => {
+      me.init().then(() => {
+
+
+        if(typeof cabs[id].client !== 'undefined') {
+          resolve(cabs[id].client)
+        }
+        else {
+          me.ping(id).then(info => {
+            const url = 'http://' + info.ip + '/'
+
+            cabs[id].client = new ApiClientInstance({
+              baseURL: url,
+              timeout: 20000,
+            })
+
+            resolve(cabs[id].client)
+          })
+        }
+
+      })
+    })
+
   }
 }

@@ -24,6 +24,9 @@
                         <template v-if="$can('edit-cab', row)">
                             <b-button v-on:click="$router.push({path: `/cabs/${row._id}/edit`})">Edit</b-button>
                             <b-button v-on:click="$router.push({path: `/cabs/${row._id}/delete`})">Delete</b-button>
+
+                            <b-button v-if="row.status == 'Online+'" @click="checkIn(row, '1')">Check in P1</b-button>
+                            <b-button v-if="row.status == 'Online+'" @click="checkIn(row, '2')">Check in P2</b-button>
                         </template>
                     </td>
                     <td>
@@ -49,6 +52,22 @@
         mixins: [AuthMixin],
 
         methods: {
+
+            async checkIn(c, player) {
+                let me = this
+
+                me.$cab
+                    .client(c._id)
+                    .then(client => {
+                        client.post('/check_in', {
+                            side: player,
+                            player: me.$user.data.playerId
+                        }).then(r => {
+                            console.log(r)
+                        })
+                    })
+            },
+
             checkCab(c) {
                 let me = this
 
@@ -57,10 +76,19 @@
                 me.$cab.ping(c._id).then(r => {
                     if(r) {
                         c.status = "Online+"
+                        return;
                     }
-                    else if(me.$cab.isOnline(c._id)) {
+
+                    return me.$cab.isOnline(c._id)
+                }).then(r => {
+                    if(r) {
                         c.status = "Online"
                     }
+                }).then(r => me.$cab.client(c.id)
+                ).then(client => {
+                    return client.get('/players')
+                }).then(r => {
+                    console.log(r)
                 })
 
             }
@@ -75,31 +103,15 @@
         created() {
             let me = this
 
-            if(me.$user.isAdmin()) {
-                this.$graph(
-                    'ArcadeCabs',
-                    {docs: ['_id', 'name', {'cabOwner': ['_id']}, {'coOwners': ['_id']}]}
-                ).then((response) => {
-                    me.values = response.docs.map(c => {
-                        c.cabOwner = c.cabOwner._id
-                        c.coOwners = c.coOwners.map(o => o._id)
-
-                        me.checkCab(c)
-
-                        return c
-                    })
+            me.$api.get(
+                '/api/arcade-cabs/get-my-cabs?token=' + localStorage.token
+            ).then(response => {
+                response.cabs.forEach(c => {
+                    me.checkCab(c)
                 })
-            } else {
-                me.$api.get(
-                    '/api/arcade-cabs/get-my-cabs?token=' + localStorage.token
-                ).then(response => {
-                    response.cabs.forEach(c => {
-                        me.checkCab(c)
-                    })
 
-                    me.values = response.cabs
-                })
-            }
+                me.values = response.cabs
+            })
         },
 
         components: {
