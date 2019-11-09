@@ -74,7 +74,7 @@ export default class ApiClientInstance {
     if (config.debug.vue)
       console.log('GET', route)
 
-    new Promise((resolve, reject) => {
+    return new Promise((resolve, reject) => {
       me.client.get(route)
         .then(response => {
           me.apiResponseHandler({
