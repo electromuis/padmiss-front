@@ -25,8 +25,7 @@
                             <b-button v-on:click="$router.push({path: `/cabs/${row._id}/edit`})">Edit</b-button>
                             <b-button v-on:click="$router.push({path: `/cabs/${row._id}/delete`})">Delete</b-button>
 
-                            <b-button v-if="row.status == 'Online+'" @click="checkIn(row, '1')">Check in P1</b-button>
-                            <b-button v-if="row.status == 'Online+'" @click="checkIn(row, '2')">Check in P2</b-button>
+                            <b-button v-if="row.status == 'Online'" @click="openTab(row)">Cab page</b-button>
                         </template>
                     </td>
                     <td>
@@ -53,19 +52,11 @@
 
         methods: {
 
-            async checkIn(c, player) {
-                let me = this
-
-                me.$cab
-                    .client(c._id)
-                    .then(client => {
-                        client.post('/check_in', {
-                            side: player,
-                            player: me.$user.data.playerId
-                        }).then(r => {
-                            console.log(r)
-                        })
-                    })
+            openTab(c) {
+                console.log(c)
+                const url = 'http://' + c.data.ip + '/home'
+                let win = window.open(url, '_blank');
+                win.focus();
             },
 
             checkCab(c) {
@@ -73,23 +64,25 @@
 
                 c.status = "Offline"
 
-                me.$cab.ping(c._id).then(r => {
+                me.$cab.isOnline(c._id).then(r => {
                     if(r) {
-                        c.status = "Online+"
-                        return;
-                    }
-
-                    return me.$cab.isOnline(c._id)
-                }).then(r => {
-                    if(r) {
+                        c.data = me.$cab.cabInfo(c._id)
                         c.status = "Online"
                     }
-                }).then(r => me.$cab.client(c.id)
-                ).then(client => {
-                    return client.get('/players')
-                }).then(r => {
-                    console.log(r)
                 })
+
+                // me.$cab.ping(c._id).then(r => {
+                //     if(r) {
+                //         c.status = "Online+"
+                //         return;
+                //     }
+                //
+                //     return me.$cab.isOnline(c._id)
+                // }).then(r => {
+                //     if(r) {
+                //         c.status = "Online"
+                //     }
+                // })
 
             }
         },

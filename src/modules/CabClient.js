@@ -10,6 +10,7 @@ export default class {
   static init() {
     return new Promise(resolve => {
       if(cabs !== null) {
+        resolve(cabs)
         return
       }
 
@@ -24,6 +25,10 @@ export default class {
         resolve(cabs)
       })
     })
+  }
+
+  static cabInfo(id) {
+    return cabs[id]
   }
 
   static ping(id) {
