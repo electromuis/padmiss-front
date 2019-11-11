@@ -54,7 +54,7 @@
 
             openTab(c) {
                 console.log(c)
-                const url = 'http://' + c.data.ip + '/home'
+                const url = 'http://' + c.ip + '/home'
                 let win = window.open(url, '_blank');
                 win.focus();
             },
