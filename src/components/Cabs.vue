@@ -54,7 +54,7 @@
 
             openTab(c) {
                 console.log(c)
-                const url = 'http://' + c.ip + '/home'
+                const url = 'http://' + c.data.ip + '/home'
                 let win = window.open(url, '_blank');
                 win.focus();
             },
@@ -66,7 +66,7 @@
 
                 me.$cab.isOnline(c._id).then(r => {
                     if(r) {
-                        // c.data = me.$cab.cabInfo(c._id)
+                        c.data = me.$cab.cabInfo(c._id)
                         c.status = "Online"
                     }
                 })
