@@ -66,7 +66,7 @@
 
                 me.$cab.isOnline(c._id).then(r => {
                     if(r) {
-                        c.data = me.$cab.cabInfo(c._id)
+                        // c.data = me.$cab.cabInfo(c._id)
                         c.status = "Online"
                     }
                 })
