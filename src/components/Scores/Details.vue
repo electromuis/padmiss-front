@@ -182,7 +182,6 @@
                     'scoreValue',
                     'secondsSurvived',
                     'originalScore',
-                    'stepsInfo',
                     'noteSkin',
                     'playedAt',
                     'passed',
