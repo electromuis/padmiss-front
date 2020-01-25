@@ -118,32 +118,8 @@ class NotesWriter {
     }
 
     notesToSeconds(chart) {
-        let me = this
-
-        let bpms = []
-        let stops = []
-
-        this.info['BPMS'].forEach(b => {
-            let pts = b.split('=')
-            if(pts.length !== 2) {
-                return
-            }
-
-            let beat = parseFloat(pts[0])
-            bpms.push([beat, parseFloat(pts[1])])
-        })
-
-        if(typeof this.info['STOPS'] !== 'undefined') {
-            this.info['STOPS'].forEach(b => {
-                let pts = b.split('=')
-                if(pts.length !== 2) {
-                    return
-                }
-
-                let beat = parseFloat(pts[0])
-                stops.push([beat, parseFloat(pts[1])])
-            })
-        }
+        let bpms = this.getBpms();
+        let stops = this.getStops();
 
         let ret = []
         let m = 0;
@@ -170,6 +146,38 @@ class NotesWriter {
         })
 
         return ret;
+    }
+
+    getStops() {
+        let stops = []
+
+        if (typeof this.info['STOPS'] !== 'undefined') {
+            this.info['STOPS'].forEach(b => {
+                let pts = b.split('=')
+                if (pts.length !== 2) {
+                    return
+                }
+
+                let beat = parseFloat(pts[0])
+                stops.push([beat, parseFloat(pts[1])])
+            })
+        }
+        return stops;
+    }
+
+    getBpms() {
+        let bpms = []
+
+        this.info['BPMS'].forEach(b => {
+            let pts = b.split('=')
+            if (pts.length !== 2) {
+                return
+            }
+
+            let beat = parseFloat(pts[0])
+            bpms.push([beat, parseFloat(pts[1])])
+        })
+        return bpms;
     }
 
     density(chart, range) {
