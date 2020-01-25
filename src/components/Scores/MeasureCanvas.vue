@@ -10,6 +10,7 @@
             measure: Number,
             previousMeasureNotes: Array,
             currentMeasureNotes: Array,
+            canvasWidth: Number, // Width of the canvas
             measureRenderHeight: Number, // Render height of a single measure in pixels
             beatRenderHeight: Number, // Render height of a single beat in pixels
             noteSize: Number, // Note sprite size in pixels
@@ -19,7 +20,7 @@
         data() {
             return {
                 renderingContext: null, // CanvasRenderingContext
-                canvasWidth: null,
+                sprites: [],
 
                 // Measure line rendering settings
                 measureTextFontSize: 14,
@@ -30,6 +31,7 @@
                 thickMeasureLine: 3, // Draw first beat with thick line
 
                 // Note rendering settings
+                holdBodyHeight: 128,
                 directions: [90, 0, 180, 270, 90, 0, 180, 270], // Left, down, up, right and same for double
                 noteRowOffset: 80, // How many pixels to add to the left side of drawn note row
                 noteColumnSpacing: 10, // How many pixels to have between columns
@@ -54,7 +56,8 @@
                 holdEndUrl: "/assets/notes/hold_end.png",
                 rollBodyUrl: "/assets/notes/roll_body.png",
                 rollEndUrl: "/assets/notes/roll_end.png",
-                mineUrl: "/assets/notes/mine.png"
+                mineUrl: "/assets/notes/mine.png",
+                errorSpriteUrl : "/assets/notes/error.png"
             }
         },
 
@@ -112,9 +115,9 @@
             },
 
             drawNotes(measureNotes, totalMeasureNotes, previousMeasureYOffset) {
-                measureNotes.forEach((note, index) => {
-                    const columns = [...note]
+                const measureNotesInColumns = measureNotes.map(note => [...note])
 
+                measureNotesInColumns.forEach((columns, index) => {
                     if (this.rowHasNoteValue(columns)) {
                         const beat = index * (4 / totalMeasureNotes)
 
@@ -124,10 +127,26 @@
                                     this.drawNote(columnIndex, beat, "normal", previousMeasureYOffset)
                                     break
                                 case "2":
+                                    const holdEndIndex = this.tryGetHoldOrRollEnd(measureNotesInColumns, columnIndex)
+                                    let endBeat = 0
+
+                                    // Not found -> hold continues to next measure
+                                    if (holdEndIndex === -1) {
+                                        endBeat = 3.99
+                                    }
+                                    // Found -> hold ends in this measure
+                                    else {
+                                        endBeat = holdEndIndex * (4 / totalMeasureNotes)
+                                    }
+
+                                    this.drawHoldOrRollBody(columnIndex, beat, endBeat, "hold", previousMeasureYOffset)
+                                    this.drawNote(columnIndex, beat, "hold-head", previousMeasureYOffset)
                                     break
                                 case "3":
+                                    this.drawNote(columnIndex, beat, "hold-or-roll-end", previousMeasureYOffset)
                                     break
                                 case "4":
+                                    this.drawNote(columnIndex, beat, "roll-head", previousMeasureYOffset)
                                     break
                                 case "M":
                                     this.drawNote(columnIndex, beat, "mine", previousMeasureYOffset)
@@ -140,16 +159,16 @@
                 })
             },
 
-            rowHasNoteValue(columns) {
-                // .sm note values
-                // 0 – No note
-                // 1 – Normal note
-                // 2 – Hold head
-                // 3 – Hold/Roll tail
-                // 4 – Roll head
-                // M – Mine
+            tryGetHoldOrRollEnd(measureNotesInColumns, columnIndex) {
+                return measureNotesInColumns.findIndex(col => col[columnIndex] === "3")
+            },
 
-                return columns.includes("1") || columns.includes("M")
+            rowHasNoteValue(columns) {
+                return columns.includes("1") || // Normal note
+                    columns.includes("2") || // Hold head
+                    columns.includes("3") || // Hold/Roll tail
+                    columns.includes("4") || // Roll head
+                    columns.includes("M") // Mine
             },
 
             drawNote(column, beat, noteType, previousMeasureYOffset) {
@@ -157,46 +176,75 @@
                 // Add column spacing if not column zero
                 const noteXPos = this.noteRowOffset + (column * (this.noteSize + this.noteColumnSpacing))
                 const noteYPos = (beat * this.beatRenderHeight) - previousMeasureYOffset
+                const rotationAngle = me.directions[column]
 
-                const img = new Image()
+                // Rotate canvas if needed for normal notes
+                if (rotationAngle > 0 && noteType === "normal") {
+                    const spriteCenterPointX = noteXPos + Math.floor(me.noteSize / 2)
+                    const spriteCenterPointY = noteYPos + Math.floor(me.noteSize / 2)
 
-                img.onload = function() {
-                    const rotationAngle = me.directions[column]
-
-                    // Rotate canvas if needed
-                    if (rotationAngle > 0) {
-                        const spriteCenterPointX = noteXPos + Math.floor(me.noteSize / 2)
-                        const spriteCenterPointY = noteYPos + Math.floor(me.noteSize / 2)
-
-                        // Rotate canvas around sprite center
-                        me.renderingContext.translate(spriteCenterPointX, spriteCenterPointY);
-                        me.renderingContext.rotate(me.directions[column] * Math.PI / 180);
-                        me.renderingContext.translate(-spriteCenterPointX, -spriteCenterPointY);
-                    }
-
-                    me.renderingContext.drawImage(img, noteXPos, noteYPos)
-
-                    // Reset canvas matrix if needed
-                    if (rotationAngle > 0) {
-                        me.renderingContext.setTransform(1, 0, 0, 1, 0, 0)
-                    }
+                    // Rotate canvas around sprite center
+                    me.renderingContext.translate(spriteCenterPointX, spriteCenterPointY);
+                    me.renderingContext.rotate(me.directions[column] * Math.PI / 180);
+                    me.renderingContext.translate(-spriteCenterPointX, -spriteCenterPointY);
                 }
 
-                img.src = this.getNoteSpriteUrl(beat, noteType)
+                const noteSprite = this.sprites.find(s => s.url === this.getNoteSpriteUrl(beat, noteType)).img
+
+                me.renderingContext.drawImage(noteSprite, noteXPos, noteYPos)
+
+                // Reset canvas matrix if needed
+                if (rotationAngle > 0 && noteType === "normal") {
+                    me.renderingContext.setTransform(1, 0, 0, 1, 0, 0)
+                }
+            },
+
+            drawHoldOrRollBody(column, beat, endBeat, holdType, previousMeasureYOffset) {
+                let me = this
+                // Add column spacing if not column zero
+                const noteXPos = this.noteRowOffset + (column * (this.noteSize + this.noteColumnSpacing))
+                const noteYPos = (beat * this.beatRenderHeight) - previousMeasureYOffset + (this.noteSize / 2)
+                const endYPos = (endBeat * this.beatRenderHeight) - previousMeasureYOffset
+
+                // How many parts are needed -> get the total height of the hold and divide by single part height
+                const totalHoldHeight = ((this.beatRenderHeight * (endBeat - beat)) - (this.noteSize / 2))
+                const neededBodyParts = Math.ceil(totalHoldHeight / this.holdBodyHeight)
+
+                // Draw all body parts
+                for (let i = 0; i < neededBodyParts; i++) {
+                    const partYPos = noteYPos + (i * this.holdBodyHeight)
+
+                    if (holdType === "hold") {
+                        const holdSprite = this.sprites.find(s => s.url === this.holdBodyUrl).img
+                        me.renderingContext.drawImage(holdSprite, noteXPos, partYPos)
+                    }
+                    else if (holdType === "roll") {
+                        const holdSprite = this.sprites.find(s => s.url === this.rollBodyUrl).img
+                        me.renderingContext.drawImage(holdSprite, noteXPos, partYPos)
+                    }
+                    // Should not happen
+                    else {
+                        console.error(`Cannot draw hold of type ${holdType}`)
+                    }
+                }
             },
 
             getNoteSpriteUrl(beat, noteType) {
                 let spriteUrl = "";
 
-                if (noteType === "normal") {
+                // We need to draw the normal note in holds and rolls too
+                if (noteType === "normal" || noteType === "hold-head" || noteType === "roll-head") {
                     spriteUrl = this.getNoteColorUrl(beat, 4)
                 }
-                else if (noteType === "mine") {
-                    spriteUrl = "/assets/notes/mine.png"
+                else if (noteType === "hold-or-roll-end") {
+                    spriteUrl = this.holdEndUrl
                 }
-                // Should not happen TODO: add error sprite
+                else if (noteType === "mine") {
+                    spriteUrl = this.mineUrl
+                }
+                // Should not happen
                 else {
-                    spriteUrl = "/assets/notes/note_red.png"
+                    spriteUrl = this.errorSpriteUrl
                 }
 
                 return spriteUrl
@@ -239,18 +287,44 @@
                 else {
                     return this.noteSpriteUrlsByBeatValue["192nd"];
                 }
+            },
+
+            loadSprites() {
+                let me = this
+
+                const imageUrls = Object.values(me.noteSpriteUrlsByBeatValue).concat([
+                    me.holdBodyUrl,
+                    me.holdEndUrl,
+                    me.rollBodyUrl,
+                    me.rollEndUrl,
+                    me.mineUrl,
+                    me.errorSpriteUrl
+                ])
+
+                const distinct = [...new Set(imageUrls)]
+
+                return distinct.map(url => {
+                    return new Promise((resolve, reject) => {
+                        let img = new Image();
+
+                        img.onload = function () {
+                            resolve({ url: url, img: img });
+                        };
+
+                        img.src = url;
+                    });
+                });
             }
         },
 
-        mounted () {
+        async mounted () {
             // We can't access the rendering context until the canvas is mounted to the DOM.
             this.renderingContext = this.$refs["measure-canvas"].getContext("2d")
 
-            // Resize the canvas to fit its parent's width.
-            this.canvasWidth = this.$refs["measure-canvas"].parentElement.clientWidth
-
             this.$refs["measure-canvas"].width = this.canvasWidth
             this.$refs["measure-canvas"].height = this.measureRenderHeight
+
+            this.sprites = await Promise.all(this.loadSprites())
 
             this.renderCanvas()
         }

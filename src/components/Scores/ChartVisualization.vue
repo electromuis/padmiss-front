@@ -1,5 +1,5 @@
 <template>
-    <div id="chart-visualization">
+    <div ref="chart-data" id="chart-visualization">
         <p>Total measures: {{totalMeasures}}</p>
         <p>Total beats: {{totalBeats}}</p>
         <p>Total render height: {{totalRenderHeight}}px</p>
@@ -8,6 +8,7 @@
                     :measure="index"
                     :previous-measure-notes="index > 0 ? measures[index-1] : []"
                     :current-measure-notes="measure"
+                    :canvas-width="width"
                     :measure-render-height="measureRenderHeight"
                     :beat-render-height="beatRenderHeight"
                     :note-size="noteSize"
@@ -41,6 +42,7 @@
                 chart: {},
                 chartSeconds: {},
                 measures: {},
+                width: 600,
 
                 // Note rendering settings
                 noteSize: 64, // Note sprite size in pixels
@@ -51,6 +53,7 @@
         computed: {
             canvasContainerStyle() {
                 return {
+                    width: `${this.width}px`,
                     height: `${this.measureRenderHeight}px`
                 };
             },
@@ -92,6 +95,6 @@
             this.chart = writer.charts[0];
             this.measures = writer.charts[0].notes;
             this.chartSeconds = writer.notesToSeconds(this.chart);
-        },
+        }
     }
 </script>
