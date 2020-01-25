@@ -179,7 +179,7 @@
                 const rotationAngle = me.directions[column]
 
                 // Rotate canvas if needed for normal notes
-                if (rotationAngle > 0 && noteType === "normal") {
+                if (this.shouldRotate(rotationAngle, noteType)) {
                     const spriteCenterPointX = noteXPos + Math.floor(me.noteSize / 2)
                     const spriteCenterPointY = noteYPos + Math.floor(me.noteSize / 2)
 
@@ -194,9 +194,13 @@
                 me.renderingContext.drawImage(noteSprite, noteXPos, noteYPos)
 
                 // Reset canvas matrix if needed
-                if (rotationAngle > 0 && noteType === "normal") {
+                if (this.shouldRotate(rotationAngle, noteType)) {
                     me.renderingContext.setTransform(1, 0, 0, 1, 0, 0)
                 }
+            },
+
+            shouldRotate(rotationAngle, noteType) {
+                return (rotationAngle > 0 && (noteType === "normal" || noteType === "hold-head" || noteType === "roll-head"))
             },
 
             drawHoldOrRollBody(column, beat, endBeat, holdType, previousMeasureYOffset) {
