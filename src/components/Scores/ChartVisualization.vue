@@ -1,22 +1,24 @@
 <template>
     <div ref="chart-data" id="chart-visualization">
-        <p>Total measures: {{totalMeasures}}</p>
-        <p>Total beats: {{totalBeats}}</p>
-        <p>Total render height: {{totalRenderHeight}}px</p>
-        <div :style="canvasContainerStyle" v-for="(measure, index) in measures">
-            <MeasureCanvas
-                    :measure="index"
-                    :previous-measure-notes="index > 0 ? measures[index-1] : []"
-                    :current-measure-notes="measure"
-                    :canvas-width="width"
-                    :measure-render-height="measureRenderHeight"
-                    :beat-render-height="beatRenderHeight"
-                    :note-size="noteSize"
-                    :note-spacing="noteSpacing"
-            >
-            </MeasureCanvas>
+        <Loading v-if="loading"></Loading>
+        <div v-else>
+            <p>Total measures: {{totalMeasures}}</p>
+            <p>Total beats: {{totalBeats}}</p>
+            <p>Total render height: {{totalRenderHeight}}px</p>
+            <div :style="canvasContainerStyle" v-for="(measure, index) in measures">
+                <MeasureCanvas
+                        :measure="index"
+                        :previous-measure-notes="index > 0 ? measures[index-1] : []"
+                        :current-measure-notes="measure"
+                        :canvas-width="width"
+                        :measure-render-height="measureRenderHeight"
+                        :beat-render-height="beatRenderHeight"
+                        :note-size="noteSize"
+                        :note-spacing="noteSpacing"
+                >
+                </MeasureCanvas>
+            </div>
         </div>
-        <p>{{JSON.stringify(measures, null, 2)}}</p>
     </div>
 </template>
 
@@ -46,7 +48,9 @@
 
                 // Note rendering settings
                 noteSize: 64, // Note sprite size in pixels
-                noteSpacing: 3 // Multiplier for note spacing
+                noteSpacing: 3, // Multiplier for note spacing
+
+                loading: true
             }
         },
 
@@ -83,7 +87,40 @@
             }
         },
 
+        methods: {
+            writeHoldAndRollMarkersToNoteData(measures) {
+                const measuresInCols = measures.map(measureNoteRows => {
+                    return measureNoteRows.map(columnString => [...columnString]) // 0000 -> [0, 0, 0, 0]
+                })
+
+                // Measure consists of 4, 8, 12, 16 etc rows of arrow column arrays
+                measuresInCols.forEach((measure, measureIndex) => {
+                    measure.forEach((columns, rowIndex) => {
+                        columns.forEach((col, colIndex) => {
+                            if (col === "2" || col === "4" || col === "H" || col === "R") {
+                                const foundIndex = measure.findIndex((col, idx) => col[colIndex] === "3" && idx > rowIndex)
+
+                                console.log(col, colIndex, foundIndex, rowIndex)
+
+                                // If not found, write custom marker for hold or roll (if not the last measure & next measure does not begin with hold/roll end)
+                                if (foundIndex === -1 && measureIndex < measuresInCols.length - 1 && measuresInCols[measureIndex+1][0][colIndex] !== "3") {
+                                    if (col === "2" || col === "H")
+                                        measuresInCols[measureIndex+1][0][colIndex] = "H"
+                                    else if (col === "4" || col === "R")
+                                        measuresInCols[measureIndex+1][0][colIndex] = "R"
+                                }
+                            }
+                        })
+                    })
+                })
+
+                return measuresInCols
+            }
+        },
+
         created() {
+            this.loading = true;
+
             let writer = new NotesWriter();
             writer.setData(this.$props.stepData);
             writer.read();
@@ -93,8 +130,10 @@
             }
 
             this.chart = writer.charts[0];
-            this.measures = writer.charts[0].notes;
+            this.measures = this.writeHoldAndRollMarkersToNoteData(writer.charts[0].notes);
             this.chartSeconds = writer.notesToSeconds(this.chart);
+
+            this.loading = false;
         }
     }
 </script>

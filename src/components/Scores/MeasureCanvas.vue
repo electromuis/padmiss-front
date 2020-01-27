@@ -76,21 +76,35 @@
 
         methods: {
             renderCanvas() {
+                // 1. draw measure texts
                 this.renderingContext.font = `${this.measureTextFontSize}px serif`
                 this.renderingContext.fillText(`Measure ${this.measure + 1}`, this.measureTextXPos, this.measureTextYPos)
 
+                // 2. draw measure lines
                 this.drawMeasureLines()
 
-                // draw previous measure notes if this is not the first measure
+                // 3. draw current measure hold and roll bodies
+                this.drawHoldAndRollBodies(this.currentMeasureNotes, this.currentMeasureNotes.length)
+
                 if (this.measure > 0) {
                     const beatNoteAmount = this.previousMeasureNotes.length / 4 // .sm supports only 4 beats per measure
                     const lastBeatNotes = this.previousMeasureNotes.slice(3 * beatNoteAmount)
 
-                    // Draw previous measure last beat notes
+                    // 4. draw previous measure hold & roll ends
+                    this.drawHoldAndRollEnds(lastBeatNotes, this.previousMeasureNotes.length, this.beatRenderHeight)
+
+                    // 5. draw current measure hold & roll ends
+                    this.drawHoldAndRollEnds(this.currentMeasureNotes, this.currentMeasureNotes.length, 0)
+
+                    // 6. draw previous measure last beat notes
                     this.drawNotes(lastBeatNotes, this.previousMeasureNotes.length, this.beatRenderHeight)
                 }
+                else {
+                    // 5. draw current measure hold & roll ends
+                    this.drawHoldAndRollEnds(this.currentMeasureNotes, this.currentMeasureNotes.length, 0)
+                }
 
-                // Draw current measure notes
+                // 7. draw current measure notes
                 this.drawNotes(this.currentMeasureNotes, this.currentMeasureNotes.length, 0)
             },
 
@@ -115,9 +129,7 @@
             },
 
             drawNotes(measureNotes, totalMeasureNotes, previousMeasureYOffset) {
-                const measureNotesInColumns = measureNotes.map(note => [...note])
-
-                measureNotesInColumns.forEach((columns, index) => {
+                measureNotes.forEach((columns, index) => {
                     if (this.rowHasNoteValue(columns)) {
                         const beat = index * (4 / totalMeasureNotes)
 
@@ -127,23 +139,7 @@
                                     this.drawNote(columnIndex, beat, "normal", previousMeasureYOffset)
                                     break
                                 case "2":
-                                    const holdEndIndex = this.tryGetHoldOrRollEnd(measureNotesInColumns, columnIndex)
-                                    let endBeat = 0
-
-                                    // Not found -> hold continues to next measure
-                                    if (holdEndIndex === -1) {
-                                        endBeat = 3.99
-                                    }
-                                    // Found -> hold ends in this measure
-                                    else {
-                                        endBeat = holdEndIndex * (4 / totalMeasureNotes)
-                                    }
-
-                                    this.drawHoldOrRollBody(columnIndex, beat, endBeat, "hold", previousMeasureYOffset)
                                     this.drawNote(columnIndex, beat, "hold-head", previousMeasureYOffset)
-                                    break
-                                case "3":
-                                    this.drawNote(columnIndex, beat, "hold-or-roll-end", previousMeasureYOffset)
                                     break
                                 case "4":
                                     this.drawNote(columnIndex, beat, "roll-head", previousMeasureYOffset)
@@ -159,15 +155,76 @@
                 })
             },
 
-            tryGetHoldOrRollEnd(measureNotesInColumns, columnIndex) {
-                return measureNotesInColumns.findIndex(col => col[columnIndex] === "3")
+            drawHoldAndRollEnds(measureNotes, totalMeasureNotes, previousMeasureYOffset) {
+                measureNotes.forEach((columns, index) => {
+                    if (this.rowHasNoteValue(columns)) {
+                        const beat = index * (4 / totalMeasureNotes)
+
+                        columns.forEach((col, columnIndex) => {
+                            if (col === "3") {
+                                this.drawNote(columnIndex, beat, "hold-or-roll-end", previousMeasureYOffset)
+                            }
+                        })
+                    }
+                })
+            },
+
+            drawHoldAndRollBodies(measureNotes, totalMeasureNotes) {
+                measureNotes.forEach((columns, index) => {
+                    if (this.rowHasNoteValue(columns)) {
+                        const beat = index * (4 / totalMeasureNotes)
+
+                        columns.forEach((col, columnIndex) => {
+                            let endBeat = this.getEndBeat(index, measureNotes, columnIndex, totalMeasureNotes);
+
+                            switch (col) {
+                                case "2":
+                                    this.drawHoldOrRollBody(columnIndex, beat, endBeat, "hold", true)
+                                    break
+                                case "H":
+                                    this.drawHoldOrRollBody(columnIndex, beat, endBeat, "hold", false)
+                                    break
+                                case "4":
+                                    this.drawHoldOrRollBody(columnIndex, beat, endBeat, "roll", true)
+                                    break
+                                case "R":
+                                    this.drawHoldOrRollBody(columnIndex, beat, endBeat, "roll", false)
+                                    break
+                                default:
+                                    break
+                            }
+                        })
+                    }
+                })
+            },
+
+            getEndBeat(noteIndex, measureNotes, columnIndex, totalMeasureNotes) {
+                const holdEndIndex = this.tryGetHoldOrRollEnd(noteIndex, measureNotes, columnIndex)
+                let endBeat
+
+                // Not found -> hold continues to next measure
+                if (holdEndIndex === -1) {
+                    endBeat = 4
+                }
+                // Found -> hold ends in this measure
+                else {
+                    endBeat = holdEndIndex * (4 / totalMeasureNotes)
+                }
+
+                return endBeat;
+            },
+
+            tryGetHoldOrRollEnd(noteIndex, measureNotes, columnIndex) {
+                return measureNotes.findIndex((col, idx) => col[columnIndex] === "3" && idx > noteIndex)
             },
 
             rowHasNoteValue(columns) {
                 return columns.includes("1") || // Normal note
                     columns.includes("2") || // Hold head
+                    columns.includes("H") || // Hold custom marker
                     columns.includes("3") || // Hold/Roll tail
                     columns.includes("4") || // Roll head
+                    columns.includes("R") || // Roll custom marker
                     columns.includes("M") // Mine
             },
 
@@ -203,28 +260,44 @@
                 return (rotationAngle > 0 && (noteType === "normal" || noteType === "hold-head" || noteType === "roll-head"))
             },
 
-            drawHoldOrRollBody(column, beat, endBeat, holdType, previousMeasureYOffset) {
+            drawHoldOrRollBody(column, beat, endBeat, holdType, isHead) {
                 let me = this
                 // Add column spacing if not column zero
                 const noteXPos = this.noteRowOffset + (column * (this.noteSize + this.noteColumnSpacing))
-                const noteYPos = (beat * this.beatRenderHeight) - previousMeasureYOffset + (this.noteSize / 2)
-                const endYPos = (endBeat * this.beatRenderHeight) - previousMeasureYOffset
+                let noteYPos = (beat * this.beatRenderHeight)
+
+                if (isHead)
+                    noteYPos += (this.noteSize / 2)
+
+                const endYPos = (endBeat * this.beatRenderHeight)
 
                 // How many parts are needed -> get the total height of the hold and divide by single part height
-                const totalHoldHeight = ((this.beatRenderHeight * (endBeat - beat)) - (this.noteSize / 2))
+                let totalHoldHeight = this.beatRenderHeight * (endBeat - beat)
+
+                if (isHead)
+                    totalHoldHeight -= (this.noteSize / 2)
+
                 const neededBodyParts = Math.ceil(totalHoldHeight / this.holdBodyHeight)
 
                 // Draw all body parts
                 for (let i = 0; i < neededBodyParts; i++) {
+                    const isLastPart = i === (neededBodyParts - 1)
                     const partYPos = noteYPos + (i * this.holdBodyHeight)
+                    const partHeight = isLastPart ? (endYPos - partYPos) : this.holdBodyHeight
 
                     if (holdType === "hold") {
                         const holdSprite = this.sprites.find(s => s.url === this.holdBodyUrl).img
-                        me.renderingContext.drawImage(holdSprite, noteXPos, partYPos)
+
+                        if (isLastPart) {
+                            me.renderingContext.drawImage(holdSprite, 0, 0, this.noteSize, partHeight,
+                                noteXPos, partYPos, this.noteSize, partHeight)
+                        }
+                        else
+                            me.renderingContext.drawImage(holdSprite, noteXPos, partYPos)
                     }
                     else if (holdType === "roll") {
-                        const holdSprite = this.sprites.find(s => s.url === this.rollBodyUrl).img
-                        me.renderingContext.drawImage(holdSprite, noteXPos, partYPos)
+                        const rollSprite = this.sprites.find(s => s.url === this.rollBodyUrl).img
+                        me.renderingContext.drawImage(rollSprite, noteXPos, partYPos)
                     }
                     // Should not happen
                     else {
@@ -238,7 +311,7 @@
 
                 // We need to draw the normal note in holds and rolls too
                 if (noteType === "normal" || noteType === "hold-head" || noteType === "roll-head") {
-                    spriteUrl = this.getNoteColorUrl(beat, 4)
+                    spriteUrl = this.getNoteUrlByNoteValue(beat, 4)
                 }
                 else if (noteType === "hold-or-roll-end") {
                     spriteUrl = this.holdEndUrl
@@ -254,7 +327,7 @@
                 return spriteUrl
             },
 
-            getNoteColorUrl(beat, size) {
+            getNoteUrlByNoteValue(beat, size) {
                 const divs = 3 * 192;
                 const val = beat * divs / size;
 
