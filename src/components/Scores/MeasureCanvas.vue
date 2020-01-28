@@ -285,24 +285,21 @@
                     const partYPos = noteYPos + (i * this.holdBodyHeight)
                     const partHeight = isLastPart ? (endYPos - partYPos) : this.holdBodyHeight
 
-                    if (holdType === "hold") {
-                        const holdSprite = this.sprites.find(s => s.url === this.holdBodyUrl).img
+                    let sprite;
 
-                        if (isLastPart) {
-                            me.renderingContext.drawImage(holdSprite, 0, 0, this.noteSize, partHeight,
-                                noteXPos, partYPos, this.noteSize, partHeight)
-                        }
-                        else
-                            me.renderingContext.drawImage(holdSprite, noteXPos, partYPos)
+                    if (holdType === "hold") {
+                        sprite = this.sprites.find(s => s.url === this.holdBodyUrl).img
                     }
-                    else if (holdType === "roll") {
-                        const rollSprite = this.sprites.find(s => s.url === this.rollBodyUrl).img
-                        me.renderingContext.drawImage(rollSprite, noteXPos, partYPos)
+                    else { // Just assume everything else is a roll
+                        sprite = this.sprites.find(s => s.url === this.rollBodyUrl).img
                     }
-                    // Should not happen
-                    else {
-                        console.error(`Cannot draw hold of type ${holdType}`)
+
+                    if (isLastPart) {
+                        me.renderingContext.drawImage(sprite, 0, 0, this.noteSize, partHeight,
+                            noteXPos, partYPos, this.noteSize, partHeight)
                     }
+                    else
+                        me.renderingContext.drawImage(sprite, noteXPos, partYPos)
                 }
             },
 
