@@ -100,8 +100,6 @@
                             if (col === "2" || col === "4" || col === "H" || col === "R") {
                                 const foundIndex = measure.findIndex((col, idx) => col[colIndex] === "3" && idx > rowIndex)
 
-                                console.log(col, colIndex, foundIndex, rowIndex)
-
                                 // If not found, write custom marker for hold or roll (if not the last measure & next measure does not begin with hold/roll end)
                                 if (foundIndex === -1 && measureIndex < measuresInCols.length - 1 && measuresInCols[measureIndex+1][0][colIndex] !== "3") {
                                     if (col === "2" || col === "H")
