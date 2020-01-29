@@ -15,6 +15,8 @@
                         :beat-render-height="beatRenderHeight"
                         :note-size="noteSize"
                         :note-spacing="noteSpacing"
+                        :input-events="measureGroupedInputEvents[index]"
+                        :note-scores-with-beats="getNoteScoresWithBeatsForMeasure(noteScoresWithBeats, index)"
                 >
                 </MeasureCanvas>
             </div>
@@ -31,7 +33,9 @@
         name: "ChartVisualization",
 
         props: {
-            stepData: String
+            stepData: String,
+            inputEvents: Array,
+            noteScoresWithBeats: Array
         },
 
         components: {
@@ -43,7 +47,8 @@
             return {
                 chart: {},
                 chartSeconds: {},
-                measures: {},
+                measures: [],
+                measureGroupedInputEvents: [],
                 width: 600,
 
                 // Note rendering settings
@@ -63,56 +68,108 @@
             },
 
             totalMeasures() {
-                return this.measures.length
+                return this.measures.length;
             },
 
             totalBeats() {
-                return this.measures.length * 4 // .sm format supports only 4 beats per measure
+                return this.measures.length * 4; // .sm format supports only 4 beats per measure
             },
 
             // Render height of a single measure in pixels, a measure will be rendered in it's own canvas element
             // Take note of canvas maximum heights in browsers
             measureRenderHeight() {
-                return this.beatRenderHeight * 4 // .sm format supports only 4 beats per measure
+                return this.beatRenderHeight * 4; // .sm format supports only 4 beats per measure
             },
 
             // Render height of a single beat in pixels
             beatRenderHeight() {
-                return this.noteSize * this.noteSpacing
+                return this.noteSize * this.noteSpacing;
             },
 
             totalRenderHeight() {
                 // Add one beat to make room for notes that would be rendered
-                return this.totalMeasures * this.measureRenderHeight
+                return this.totalMeasures * this.measureRenderHeight;
             }
         },
 
         methods: {
             writeHoldAndRollMarkersToNoteData(measures) {
                 const measuresInCols = measures.map(measureNoteRows => {
-                    return measureNoteRows.map(columnString => [...columnString]) // 0000 -> [0, 0, 0, 0]
-                })
+                    return measureNoteRows.map(columnString => [...columnString]); // 0000 -> [0, 0, 0, 0]
+                });
 
                 // Measure consists of 4, 8, 12, 16 etc rows of arrow column arrays
                 measuresInCols.forEach((measure, measureIndex) => {
                     measure.forEach((columns, rowIndex) => {
                         columns.forEach((col, colIndex) => {
                             if (col === "2" || col === "4" || col === "H" || col === "R") {
-                                const foundIndex = measure.findIndex((col, idx) => col[colIndex] === "3" && idx > rowIndex)
+                                const foundIndex = measure.findIndex((col, idx) => col[colIndex] === "3" && idx > rowIndex);
 
                                 // If not found, write custom marker for hold or roll (if not the last measure & next measure does not begin with hold/roll end)
                                 if (foundIndex === -1 && measureIndex < measuresInCols.length - 1 && measuresInCols[measureIndex+1][0][colIndex] !== "3") {
                                     if (col === "2" || col === "H")
-                                        measuresInCols[measureIndex+1][0][colIndex] = "H"
+                                        measuresInCols[measureIndex+1][0][colIndex] = "H";
                                     else if (col === "4" || col === "R")
-                                        measuresInCols[measureIndex+1][0][colIndex] = "R"
+                                        measuresInCols[measureIndex+1][0][colIndex] = "R";
                                 }
                             }
                         })
                     })
-                })
+                });
 
                 return measuresInCols
+            },
+
+            // We need to add pressed events when the input event was not released on the same measure as it was pressed on
+            groupInputEventsByMeasure(inputEvents, measureCount) {
+                let me = this;
+
+                const groupedByMeasure = Array(measureCount).fill().map((_, index) =>
+                    me.getInputEventsForMeasure(inputEvents, index));
+
+                groupedByMeasure.forEach((inputEvents, measureIndex) => {
+                    // Return if last measure
+                    if (measureIndex === (groupedByMeasure.length - 1))
+                        return;
+
+                    // If there are input events in the measure that have NOT matching released input event
+                    // add a pressed input event to the beginning of the next measure on the same column
+                    const pressed = inputEvents.filter(ie => ie.released === false);
+                    const eventsWithoutReleasedPair = pressed.filter(ie => !me.hasMatchingReleasedEvent(ie, inputEvents));
+
+                    eventsWithoutReleasedPair.forEach(e => {
+                        // Add a pressed input event to the next measure
+                        groupedByMeasure[measureIndex + 1].unshift({
+                            beat: (measureIndex + 1) * 4,
+                            column: e.column,
+                            released: false
+                        });
+                    });
+                });
+
+                return groupedByMeasure;
+            },
+
+            hasMatchingReleasedEvent(inputEvent, inputEvents) {
+                return inputEvents.find(r =>
+                    r.released === true &&
+                    r.column === inputEvent.column &&
+                    r.beat > inputEvent.beat
+                ) !== undefined
+            },
+
+            getInputEventsForMeasure(inputEvents, measureIndex) {
+                const startBeat = measureIndex * 4;
+                const endBeat = startBeat + 4;
+
+                return inputEvents.filter(ie => ie.beat >= startBeat && ie.beat < endBeat);
+            },
+
+            getNoteScoresWithBeatsForMeasure(noteScoresWithBeats, measureIndex) {
+                const startBeat = measureIndex * 4;
+                const endBeat = startBeat + 4;
+
+                return noteScoresWithBeats.filter(nsb => nsb.beat >= startBeat && nsb.beat < endBeat);
             }
         },
 
@@ -130,6 +187,7 @@
             this.chart = writer.charts[0];
             this.measures = this.writeHoldAndRollMarkersToNoteData(writer.charts[0].notes);
             this.chartSeconds = writer.notesToSeconds(this.chart);
+            this.measureGroupedInputEvents = this.groupInputEventsByMeasure(this.$props.inputEvents, this.measures.length);
 
             this.loading = false;
         }

@@ -14,7 +14,11 @@
                 <ScoreOverview :score="score"></ScoreOverview>
             </b-tab>
             <b-tab title="Chart and step timings">
-                <ChartVisualization :step-data="score.stepChart.stepData"></ChartVisualization>
+                <ChartVisualization
+                    :step-data="score.stepChart.stepData"
+                    :inputEvents="score.inputEvents"
+                    :noteScoresWithBeats="score.noteScoresWithBeats">
+                </ChartVisualization>
             </b-tab>
         </b-tabs>
     </div>
@@ -79,6 +83,18 @@
                     'noteSkin',
                     'playedAt',
                     'passed',
+                    {inputEvents: [
+                        'beat',
+                        'column',
+                        'released'
+                    ]},
+                    {noteScoresWithBeats: [
+                        'beat',
+                        'column',
+                        'holdNoteScore',
+                        'offset',
+                        'tapNoteScore'
+                    ]},
                     {scoreBreakdown: [
                         'fantastics',
                         'excellents',
