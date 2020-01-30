@@ -57,7 +57,7 @@
                 },
 
                 // Input event rendering settings
-                inputEventFillStyle: 'rgba(132,26,255,0.5)',
+                inputEventFillStyle: 'rgba(112,112,112,0.4)',
 
                 // Note image sprite source URL's
                 noteSpriteUrlsByBeatValue: {
@@ -407,7 +407,7 @@
                         }
                     }
 
-                    const judgementLineXPos = this.noteRowOffset + (ns.column * (this.noteSize + this.noteColumnSpacing)) + this.noteSize;
+                    const judgementLineXPos = this.noteRowOffset + (ns.column * (this.noteSize + this.noteColumnSpacing)) + (this.noteSize / 2);
                     const judgementLineYPos = Math.floor(((ns.beat - (this.measure * 4)) * this.beatRenderHeight));
                     const lineLength = Math.floor(xPos - judgementLineXPos);
 
