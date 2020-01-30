@@ -34,12 +34,27 @@
                 thinMeasureLine: 1, // Draw second and fourth beat with thin lines
                 mediumMeasureLine: 2, // Draw third beat with medium line
                 thickMeasureLine: 3, // Draw first beat with thick line
+                measureLineStyle: 'black',
 
                 // Note rendering settings
                 holdBodyHeight: 128,
                 directions: [90, 0, 180, 270, 90, 0, 180, 270], // Left, down, up, right and same for double
                 noteRowOffset: 80, // How many pixels to add to the left side of drawn note row
                 noteColumnSpacing: 10, // How many pixels to have between columns
+
+                // Judgement rendering settings
+                judgementSpriteWidth: 110,
+                judgementSpriteHeight: 36,
+                judgementLineStrokeStyles: {
+                    "W1": 'rgb(4,142,255)',
+                    "W2": 'rgb(192,189,21)',
+                    "W3": 'rgb(21,255,7)',
+                    "W4": 'rgb(110,39,255)',
+                    "W5": 'rgb(255,166,21)',
+                    "Miss": 'rgb(255,30,32)',
+                    "Held": 'rgb(32,32,32)',
+                    "AvoidMine": 'rgb(97,97,97)',
+                },
 
                 // Input event rendering settings
                 inputEventFillStyle: 'rgba(132,26,255,0.5)',
@@ -65,7 +80,8 @@
                 rollBodyUrl: "/assets/notes/roll_body.png",
                 rollEndUrl: "/assets/notes/roll_end.png",
                 mineUrl: "/assets/notes/mine.png",
-                errorSpriteUrl : "/assets/notes/error.png"
+                errorSpriteUrl: "/assets/notes/error.png",
+                judgementsSpriteUrl: "/assets/judgements/GrooveNights.png"
             }
         },
 
@@ -79,15 +95,30 @@
 
             measureLineYOffset() {
                 return Math.floor(this.noteSize / 2);
+            },
+
+            judgementSpriteLocations() {
+                return {
+                    "earlyFantastic": {sx: 0, sy: 0},
+                    "lateFantastic": {sx: this.judgementSpriteWidth, sy: 0},
+                    "earlyExcellent": {sx: 0, sy: this.judgementSpriteHeight},
+                    "lateExcellent": {sx: this.judgementSpriteWidth, sy: this.judgementSpriteHeight},
+                    "earlyGreat": {sx: 0, sy: 2 * this.judgementSpriteHeight},
+                    "lateGreat": {sx: this.judgementSpriteWidth, sy: 2 * this.judgementSpriteHeight},
+                    "earlyDecent": {sx: 0, sy: 3 * this.judgementSpriteHeight},
+                    "lateDecent": {sx: this.judgementSpriteWidth, sy: 3 * this.judgementSpriteHeight},
+                    "earlyWayOff": {sx: 0, sy: 4 * this.judgementSpriteHeight},
+                    "lateWayOff": {sx: this.judgementSpriteWidth, sy: 4 * this.judgementSpriteHeight},
+                    "earlyMiss": {sx: 0, sy: 5 * this.judgementSpriteHeight},
+                    "lateMiss": {sx: this.judgementSpriteWidth, sy: 5 * this.judgementSpriteHeight}
+                }
             }
         },
 
         methods: {
             renderCanvas() {
                 // 1. draw measure texts
-                this.renderingContext.fillStyle = this.textFillStyle;
-                this.renderingContext.font = `${this.measureTextFontSize}px serif`;
-                this.renderingContext.fillText(`Measure ${this.measure + 1}`, this.measureTextXPos, this.measureTextYPos);
+                this.writeText(`Measure ${this.measure + 1}`, this.measureTextXPos, this.measureTextYPos, this.textFillStyle);
 
                 // 2. draw measure lines
                 this.drawMeasureLines();
@@ -118,8 +149,19 @@
 
                 // 8. draw input events if any
                 if (this.inputEvents.length > 0) {
-                    this.drawInputEvents()
+                    this.drawInputEvents();
                 }
+
+                // 9. draw note judgements if any
+                if (this.noteScoresWithBeats.length > 0) {
+                    this.drawNoteJudgements();
+                }
+            },
+
+            writeText(text, xPos, yPos, textStyle) {
+                this.renderingContext.fillStyle = textStyle;
+                this.renderingContext.font = `${this.measureTextFontSize}px serif`;
+                this.renderingContext.fillText(text, xPos, yPos);
             },
 
             drawMeasureLines() {
@@ -130,11 +172,12 @@
                     const measureLineThickness = i === 0 ? this.thickMeasureLine :
                         i === 2 ? this.mediumMeasureLine : this.thinMeasureLine;
 
-                    this.drawMeasureLine(0, measureLineYPos, this.canvasWidth, measureLineThickness);
+                    this.drawHorizontalLine(0, measureLineYPos, this.canvasWidth, measureLineThickness, this.measureLineStyle);
                 }
             },
 
-            drawMeasureLine(x, y, length, lineThickness) {
+            drawHorizontalLine(x, y, length, lineThickness, lineStyle) {
+                this.renderingContext.strokeStyle = lineStyle;
                 this.renderingContext.beginPath();
                 this.renderingContext.moveTo(x, y);
                 this.renderingContext.lineTo(x + length, y);
@@ -347,6 +390,76 @@
                 })
             },
 
+            drawNoteJudgements() {
+                const judgementSpriteSheet = this.sprites.find(s => s.url === this.judgementsSpriteUrl).img;
+
+                this.noteScoresWithBeats.forEach(ns => {
+                    const yPos = Math.floor(((ns.beat - (this.measure * 4)) * this.beatRenderHeight)) - (this.judgementSpriteHeight / 2);
+                    const xPos = this.noteRowOffset + (5 * (this.noteSize + this.noteColumnSpacing));
+
+                    if (ns.tapNoteScore !== "None" && ns.tapNoteScore !== "AvoidMine") {
+                        const judgementSprite = this.getJudgementSprite(ns.offset, ns.tapNoteScore);
+
+                        if (judgementSprite) {
+                            this.renderingContext.drawImage(judgementSpriteSheet, judgementSprite.sx, judgementSprite.sy,
+                                this.judgementSpriteWidth, this.judgementSpriteHeight,
+                                xPos, yPos, this.judgementSpriteWidth, this.judgementSpriteHeight);
+                        }
+                    }
+
+                    const judgementLineXPos = this.noteRowOffset + (ns.column * (this.noteSize + this.noteColumnSpacing)) + this.noteSize;
+                    const judgementLineYPos = Math.floor(((ns.beat - (this.measure * 4)) * this.beatRenderHeight));
+                    const lineLength = Math.floor(xPos - judgementLineXPos);
+
+                    const judge = ns.tapNoteScore !== "None" ? ns.tapNoteScore : ns.holdNoteScore;
+                    const lineStyle =  this.judgementLineStrokeStyles[judge];
+
+                    this.drawHorizontalLine(judgementLineXPos, judgementLineYPos, lineLength, this.thinMeasureLine, lineStyle);
+
+                    if (ns.holdNoteScore === "None") {
+                        this.writeText(`${(ns.offset * 1000).toFixed(2)}ms`, xPos - 50, judgementLineYPos - 5, this.textFillStyle);
+                    }
+
+                    if (ns.tapNoteScore === "AvoidMine") {
+                        this.writeText("Avoid mine", xPos + 10, judgementLineYPos, this.textFillStyle);
+                    }
+                    else if (ns.holdNoteScore === "Held") {
+                        this.writeText("Held", xPos + 10, judgementLineYPos, this.textFillStyle);
+                    }
+                });
+            },
+
+            // TODO: Get global standard timing windows from padmiss API
+            getJudgementSprite(offset, tapNoteScore) {
+                let me = this;
+
+                switch (tapNoteScore) {
+                    case "W1":
+                        return me.judgementSpriteLocations["earlyFantastic"];
+                    case "W2":
+                        return (offset < 0) ?
+                            me.judgementSpriteLocations["earlyExcellent"] :
+                            me.judgementSpriteLocations["lateExcellent"];
+                    case "W3":
+                        return (offset < 0) ?
+                            me.judgementSpriteLocations["earlyGreat"] :
+                            me.judgementSpriteLocations["lateGreat"];
+                    case "W4":
+                        return (offset < 0) ?
+                            me.judgementSpriteLocations["earlyDecent"] :
+                            me.judgementSpriteLocations["lateDecent"];
+                    case "W5":
+                        return (offset < 0) ?
+                            me.judgementSpriteLocations["earlyWayOff"] :
+                            me.judgementSpriteLocations["lateWayOff"];
+                    case "Miss":
+                        return me.judgementSpriteLocations["earlyMiss"];
+                    default:
+                        console.error(`Unknown tapNoteScore '${tapNoteScore}'`);
+                        break;
+                }
+            },
+
             getNoteSpriteUrl(beat, noteType) {
                 let spriteUrl = "";
 
@@ -416,7 +529,8 @@
                     me.rollBodyUrl,
                     me.rollEndUrl,
                     me.mineUrl,
-                    me.errorSpriteUrl
+                    me.errorSpriteUrl,
+                    me.judgementsSpriteUrl
                 ]);
 
                 const distinct = [...new Set(imageUrls)];
