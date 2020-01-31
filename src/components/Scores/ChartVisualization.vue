@@ -144,6 +144,8 @@
                     eventsWithoutReleasedPair.forEach(e => {
                         // Add a pressed input event to the next measure
                         groupedByMeasure[measureIndex + 1].unshift({
+                            eventStartBeat: e.eventStartBeat,
+                            eventEndBeat: e.eventEndBeat,
                             beat: (measureIndex + 1) * 4,
                             column: e.column,
                             released: false
@@ -166,7 +168,19 @@
                 const startBeat = measureIndex * 4;
                 const endBeat = startBeat + 4;
 
-                return inputEvents.filter(ie => ie.beat >= startBeat && ie.beat < endBeat);
+                const eventsWithinRange = inputEvents.filter(ie => ie.beat >= startBeat && ie.beat < endBeat);
+
+                return eventsWithinRange.map(ie => {
+                    return {
+                        eventStartBeat: ie.released ?
+                            inputEvents.find(e => e.column === ie.column && e.beat < ie.beat).beat : ie.beat,
+                        eventEndBeat: ie.released ?
+                            ie.beat : inputEvents.find(e => e.column === ie.column && e.beat > ie.beat).beat,
+                        beat: ie.beat,
+                        column: ie.column,
+                        released: ie.released
+                    }
+                })
             },
 
             getNoteScoresWithBeatsForMeasure(noteScoresWithBeats, measureIndex, beatAmount, startBeatOffset) {
