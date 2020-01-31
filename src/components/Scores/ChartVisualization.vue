@@ -16,7 +16,11 @@
                         :note-size="noteSize"
                         :note-spacing="noteSpacing"
                         :input-events="measureGroupedInputEvents[index]"
-                        :note-scores-with-beats="getNoteScoresWithBeatsForMeasure(noteScoresWithBeats, index)"
+                        :previous-measure-note-scores="index > 0 ?
+                            getNoteScoresWithBeatsForMeasure(noteScoresWithBeats, index-1, 1, 3) : []"
+                        :note-scores-with-beats="getNoteScoresWithBeatsForMeasure(noteScoresWithBeats, index, 4, 0)"
+                        :next-measure-note-scores="index  < totalMeasures-1 ?
+                            getNoteScoresWithBeatsForMeasure(noteScoresWithBeats, index+1, 1, 0) : []"
                 >
                 </MeasureCanvas>
             </div>
@@ -53,7 +57,7 @@
 
                 // Note rendering settings
                 noteSize: 64, // Note sprite size in pixels
-                noteSpacing: 3, // Multiplier for note spacing
+                noteSpacing: 5, // Multiplier for note spacing
 
                 loading: true
             }
@@ -165,9 +169,9 @@
                 return inputEvents.filter(ie => ie.beat >= startBeat && ie.beat < endBeat);
             },
 
-            getNoteScoresWithBeatsForMeasure(noteScoresWithBeats, measureIndex) {
-                const startBeat = measureIndex * 4;
-                const endBeat = startBeat + 4;
+            getNoteScoresWithBeatsForMeasure(noteScoresWithBeats, measureIndex, beatAmount, startBeatOffset) {
+                const startBeat = measureIndex * 4 + startBeatOffset;
+                const endBeat = startBeat + beatAmount;
 
                 return noteScoresWithBeats.filter(nsb => nsb.beat >= startBeat && nsb.beat < endBeat);
             }

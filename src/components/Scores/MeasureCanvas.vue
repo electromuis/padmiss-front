@@ -16,7 +16,9 @@
             noteSize: Number, // Note sprite size in pixels
             noteSpacing: Number, // Multiplier for note spacing
             inputEvents: Array, // input events for this measure
-            noteScoresWithBeats: Array // note scores for this measure
+            previousMeasureNoteScores: Array,
+            noteScoresWithBeats: Array,
+            nextMeasureNoteScores: Array
         },
 
         data() {
@@ -393,40 +395,59 @@
             drawNoteJudgements() {
                 const judgementSpriteSheet = this.sprites.find(s => s.url === this.judgementsSpriteUrl).img;
 
-                this.noteScoresWithBeats.forEach(ns => {
-                    const yPos = Math.floor(((ns.beat - (this.measure * 4)) * this.beatRenderHeight)) - (this.judgementSpriteHeight / 2);
-                    const xPos = this.noteRowOffset + (5 * (this.noteSize + this.noteColumnSpacing));
-
-                    if (ns.tapNoteScore !== "None" && ns.tapNoteScore !== "AvoidMine") {
-                        const judgementSprite = this.getJudgementSprite(ns.offset, ns.tapNoteScore);
-
-                        if (judgementSprite) {
-                            this.renderingContext.drawImage(judgementSpriteSheet, judgementSprite.sx, judgementSprite.sy,
-                                this.judgementSpriteWidth, this.judgementSpriteHeight,
-                                xPos, yPos, this.judgementSpriteWidth, this.judgementSpriteHeight);
-                        }
-                    }
-
-                    const judgementLineXPos = this.noteRowOffset + (ns.column * (this.noteSize + this.noteColumnSpacing)) + (this.noteSize / 2);
-                    const judgementLineYPos = Math.floor(((ns.beat - (this.measure * 4)) * this.beatRenderHeight));
-                    const lineLength = Math.floor(xPos - judgementLineXPos);
-
-                    const judge = ns.tapNoteScore !== "None" ? ns.tapNoteScore : ns.holdNoteScore;
-                    const lineStyle =  this.judgementLineStrokeStyles[judge];
-
-                    this.drawHorizontalLine(judgementLineXPos, judgementLineYPos, lineLength, this.thinMeasureLine, lineStyle);
-
-                    if (ns.holdNoteScore === "None") {
-                        this.writeText(`${(ns.offset * 1000).toFixed(2)}ms`, xPos - 50, judgementLineYPos - 5, this.textFillStyle);
-                    }
-
-                    if (ns.tapNoteScore === "AvoidMine") {
-                        this.writeText("Avoid mine", xPos + 10, judgementLineYPos, this.textFillStyle);
-                    }
-                    else if (ns.holdNoteScore === "Held") {
-                        this.writeText("Held", xPos + 10, judgementLineYPos, this.textFillStyle);
-                    }
+                this.previousMeasureNoteScores.forEach(ns => {
+                    this.drawNoteJudgement(ns, judgementSpriteSheet);
                 });
+
+                this.noteScoresWithBeats.forEach(ns => {
+                    this.drawNoteJudgement(ns, judgementSpriteSheet);
+                });
+
+                this.nextMeasureNoteScores.forEach(ns => {
+                    this.drawNoteJudgement(ns, judgementSpriteSheet);
+                });
+            },
+
+            drawNoteJudgement: function (ns, judgementSpriteSheet) {
+                const yPos = Math.floor(((ns.beat - (this.measure * 4)) * this.beatRenderHeight)) - (this.judgementSpriteHeight / 2);
+                const xPos = this.noteRowOffset + (5 * (this.noteSize + this.noteColumnSpacing));
+
+                const judgementLineXPos = this.noteRowOffset + (ns.column * (this.noteSize + this.noteColumnSpacing)) + (this.noteSize / 2);
+                const judgementLineYPos = Math.floor(((ns.beat - (this.measure * 4)) * this.beatRenderHeight));
+
+                if (ns.tapNoteScore !== "None" && ns.tapNoteScore !== "AvoidMine") {
+                    const judgementSprite = this.getJudgementSprite(ns.offset, ns.tapNoteScore);
+
+                    if (judgementSprite) {
+                        this.renderingContext.drawImage(judgementSpriteSheet, judgementSprite.sx, judgementSprite.sy,
+                            this.judgementSpriteWidth, this.judgementSpriteHeight,
+                            xPos, yPos, this.judgementSpriteWidth, this.judgementSpriteHeight);
+                    }
+
+                    const lineLength = Math.floor(xPos - judgementLineXPos);
+                    const judge = ns.tapNoteScore !== "None" ? ns.tapNoteScore : ns.holdNoteScore;
+
+                    this.drawJudgementLine(judge, judgementLineXPos, judgementLineYPos, lineLength);
+                    this.writeText(`${(ns.offset * 1000).toFixed(2)}ms`, xPos - 50, judgementLineYPos - 5, this.textFillStyle);
+                }
+
+                if (ns.tapNoteScore === "AvoidMine") {
+                    const lineLength = Math.floor(judgementLineXPos - this.noteRowOffset);
+                    this.drawJudgementLine("AvoidMine", this.noteRowOffset, judgementLineYPos, lineLength);
+
+                    this.writeText("Avoid mine", 0, judgementLineYPos, this.textFillStyle);
+                }
+                else if (ns.holdNoteScore === "Held") {
+                    const lineLength = Math.floor(judgementLineXPos - this.noteRowOffset);
+                    this.drawJudgementLine("Held", this.noteRowOffset, judgementLineYPos, lineLength);
+
+                    this.writeText("Held", 0, judgementLineYPos, this.textFillStyle);
+                }
+            },
+
+            drawJudgementLine: function (judge, judgementLineXPos, judgementLineYPos, lineLength) {
+                const lineStyle = this.judgementLineStrokeStyles[judge];
+                this.drawHorizontalLine(judgementLineXPos, judgementLineYPos, lineLength, this.thinMeasureLine, lineStyle);
             },
 
             // TODO: Get global standard timing windows from padmiss API
