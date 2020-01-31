@@ -179,10 +179,12 @@
             },
 
             drawHorizontalLine(x, y, length, lineThickness, lineStyle) {
+                const addY = (lineThickness % 2 === 0) ? 0 : 0.5;
+
                 this.renderingContext.strokeStyle = lineStyle;
                 this.renderingContext.beginPath();
-                this.renderingContext.moveTo(x, y);
-                this.renderingContext.lineTo(x + length, y);
+                this.renderingContext.moveTo(x, y + addY);
+                this.renderingContext.lineTo(x + length, y + addY);
                 this.renderingContext.lineWidth = lineThickness;
                 this.renderingContext.stroke();
             },
