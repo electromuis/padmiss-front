@@ -95,10 +95,6 @@
                 };
             },
 
-            measureLineYOffset() {
-                return Math.floor(this.noteSize / 2);
-            },
-
             judgementSpriteLocations() {
                 return {
                     "earlyFantastic": {sx: 0, sy: 0},
@@ -169,7 +165,7 @@
             drawMeasureLines() {
                 // .sm supports only measures with 4 beats
                 for (let i = 0; i < 4; i++) {
-                    const measureLineYPos = i * this.beatRenderHeight + this.measureLineYOffset;
+                    const measureLineYPos = i * this.beatRenderHeight;
 
                     const measureLineThickness = i === 0 ? this.thickMeasureLine :
                         i === 2 ? this.mediumMeasureLine : this.thinMeasureLine;
