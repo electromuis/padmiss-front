@@ -117,6 +117,10 @@
             renderCanvas() {
                 // 1. draw measure texts
                 this.writeText(`Measure ${this.measure + 1}`, this.measureTextXPos, this.measureTextYPos, this.textFillStyle);
+                this.writeText(`Beat ${this.measure*4 + 1}`, this.measureTextXPos, this.measureTextYPos*2, this.textFillStyle);
+                this.writeText(`Beat ${this.measure*4 + 2}`, this.measureTextXPos, this.measureTextYPos + this.beatRenderHeight, this.textFillStyle);
+                this.writeText(`Beat ${this.measure*4 + 3}`, this.measureTextXPos, this.measureTextYPos + this.beatRenderHeight*2, this.textFillStyle);
+                this.writeText(`Beat ${this.measure*4 + 4}`, this.measureTextXPos, this.measureTextYPos + this.beatRenderHeight*3, this.textFillStyle);
 
                 // 2. draw measure lines
                 this.drawMeasureLines();

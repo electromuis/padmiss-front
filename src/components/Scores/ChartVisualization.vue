@@ -57,7 +57,7 @@
 
                 // Note rendering settings
                 noteSize: 64, // Note sprite size in pixels
-                noteSpacing: 5, // Multiplier for note spacing
+                noteSpacing: 6, // Multiplier for note spacing
 
                 loading: true
             }
