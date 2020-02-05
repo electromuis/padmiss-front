@@ -133,7 +133,7 @@ class NotesWriter {
         chart.notes.forEach((measure, measureIndex) => {
             const measureStartBeat = measureIndex * 4
             const measureNoteCount = measure.length
-            const beatStepSize = measureNoteCount / 4 // what's the interval in beats between notes in this measure
+            const beatStepSize = 4 / measureNoteCount // what's the interval in beats between notes in this measure
 
             measure.forEach((noteRow, rowIndex) => {
                 if (doesRowHaveStep(noteRow)) {
