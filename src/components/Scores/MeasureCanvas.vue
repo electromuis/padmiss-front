@@ -3,6 +3,8 @@
 </template>
 
 <script>
+    import _ from 'lodash';
+
     export default {
         name: "MeasureCanvas",
 
@@ -129,7 +131,7 @@
                 this.drawHoldAndRollBodies(this.currentMeasureNotes, this.currentMeasureNotes.length);
 
                 if (this.measure > 0) {
-                    const beatNoteAmount = this.previousMeasureNotes.length / 4 // .sm supports only 4 beats per measure
+                    const beatNoteAmount = this.previousMeasureNotes.length / 4; // .sm supports only 4 beats per measure
                     const lastBeatNotes = this.previousMeasureNotes.slice(3 * beatNoteAmount);
 
                     // 4. draw previous measure hold & roll ends
@@ -142,7 +144,7 @@
                     this.drawNotes(lastBeatNotes, this.previousMeasureNotes.length, this.beatRenderHeight);
                 }
                 else {
-                    // 5. draw current measure hold & roll ends
+                    // draw current measure hold & roll ends
                     this.drawHoldAndRollEnds(this.currentMeasureNotes, this.currentMeasureNotes.length, 0);
                 }
 
@@ -223,7 +225,8 @@
 
                         columns.forEach((col, columnIndex) => {
                             if (col === "3") {
-                                this.drawNote(columnIndex, beat, "hold-or-roll-end", previousMeasureYOffset);
+                                const endType = this.getHoldOrRollEndType(index, measureNotes, columnIndex);
+                                this.drawNote(columnIndex, beat, endType, previousMeasureYOffset);
                             }
                         })
                     }
@@ -277,6 +280,25 @@
 
             tryGetHoldOrRollEnd(noteIndex, measureNotes, columnIndex) {
                 return measureNotes.findIndex((col, idx) => col[columnIndex] === "3" && idx > noteIndex);
+            },
+
+            getHoldOrRollEndType(noteIndex, measureNotes, columnIndex) {
+                // Find the first roll/hold start starting from the note index backwards
+                const previousHoldOrRollStart = _.findLast(measureNotes, col => {
+                    return col[columnIndex] === "2" || col[columnIndex] === "H" ||
+                        col[columnIndex] === "4" || col[columnIndex] === "R";
+                }, noteIndex);
+
+                // If we found a starting note and it's a roll -> return roll type
+                if (previousHoldOrRollStart !== undefined &&
+                    (previousHoldOrRollStart[columnIndex] === "4" || previousHoldOrRollStart[columnIndex] === "R"))
+                {
+                    return "roll-end";
+                }
+                // Otherwise just default to hold
+                else {
+                    return "hold-end";
+                }
             },
 
             rowHasNoteValue(columns) {
@@ -490,8 +512,11 @@
                 if (noteType === "normal" || noteType === "hold-head" || noteType === "roll-head") {
                     spriteUrl = this.getNoteUrlByNoteValue(beat, 4);
                 }
-                else if (noteType === "hold-or-roll-end") {
+                else if (noteType === "hold-end") {
                     spriteUrl = this.holdEndUrl;
+                }
+                else if (noteType === "roll-end") {
+                    spriteUrl = this.rollEndUrl;
                 }
                 else if (noteType === "mine") {
                     spriteUrl = this.mineUrl;
