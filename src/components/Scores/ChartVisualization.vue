@@ -2,9 +2,6 @@
     <div ref="chart-data" id="chart-visualization">
         <Loading v-if="loading"></Loading>
         <div v-else>
-            <p>Total measures: {{totalMeasures}}</p>
-            <p>Total beats: {{totalBeats}}</p>
-            <p>Total render height: {{totalRenderHeight}}px</p>
             <div :style="canvasContainerStyle" v-for="(measure, index) in measures">
                 <MeasureCanvas
                         :measure="index"
@@ -75,10 +72,6 @@
                 return this.measures.length;
             },
 
-            totalBeats() {
-                return this.measures.length * 4; // .sm format supports only 4 beats per measure
-            },
-
             // Render height of a single measure in pixels, a measure will be rendered in it's own canvas element
             // Take note of canvas maximum heights in browsers
             measureRenderHeight() {
@@ -89,11 +82,6 @@
             beatRenderHeight() {
                 return this.noteSize * this.noteSpacing;
             },
-
-            totalRenderHeight() {
-                // Add one beat to make room for notes that would be rendered
-                return this.totalMeasures * this.measureRenderHeight;
-            }
         },
 
         methods: {
