@@ -47,7 +47,6 @@
         data() {
             return {
                 chart: {},
-                chartSeconds: {},
                 measures: [],
                 measureGroupedInputEvents: [],
                 width: 600,
@@ -192,7 +191,6 @@
 
             this.chart = writer.charts[0];
             this.measures = this.writeHoldAndRollMarkersToNoteData(writer.charts[0].notes);
-            this.chartSeconds = writer.notesToSeconds(this.chart);
             this.measureGroupedInputEvents = this.groupInputEventsByMeasure(this.$props.inputEvents, this.measures.length);
 
             this.loading = false;
