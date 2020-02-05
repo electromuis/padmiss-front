@@ -4,27 +4,34 @@ import _ from 'lodash'
 const doesRowHaveStep = row => row.includes("1") || row.includes("2") || row.includes("4")
 
 const beatToSeconds = (bpmChanges, stops, beat) => {
-    const bpmWindows = _.zip(bpmChanges, _.tail(bpmChanges))
-    let length = 0;
+    let beatValueInSeconds = 0;
 
-    bpmWindows.forEach(([first, second]) => {
-        const firstBeat = parseFloat(first[0])
-        const secondBeat = second ? parseFloat(second[0]) : Infinity
-        const firstBpm = parseFloat(first[1])
+    bpmChanges.forEach((bpmChange, index) => {
+        const firstBeat = bpmChange[0]
+
+        // If this bpm change starts at a beat after the beat we don't have to take it into account
+        if (firstBeat > beat) {
+            return
+        }
+
+        const isLastBpmChange = index+1 === bpmChanges.length
+        const firstBpm = bpmChange[1]
+        const secondBeat = isLastBpmChange ? Infinity : bpmChanges[index+1][0]
         const maxBeats = secondBeat - firstBeat
         const beatsOnRange = Math.max(Math.min((beat - firstBeat), maxBeats), 0)
-        length += (beatsOnRange / firstBpm) * 60
+
+        beatValueInSeconds += (beatsOnRange / firstBpm) * 60
     })
 
     if (stops) {
         stops.forEach(([stopBeat, stopSeconds]) => {
-            if (parseFloat(stopBeat) < parseFloat(beat)) {
-                length += parseFloat(stopSeconds);
+            if (stopBeat < beat) {
+                beatValueInSeconds += stopSeconds;
             }
         })
     }
 
-    return length;
+    return beatValueInSeconds;
 }
 
 const isStreamMeasure = (rows, minStream) => {
@@ -122,27 +129,21 @@ class NotesWriter {
         let stops = this.getStops();
 
         let ret = []
-        let m = 0;
-        chart.notes.forEach(measure => {
-            let step = measure.length / 4
 
-            for(let i=0; i<4; i++) {
-                let beatNotes = measure.slice(i*step, (i*step)+step)
+        chart.notes.forEach((measure, measureIndex) => {
+            const measureStartBeat = measureIndex * 4
+            const measureNoteCount = measure.length
+            const beatStepSize = measureNoteCount / 4 // what's the interval in beats between notes in this measure
 
-                let d = 0
-                beatNotes.forEach(b => {
-                    if(doesRowHaveStep(b)) {
-                        let beat = (m * 4) + i + (d / step)
-
-                        let s = beatToSeconds(bpms, stops, beat)
-                        ret.push(s)
-                    }
-
-                    d ++
-                })
-            }
-
-            m ++
+            measure.forEach((noteRow, rowIndex) => {
+                if (doesRowHaveStep(noteRow)) {
+                    // We can get the beat value straight based on the index of the note in the measure
+                    // multiplied with the beat step
+                    const beat = measureStartBeat + rowIndex * beatStepSize
+                    const seconds = beatToSeconds(bpms, stops, beat)
+                    ret.push(seconds)
+                }
+            })
         })
 
         return ret;
