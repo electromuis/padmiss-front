@@ -13,7 +13,7 @@
             <b-tab title="Overview" active>
                 <ScoreOverview :score="score"></ScoreOverview>
             </b-tab>
-            <b-tab title="Chart and step timings">
+            <b-tab title="Chart and step timings" v-if="score.inputEvents.length > 0 && score.noteScoresWithBeats.length > 0">
                 <ChartVisualization
                     :step-data="score.stepChart.stepData"
                     :inputEvents="score.inputEvents"
