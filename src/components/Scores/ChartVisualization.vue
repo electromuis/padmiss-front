@@ -111,12 +111,22 @@
                 return measuresInCols
             },
 
+            groupBy(collection, key) {
+                return collection.reduce((rv, x) => {
+                    (rv[x[key]] = rv[x[key]] || []).push(x);
+                    return rv;
+                }, []);
+            },
+
             // We need to add pressed events when the input event was not released on the same measure as it was pressed on
             groupInputEventsByMeasure(inputEvents, measureCount) {
                 let me = this;
 
+                const inputEventsWithBeatAsIndex = inputEvents.map(ie => ({ beatIndex: Math.floor(ie.beat), ...ie }));
+                const groupedByBeatIndex = this.groupBy(inputEventsWithBeatAsIndex, "beatIndex");
+
                 const groupedByMeasure = Array(measureCount).fill().map((_, index) =>
-                    me.getInputEventsForMeasure(inputEvents, index));
+                    me.getInputEventsForMeasure(groupedByBeatIndex, index));
 
                 groupedByMeasure.forEach((inputEvents, measureIndex) => {
                     // Return if last measure
@@ -151,23 +161,67 @@
                 ) !== undefined
             },
 
-            getInputEventsForMeasure(inputEvents, measureIndex) {
+            getInputEventsForMeasure(groupedInputEvents, measureIndex) {
                 const startBeat = measureIndex * 4;
                 const endBeat = startBeat + 4;
 
-                const eventsWithinRange = inputEvents.filter(ie => ie.beat >= startBeat && ie.beat < endBeat);
+                const eventsWithinRange = [];
+
+                // We are interested only in the beat range of this measure
+                for (let i = startBeat; i < endBeat; i++) {
+                    const group = groupedInputEvents[i];
+
+                    // if there are any events on this beat
+                    if (group) {
+                        eventsWithinRange.push(...group);
+                    }
+                }
 
                 return eventsWithinRange.map(ie => {
                     return {
                         eventStartBeat: ie.released ?
-                            inputEvents.find(e => e.column === ie.column && e.beat < ie.beat).beat : ie.beat,
+                            this.findInputEventStartBeat(ie.beatIndex, groupedInputEvents, ie.column, ie.beat) : ie.beat,
                         eventEndBeat: ie.released ?
-                            ie.beat : inputEvents.find(e => e.column === ie.column && e.beat > ie.beat).beat,
+                            ie.beat : this.findInputEventEndBeat(ie.beatIndex, groupedInputEvents, ie.column, ie.beat),
                         beat: ie.beat,
                         column: ie.column,
                         released: ie.released
                     }
                 })
+            },
+
+            findInputEventStartBeat(searchStartBeatIndex, groupedInputEvents, column, beat) {
+                const idx = groupedInputEvents.indexOf(groupedInputEvents[searchStartBeatIndex]);
+                const relevantRangeReversed = groupedInputEvents.slice(0, idx + 1).reverse();
+
+                // Iterate the grouped input events backwards starting from the input event that we are trying to find matching pair for
+                for (let i = 0; i < relevantRangeReversed.length; i++) {
+                    // there might not be any events on this index
+                    if (Array.isArray(relevantRangeReversed[i])) {
+                        const matchingInputEvent = relevantRangeReversed[i].find(e => e.column === column && e.beat < beat);
+
+                        if (matchingInputEvent) {
+                            return matchingInputEvent.beat;
+                        }
+                    }
+                }
+            },
+
+            findInputEventEndBeat(searchStartBeatIndex, groupedInputEvents, column, beat) {
+                const idx = groupedInputEvents.indexOf(groupedInputEvents[searchStartBeatIndex]);
+                const relevantRange = groupedInputEvents.slice(idx);
+
+                // Iterate the grouped input events forward starting from the input event that we are trying to find matching pair for
+                for (let i = 0; i < relevantRange.length; i++) {
+                    // there might not be any events on this index
+                    if (Array.isArray(relevantRange[i])) {
+                        const matchingInputEvent = relevantRange[i].find(e => e.column === column && e.beat > beat);
+
+                        if (matchingInputEvent) {
+                            return matchingInputEvent.beat;
+                        }
+                    }
+                }
             },
 
             getNoteScoresWithBeatsForMeasure(noteScoresWithBeats, measureIndex, beatAmount, startBeatOffset) {
