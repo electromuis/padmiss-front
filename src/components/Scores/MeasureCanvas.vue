@@ -57,7 +57,10 @@
                     "W5": 'rgb(255,166,21)',
                     "Miss": 'rgb(255,30,32)',
                     "Held": 'rgb(32,32,32)',
+                    "LetGo": 'rgb(255,30,32)',
+                    "Missed": 'rgb(255,30,32)',
                     "AvoidMine": 'rgb(97,97,97)',
+                    "HitMine": 'rgb(255,30,32)',
                 },
 
                 // Input event rendering settings
@@ -455,11 +458,30 @@
                     this.writeText(`${(ns.offset * 1000).toFixed(2)}ms`, xPos - 50, judgementLineYPos - 5, this.textFillStyle);
                 }
 
+                // Draw other judgements as text only
                 if (ns.tapNoteScore === "AvoidMine") {
                     const lineLength = Math.floor(judgementLineXPos - this.noteRowOffset);
                     this.drawJudgementLine("AvoidMine", this.noteRowOffset, judgementLineYPos, lineLength);
 
                     this.writeText("Avoid mine", 0, judgementLineYPos, this.textFillStyle);
+                }
+                else if (ns.tapNoteScore === "HitMine") {
+                    const lineLength = Math.floor(judgementLineXPos - this.noteRowOffset);
+                    this.drawJudgementLine("HitMine", this.noteRowOffset, judgementLineYPos, lineLength);
+
+                    this.writeText("Hit mine!", 0, judgementLineYPos, this.judgementLineStrokeStyles.HitMine);
+                }
+                else if (ns.holdNoteScore === "LetGo") {
+                    const lineLength = Math.floor(judgementLineXPos - this.noteRowOffset);
+                    this.drawJudgementLine("LetGo", this.noteRowOffset, judgementLineYPos, lineLength);
+
+                    this.writeText("Let go", 0, judgementLineYPos, this.judgementLineStrokeStyles.LetGo);
+                }
+                else if (ns.holdNoteScore === "Missed") {
+                    const lineLength = Math.floor(judgementLineXPos - this.noteRowOffset);
+                    this.drawJudgementLine("Missed", this.noteRowOffset, judgementLineYPos, lineLength);
+
+                    this.writeText("Missed!", 0, judgementLineYPos, this.judgementLineStrokeStyles.Missed);
                 }
                 else if (ns.holdNoteScore === "Held") {
                     const lineLength = Math.floor(judgementLineXPos - this.noteRowOffset);
