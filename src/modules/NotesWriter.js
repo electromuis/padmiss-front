@@ -4,27 +4,34 @@ import _ from 'lodash'
 const doesRowHaveStep = row => row.includes("1") || row.includes("2") || row.includes("4")
 
 const beatToSeconds = (bpmChanges, stops, beat) => {
-    const bpmWindows = _.zip(bpmChanges, _.tail(bpmChanges))
-    let length = 0;
+    let beatValueInSeconds = 0;
 
-    bpmWindows.forEach(([first, second]) => {
-        const firstBeat = parseFloat(first[0])
-        const secondBeat = second ? parseFloat(second[0]) : Infinity
-        const firstBpm = parseFloat(first[1])
+    bpmChanges.forEach((bpmChange, index) => {
+        const firstBeat = bpmChange[0]
+
+        // If this bpm change starts at a beat after the beat we don't have to take it into account
+        if (firstBeat > beat) {
+            return
+        }
+
+        const isLastBpmChange = index+1 === bpmChanges.length
+        const firstBpm = bpmChange[1]
+        const secondBeat = isLastBpmChange ? Infinity : bpmChanges[index+1][0]
         const maxBeats = secondBeat - firstBeat
         const beatsOnRange = Math.max(Math.min((beat - firstBeat), maxBeats), 0)
-        length += (beatsOnRange / firstBpm) * 60
+
+        beatValueInSeconds += (beatsOnRange / firstBpm) * 60
     })
 
     if (stops) {
         stops.forEach(([stopBeat, stopSeconds]) => {
-            if (parseFloat(stopBeat) < parseFloat(beat)) {
-                length += parseFloat(stopSeconds);
+            if (stopBeat < beat) {
+                beatValueInSeconds += stopSeconds;
             }
         })
     }
 
-    return length;
+    return beatValueInSeconds;
 }
 
 const isStreamMeasure = (rows, minStream) => {
@@ -118,25 +125,37 @@ class NotesWriter {
     }
 
     notesToSeconds(chart) {
-        let me = this
+        let bpms = this.getBpms();
+        let stops = this.getStops();
 
-        let bpms = []
-        let stops = []
+        let ret = []
 
-        this.info['BPMS'].forEach(b => {
-            let pts = b.split('=')
-            if(pts.length !== 2) {
-                return
-            }
+        chart.notes.forEach((measure, measureIndex) => {
+            const measureStartBeat = measureIndex * 4
+            const measureNoteCount = measure.length
+            const beatStepSize = 4 / measureNoteCount // what's the interval in beats between notes in this measure
 
-            let beat = parseFloat(pts[0])
-            bpms.push([beat, parseFloat(pts[1])])
+            measure.forEach((noteRow, rowIndex) => {
+                if (doesRowHaveStep(noteRow)) {
+                    // We can get the beat value straight based on the index of the note in the measure
+                    // multiplied with the beat step
+                    const beat = measureStartBeat + rowIndex * beatStepSize
+                    const seconds = beatToSeconds(bpms, stops, beat)
+                    ret.push(seconds)
+                }
+            })
         })
 
-        if(typeof this.info['STOPS'] !== 'undefined') {
+        return ret;
+    }
+
+    getStops() {
+        let stops = []
+
+        if (typeof this.info['STOPS'] !== 'undefined') {
             this.info['STOPS'].forEach(b => {
                 let pts = b.split('=')
-                if(pts.length !== 2) {
+                if (pts.length !== 2) {
                     return
                 }
 
@@ -144,32 +163,22 @@ class NotesWriter {
                 stops.push([beat, parseFloat(pts[1])])
             })
         }
+        return stops;
+    }
 
-        let ret = []
-        let m = 0;
-        chart.notes.forEach(measure => {
-            let step = measure.length / 4
+    getBpms() {
+        let bpms = []
 
-            for(let i=0; i<4; i++) {
-                let beatNotes = measure.slice(i*step, (i*step)+step)
-
-                let d = 0
-                beatNotes.forEach(b => {
-                    if(doesRowHaveStep(b)) {
-                        let beat = (m * 4) + i + (d / step)
-
-                        let s = beatToSeconds(bpms, stops, beat)
-                        ret.push(s)
-                    }
-
-                    d ++
-                })
+        this.info['BPMS'].forEach(b => {
+            let pts = b.split('=')
+            if (pts.length !== 2) {
+                return
             }
 
-            m ++
+            let beat = parseFloat(pts[0])
+            bpms.push([beat, parseFloat(pts[1])])
         })
-
-        return ret;
+        return bpms;
     }
 
     density(chart, range) {
