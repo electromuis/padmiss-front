@@ -18,7 +18,7 @@
     "es2015": "0.0.0",
     "fecha": "^3.0.3",
     "graphql-query-builder": "^1.0.7",
-    "lodash": "^4.17.15",
+    "lodash": "^4.17.19",
     "moment": "^2.24.0",
     "popper.js": "^1.16.0",
     "pug": "^2.0.4",
