@@ -48,5 +48,4 @@
     .logo {
         max-height: 36px;
     }
-
 </style>
