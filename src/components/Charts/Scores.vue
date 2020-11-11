@@ -43,7 +43,7 @@
             this.$graph(
                 'Stepchart',
                 [
-                    '_id',
+                    'id',
                     'stepArtist',
                     'difficultyLevel',
                     'groups',
@@ -64,7 +64,7 @@
                 //Until we fix chart hashing ...
                 return this.$graph(
                     'Stepcharts',
-                    [{docs:['_id']}],
+                    [{nodes:['id']}],
                     {
                         'song.title': chart.song.title,
                         'song.artist': chart.song.artist,
@@ -73,7 +73,7 @@
                     true
                 )
             }).then(charts => {
-                me.charts = charts.docs.map(c => c._id)
+                me.charts = charts.nodes.map(c => c.id)
                 this.query.filter = {
                     stepChart: me.charts
                 }
@@ -113,7 +113,7 @@
                             {
                                 text: 'Details',
                                 action(r) {
-                                    me.$router.push('/charts/' + me.chart._id + '/scores/' + r._id + '/details')
+                                    me.$router.push('/charts/' + me.chart.id + '/scores/' + r.id + '/details')
                                 }
                             }
                         ]
@@ -124,7 +124,7 @@
                     sort: '-scoreValue',
                     limit: 10,
                     fields: [
-                        '_id',
+                        'id',
                         'playedAt',
                         'scoreValue',
                         {'player': ['nickname']}

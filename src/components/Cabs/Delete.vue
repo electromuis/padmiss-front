@@ -32,7 +32,7 @@
             me.$graph(
                 'ArcadeCab',
                 [
-                    '_id',
+                    'id',
                     'name'
                 ],
                 {id: me.$route.params.cabId}

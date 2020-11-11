@@ -114,7 +114,7 @@
 
             addChart(chart) {
                 let me = this
-                let id = chart._id
+                let id = chart.id
 
                 // return new Promise(((resolve, reject) => {
                 //     me.$loadPart().then(part => {
@@ -122,7 +122,7 @@
                 //             part.stepCharts.push(id)
                 //             part.token = localStorage.token
                 //
-                //             me.$api.put('/api/tournament-event-parts/' + part._id, part, {expectStatus: 201}).then(() => {
+                //             me.$api.put('/api/tournament-event-parts/' + part.id, part, {expectStatus: 201}).then(() => {
                 //                 me.$router.push(me.$eventPath + "/parts")
                 //             })
                 //                 .then(() => {
@@ -160,7 +160,7 @@
                         playMode: type,
                         group: me.group
                     }, {expectStatus: 201}).then(response => {
-                        response._id = response.id
+                        response.id = response.id
 
                         // me.addChart(response).then(resolve)
 

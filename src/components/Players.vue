@@ -78,18 +78,18 @@
                             {
                                 text: 'Details',
                                 action(r) {
-                                    me.$router.push('/players/' + r._id + '/details')
+                                    me.$router.push('/players/' + r.id + '/details')
                                 }
                             }
                         ]
                     }
                 ],
                 query: {
-                    table: 'Players',
+                    table: 'players',
                     sort: 'nickname',
                     limit: 10,
                     fields: [
-                        '_id',
+                        'id',
                         'nickname',
                         'shortNickname',
                         {'country': [

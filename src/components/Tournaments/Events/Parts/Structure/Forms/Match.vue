@@ -47,13 +47,13 @@
 
                     if(this.$props.matchId.length > 1) {
                         me.$api.put('/api/matches/' + this.$props.matchId + '/edit', data, {expectStatus: 201}).then((match) => {
-                            me.updateRelations(match._id).then(() => {
+                            me.updateRelations(match.id).then(() => {
                                 me.closeForm()
                             })
                         })
                     } else {
                         me.$api.post('/api/rounds/' + this.$props.roundId + '/create-match', data, {expectStatus: 201}).then((match) => {
-                            me.updateRelations(match._id).then(() => {
+                            me.updateRelations(match.id).then(() => {
                                 me.closeForm()
                             })
                         })
@@ -71,7 +71,7 @@
             this.$graph(
                 'Match',
                 [
-                    {players: '_id'},
+                    {players: 'id'},
                     {games: [
 
                     ]}

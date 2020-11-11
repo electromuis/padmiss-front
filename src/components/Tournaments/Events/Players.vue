@@ -31,7 +31,7 @@
 
                 return new Promise(((resolve, reject) => {
                     let data = me.tournament
-                    delete data._id
+                    delete data.id
 
                     data.token = localStorage.token,
                     data.players = this.players.current.map(p => p.id)
@@ -64,7 +64,7 @@
             Promise.all([
                 me.$graph(
                     'Players',
-                    {docs: ['_id', 'nickname']}
+                    {nodes: ['id', 'nickname']}
                 ),
                 me.$loadTournament(true),
                 me.$loadEvent()
@@ -72,9 +72,9 @@
            .then(response => {
                let playerMap = {}
 
-               response[0].docs.forEach(p => {
-                   playerMap[p._id] = {
-                       id: p._id,
+               response[0].nodes.forEach(p => {
+                   playerMap[p.id] = {
+                       id: p.id,
                        name: p.nickname
                    }
                })

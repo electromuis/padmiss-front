@@ -31,13 +31,10 @@
                 let me = this
 
                 this.$api.post(
-                    '/register',
-                    me.model
+                    '/v1/register',
+                    me.model,
+                    {expectStatus: 201}
                 ).then(r => {
-                    if(!r.success) {
-                        throw r.message
-                    }
-
                     me.success = true
                     me.message = "Registration sucessfull"
                 }).catch(e => {
@@ -53,7 +50,7 @@
         created() {
             let me = this
             this.$getCountries().then((countries) => {
-                me.schema.fields.filter(x => x.model === 'country')[0].values = countries
+                me.schema.fields.filter(x => x.model === 'countryId')[0].values = countries
             })
         },
 
@@ -68,7 +65,7 @@
                     shortNickname: "",
                     rfidUid: "",
                     password: "",
-                    country: "",
+                    countryId: null,
                     avatarIconUrl: ""
                 },
                 schema: {
@@ -86,9 +83,9 @@
                         {
                             type: "select",
                             label: "Country",
-                            model: "country",
+                            model: "countryId",
                             // required: "true",
-                            validator: VueFormGenerator.validators.string,
+                            validator: VueFormGenerator.validators.integer,
                             values: [],
 
                             fieldClasses: "col-md-6"

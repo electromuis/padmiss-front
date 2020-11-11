@@ -13,7 +13,7 @@
                 </tr>
                 <tr>
                     <td>Player padmiss GUID</td>
-                    <td>{{player._id}}</td>
+                    <td>{{player.id}}</td>
                 </tr>
                 <tr>
                     <td>Nickname</td>
@@ -43,10 +43,10 @@
 
         <template v-if="favoriteScores.length > 0">
             <br/>
-            <Scores :filter="{_id: favoriteScores}" title="Favorites" /><br/>
+            <Scores :filter="{id: favoriteScores}" title="Favorites" /><br/>
         </template>
 
-        <Scores :filter="{player: player._id}" title="Player scores"/>
+        <Scores :filter="{player: player.id}" title="Player scores"/>
 
 
     </div>
@@ -72,7 +72,7 @@
                 player: [
                     'Player',
                     [
-                        '_id',
+                        'id',
                         'nickname',
                         'shortNickname',
                         'playerLevel',
@@ -88,22 +88,22 @@
                 scores: [
                     'Scores',
                     [
-                        {docs: [
-                            '_id',
+                        {nodes: [
+                            'id',
                             'playedAt',
                             {'stepChart': [
                                 'difficultyLevel'
                             ]}
                         ]},
-                        'totalDocs'
+                        'totalCount'
                     ],
                     {player: playerId, limit: 999999},
                     true
                 ]
             }).then(result => {
                 me.player = result.player
-                me.player.scores = result.scores.totalDocs
-                me.scores = result.scores.docs
+                me.player.scores = result.scores.totalCount
+                me.scores = result.scores.nodes
                 try {
                     let meta = JSON.parse(me.player.metaData)
                     if(Array.isArray(meta.favoriteScores)) {

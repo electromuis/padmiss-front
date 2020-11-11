@@ -174,17 +174,17 @@
 
                 return me.$graph(
                     'Players',
-                    [{docs: [
-                        '_id',
+                    [{nodes: [
+                        'id',
                         'nickname'
                     ]}],
                     {sort: 'nickname', limit: 100000}
                 )
             })
             .then(response => {
-                me.schema.fields.filter(f => f.model === "playerId")[0].values = response.docs.map((c) => {
+                me.schema.fields.filter(f => f.model === "playerId")[0].values = response.nodes.map((c) => {
                     return {
-                        id: c._id,
+                        id: c.id,
                         name: c.nickname
                     }
                 })

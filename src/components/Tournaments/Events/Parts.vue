@@ -19,14 +19,14 @@
                     <td>{{ row.name }}</td>
                     <td>{{ row.status }}</td>
                     <td>
-                        <b-button v-on:click="$router.push({path: $eventPath + `/parts/${row._id}/rounds`})">Rounds</b-button>
+                        <b-button v-on:click="$router.push({path: $eventPath + `/parts/${row.id}/rounds`})">Rounds</b-button>
 
                         <template v-if="$can('edit-tournament', tournament)">
-                            <b-button v-on:click="$router.push({path: $eventPath + `/parts/${row._id}/edit`})">Edit</b-button>
-                            <b-button v-on:click="$router.push({path: $eventPath + `/parts/${row._id}/delete`})">Delete</b-button>
-                            <b-button v-on:click="$router.push({path: $eventPath + `/parts/${row._id}/structure`})">Structure</b-button>
-                            <b-button v-on:click="$router.push({path: $eventPath + `/parts/${row._id}/charts`})">Charts</b-button>
-                            <b-button v-if="row.status === 'New'" v-on:click="$router.push({path: $eventPath + `/parts/${row._id}/start`})">Start</b-button>
+                            <b-button v-on:click="$router.push({path: $eventPath + `/parts/${row.id}/edit`})">Edit</b-button>
+                            <b-button v-on:click="$router.push({path: $eventPath + `/parts/${row.id}/delete`})">Delete</b-button>
+                            <b-button v-on:click="$router.push({path: $eventPath + `/parts/${row.id}/structure`})">Structure</b-button>
+                            <b-button v-on:click="$router.push({path: $eventPath + `/parts/${row.id}/charts`})">Charts</b-button>
+                            <b-button v-if="row.status === 'New'" v-on:click="$router.push({path: $eventPath + `/parts/${row.id}/start`})">Start</b-button>
                         </template>
                     </td>
                 </tr>
@@ -59,12 +59,12 @@
             }).then(event => {
                 return me.$graph(
                     "TournamentEventParts",
-                    {docs: ["_id", "name","status"]},
-                    {tournamentEventId: event._id},
+                    {nodes: ["id", "name","status"]},
+                    {tournamentEventId: event.id},
                     true
                 )
             }).then(parts => {
-                me.values = parts.docs
+                me.values = parts.nodes
             })
         },
 

@@ -24,11 +24,11 @@
                 <tr v-for="row in values">
                     <td>{{ row.name }}</td>
                     <td>
-                        <b-button v-on:click="$router.push({path: $tournamentPath + `/events/${row._id}/players`})">Players</b-button>
-                        <b-button v-on:click="$router.push({path: $tournamentPath + `/events/${row._id}/parts`})">Parts</b-button>
+                        <b-button v-on:click="$router.push({path: $tournamentPath + `/events/${row.id}/players`})">Players</b-button>
+                        <b-button v-on:click="$router.push({path: $tournamentPath + `/events/${row.id}/parts`})">Parts</b-button>
                         <template v-if="$can('edit-tournament', tournament)">
-                            <b-button v-on:click="$router.push({path: $tournamentPath + `/events/${row._id}/edit`})">Edit</b-button>
-                            <b-button v-on:click="$router.push({path: $tournamentPath + `/events/${row._id}/delete`})">Delete</b-button>
+                            <b-button v-on:click="$router.push({path: $tournamentPath + `/events/${row.id}/edit`})">Edit</b-button>
+                            <b-button v-on:click="$router.push({path: $tournamentPath + `/events/${row.id}/delete`})">Delete</b-button>
                         </template>
                     </td>
                 </tr>
@@ -61,15 +61,15 @@
 
                 me.$graph(
                     'TournamentEvents',
-                    {docs: [
-                        '_id',
+                    {nodes: [
+                        'id',
                         'name',
                         'status'
                     ]},
-                    {tournamentId: tournament._id},
+                    {tournamentId: tournament.id},
                     true
                 ).then(events => {
-                    me.values = events.docs
+                    me.values = events.nodes
                 })
             })
 

@@ -58,7 +58,7 @@
                         })
                     } else {
                         me.$api.post('/api/tournaments/create', data, {expectStatus: 201}).then((response) => {
-                            me.updateRelations(response.tournament._id).then(() => {
+                            me.updateRelations(response.tournament.id).then(() => {
                                 me.$router.push('/tournaments')
                             })
                         })

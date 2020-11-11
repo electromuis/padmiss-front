@@ -25,16 +25,11 @@
     mixins: [AuthMixin],
     data() {
       return {
-          loading: true
+          loading: false
       }
     },
     created() {
         let me = this
-
-        me.$autoLogin()
-            .finally(() => {
-                me.loading = false
-            })
     },
     components: {
       Menu,

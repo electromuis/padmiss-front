@@ -19,9 +19,9 @@
                     <td>{{ row.name }}</td>
                     <td>{{ row.status }}</td>
                     <td>
-                        <b-button v-on:click="$router.push({path: $partPath + `/rounds/${row._id}/edit`})">Edit</b-button>
-                        <b-button v-on:click="$router.push({path: $partPath + `/rounds/${row._id}/delete`})">Delete</b-button>
-                        <b-button v-if="row.startable" v-on:click="$router.push({path: $partPath + `/rounds/${row._id}/start`})">Start</b-button>
+                        <b-button v-on:click="$router.push({path: $partPath + `/rounds/${row.id}/edit`})">Edit</b-button>
+                        <b-button v-on:click="$router.push({path: $partPath + `/rounds/${row.id}/delete`})">Delete</b-button>
+                        <b-button v-if="row.startable" v-on:click="$router.push({path: $partPath + `/rounds/${row.id}/start`})">Start</b-button>
                     </td>
                 </tr>
             </tbody>
@@ -53,17 +53,17 @@
                     me.$loadPart().then((part) => {
                         me.$graph(
                             "Rounds",
-                            {docs: ["_id", "name","status"]},
-                            {tournamentEventPartId: part._id},
+                            {nodes: ["id", "name","status"]},
+                            {tournamentEventPartId: part.id},
                             true
                         ).then((parts) => {
-                            let running = parts.docs.filter(p => p.status === 'Ongoing')
+                            let running = parts.nodes.filter(p => p.status === 'Ongoing')
                             if(running.length === 0) {
-                                parts.docs.forEach(p => {
+                                parts.nodes.forEach(p => {
                                     p.startable = p.status === 'New'
                                 })
                             }
-                            me.values = parts.docs
+                            me.values = parts.nodes
                         })
                     })
                 })

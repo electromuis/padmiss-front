@@ -38,7 +38,7 @@
             </div>
             <div class="col-md-9">
                 <select id="chart" v-model="value" class="form-control">
-                    <option v-for="c in charts" :value="c._id">{{c.difficultyLevel}}</option>
+                    <option v-for="c in charts" :value="c.id">{{c.difficultyLevel}}</option>
                 </select>
             </div>
         </div>
@@ -61,13 +61,13 @@
 
                 this.$graph(
                     'Stepcharts',
-                    {docs: [
+                    {nodes: [
                             'groups'
                         ]},
                     {limit: 1000000000}
                 ).then(response => {
                     let groups = ['All']
-                    response.docs.forEach(s => {
+                    response.nodes.forEach(s => {
                         s.groups.forEach(g => {
                             if(groups.indexOf(g) < 0) {
                                 groups.push(g)
@@ -100,7 +100,7 @@
                 }
                 me.$graph(
                     'Stepcharts',
-                    {docs: [
+                    {nodes: [
                         {song: ['title']}
                     ]},
                     query,
@@ -108,7 +108,7 @@
                 ).then(r => {
                     let songs = []
 
-                    r.docs.forEach(c => {
+                    r.nodes.forEach(c => {
                         if(songs.indexOf(c.song.title) === -1) {
                             songs.push(c.song.title)
                         }
@@ -158,17 +158,17 @@
             song() {
                 me.$graph(
                     'Stepcharts',
-                    {docs: ['difficultyLevel', '_id']},
+                    {nodes: ['difficultyLevel', 'id']},
                     {
                         limit: 20,
                         "song.title": me.song
                     },
                     true
                 ).then(r => {
-                    me.charts = r.docs
+                    me.charts = r.nodes
 
                     if(me.charts.length === 1) {
-                        me.value = me.charts[0]._id
+                        me.value = me.charts[0].id
                     }
                 })
             }

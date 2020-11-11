@@ -71,7 +71,7 @@
                             {
                                 text: 'Details',
                                 action(r) {
-                                    me.$router.push('/scores/details/' + r._id)
+                                    me.$router.push('/scores/details/' + r.id)
                                 }
                             }
                         ]
@@ -82,7 +82,7 @@
                     sort: '-playedAt',
                     limit: 10,
                     fields: [
-                        '_id',
+                        'id',
                         'playedAt',
                         'scoreValue',
                         {'player': ['nickname']},

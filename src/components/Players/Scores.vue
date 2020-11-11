@@ -64,7 +64,7 @@
                             {
                                 text: 'Details',
                                 action(r) {
-                                    me.$router.push('/players/' + r.player._id + '/score/' + r._id)
+                                    me.$router.push('/players/' + r.player.id + '/score/' + r.id)
                                 }
                             }
                         ]
@@ -75,10 +75,10 @@
                     sort: '-playedAt',
                     limit: 10,
                     fields: [
-                        '_id',
+                        'id',
                         'playedAt',
                         'scoreValue',
-                        {'player': ['_id']},
+                        {'player': ['id']},
                         {'stepChart': [
                             {'song': ['title', 'artist']},
                             'difficultyLevel'

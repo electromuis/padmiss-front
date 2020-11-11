@@ -24,14 +24,14 @@
                 <tr v-for="row in values">
                     <td>{{ row.name }}</td>
                     <td>
-                        <b-button v-if="$can('join-tournament', row)" v-on:click="$router.push({path: `/tournaments/${row._id}/join`})">Join</b-button>
-                        <b-button v-on:click="$router.push({path: `/tournaments/${row._id}/events`})">Events</b-button>
-                        <b-button v-on:click="$router.push({path: `/tournaments/${row._id}/details`})">Details</b-button>
+                        <b-button v-if="$can('join-tournament', row)" v-on:click="$router.push({path: `/tournaments/${row.id}/join`})">Join</b-button>
+                        <b-button v-on:click="$router.push({path: `/tournaments/${row.id}/events`})">Events</b-button>
+                        <b-button v-on:click="$router.push({path: `/tournaments/${row.id}/details`})">Details</b-button>
 
                         <template v-if="$can('edit-tournament', row)">
-                            <b-button v-on:click="$router.push({path: `/tournaments/${row._id}/players`})">Players</b-button>
-                            <b-button v-on:click="$router.push({path: `/tournaments/${row._id}/edit`})">Edit</b-button>
-                            <b-button v-on:click="$router.push({path: `/tournaments/${row._id}/delete`})">Delete</b-button>
+                            <b-button v-on:click="$router.push({path: `/tournaments/${row.id}/players`})">Players</b-button>
+                            <b-button v-on:click="$router.push({path: `/tournaments/${row.id}/edit`})">Edit</b-button>
+                            <b-button v-on:click="$router.push({path: `/tournaments/${row.id}/delete`})">Delete</b-button>
                         </template>
                     </td>
                 </tr>
@@ -57,21 +57,21 @@
 
             this.$graph(
                 'Tournaments',
-                {docs: [
-                    '_id',
+                {nodes: [
+                    'id',
                     'name',
                     'status',
-                    {tournamentAdmin: ['_id']},
-                    {tournamentManagers: ['_id']},
-                    {players: ["_id"]},
-                    {playerJoinRequests: ["_id"]}
+                    {tournamentAdmin: ['id']},
+                    {tournamentManagers: ['id']},
+                    {players: ["id"]},
+                    {playerJoinRequests: ["id"]}
                 ]}
             ).then(tournaments => {
-                me.values = tournaments.docs.map(t => {
-                    t.tournamentAdmin = t.tournamentAdmin._id
-                    t.tournamentManagers = t.tournamentManagers.map(p => p._id)
-                    t.players = t.players.map(p => p._id)
-                    t.playerJoinRequests = t.playerJoinRequests.map(p => p._id)
+                me.values = tournaments.nodes.map(t => {
+                    t.tournamentAdmin = t.tournamentAdmin.id
+                    t.tournamentManagers = t.tournamentManagers.map(p => p.id)
+                    t.players = t.players.map(p => p.id)
+                    t.playerJoinRequests = t.playerJoinRequests.map(p => p.id)
                     return t
                 })
             })

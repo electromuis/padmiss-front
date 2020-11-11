@@ -38,7 +38,7 @@
                             {
                                 text: 'Details',
                                 action(r) {
-                                    me.$router.push('/teams/details/' + r._id)
+                                    me.$router.push('/teams/details/' + r.id)
                                 }
                             }
                         ]
@@ -49,7 +49,7 @@
                     sort: 'name',
                     limit: 10,
                     fields: [
-                        '_id',
+                        'id',
                         'name',
                         {'teamLeader': ['nickname']}
                     ]

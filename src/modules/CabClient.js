@@ -19,7 +19,7 @@ export default class {
       ApiClient.get('/api/arcade-cabs/live').then(response => {
 
         response.cabs.forEach(c => {
-          cabs[c._id] = c
+          cabs[c.id] = c
         })
 
         resolve(cabs)

@@ -45,15 +45,15 @@
 
                     if(this.$route.params.partId.length > 1) {
                         me.$api.put('/api/tournament-event-parts/' + this.$route.params.partId + '/edit', data, {expectStatus: 201}).then((part) => {
-                            me.updateRelations(part.tournamentEventPart._id).then(() => {
+                            me.updateRelations(part.tournamentEventPart.id).then(() => {
                                 me.$router.push(me.$eventPath + "/parts")
                             })
                         })
                     } else {
-                        me.$api.post('/api/tournament-events/' + this.event._id + '/create-event-part', data, {expectStatus: 201}).then((part) => {
+                        me.$api.post('/api/tournament-events/' + this.event.id + '/create-event-part', data, {expectStatus: 201}).then((part) => {
                             me.part = part
 
-                            me.updateRelations(part.tournamentEventPart._id).then(() => {
+                            me.updateRelations(part.tournamentEventPart.id).then(() => {
                                 me.$router.push(me.$eventPath + "/parts")
                             })
 

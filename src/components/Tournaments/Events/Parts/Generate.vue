@@ -25,15 +25,15 @@
                             //Try to find last finished round
                             me.$graph().query(
                                 'Rounds',
-                                {docs: ["_id", "name"]},
+                                {nodes: ["id", "name"]},
                                 //todo dont sort by name!
                                 {status: "FINISHED", limit: 1, sort: "name"},
                                 true
                             ),
                             me.$graph().query(
                                 'TournamentEventPart',
-                                {'players': ["_id"]},
-                                {'_id': me.partId}
+                                {'players': ["id"]},
+                                {'id': me.partId}
                             )
                         ]).then(vals => {
                             let lastRound = null
@@ -55,10 +55,10 @@
                             else {
                                 let matches = await me.$graph().query(
                                     'Matches',
-                                    {docs:[
+                                    {nodes:[
 
                                     ]},
-                                    {roundId: lastRound._id},
+                                    {roundId: lastRound.id},
                                     true
                                 )
                             }
@@ -68,8 +68,8 @@
                                 for(let i = 0; i < players.length; i += 2) {
                                     let data = {
                                         token: localStorage.token,
-                                        tournamentEventPartId: me.part._id,
-                                        tournamentId: me.tournament._id,
+                                        tournamentEventPartId: me.part.id,
+                                        tournamentId: me.tournament.id,
                                         status: "New",
                                         roundType: me.part.roundType,
                                         bestOfCount: me.options.bestOfCount,

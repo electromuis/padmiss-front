@@ -6,8 +6,8 @@
         </svg>
 
             <div class="round" v-for="round in rounds.Winners">
-                <div class="match" v-for="match in round.matches" :id="match._id" :ref="'match-' + match._id"
-                     v-on:mouseover="() => mouseOver(match._id)" v-on:mouseleave="() => mouseLeave(match._id)">
+                <div class="match" v-for="match in round.matches" :id="match.id" :ref="'match-' + match.id"
+                     v-on:mouseover="() => mouseOver(match.id)" v-on:mouseleave="() => mouseLeave(match.id)">
 
                     Winner {{match.dependantMatches.length}}
                     <div class="player" v-for="player in match.players">
@@ -19,8 +19,8 @@
                 </div>
 
                 <template v-if="rounds.Losers && typeof rounds.Losers[round.number] !== 'undefined'">
-                    <div class="match loserMatch" v-for="match in rounds.Losers[round.number].matches" :id="match._id" :ref="'match-' + match._id"
-                         v-on:mouseover="() => mouseOver(match._id)" v-on:mouseleave="() => mouseLeave(match._id)">
+                    <div class="match loserMatch" v-for="match in rounds.Losers[round.number].matches" :id="match.id" :ref="'match-' + match.id"
+                         v-on:mouseover="() => mouseOver(match.id)" v-on:mouseleave="() => mouseLeave(match.id)">
 
                         Loser {{match.dependantMatches.length}}
                         <div class="player" v-for="player in match.players">
@@ -54,11 +54,11 @@
         }
 
         elm() {
-            if(typeof this.parent.$refs['match-' + this._id] === 'undefined') {
+            if(typeof this.parent.$refs['match-' + this.id] === 'undefined') {
                 return null
             }
 
-            return this.parent.$refs['match-' + this._id][0]
+            return this.parent.$refs['match-' + this.id][0]
         }
 
         drawDependantLines(toId, deeper) {
@@ -70,9 +70,9 @@
 
             if (me.hover === true && deeper !== false) {
                 Object.entries(me.parent.matches).forEach(([id, m2]) => {
-                    if (m2.dependantMatches.indexOf(me._id) > -1) {
+                    if (m2.dependantMatches.indexOf(me.id) > -1) {
                         m2.hover = true
-                        m2.drawDependantLines(me._id, false)
+                        m2.drawDependantLines(me.id, false)
                         m2.hover = false
                     }
                 })
@@ -200,15 +200,15 @@
                 let part = await this.$loadPart()
                 let rounds = await this.$graph(
                     'Rounds',
-                    {docs: [
-                            '_id',
+                    {nodes: [
+                            'id',
                             'name',
                             'status'
                         ]},
-                    {tournamentEventPartId: me.part._id},
+                    {tournamentEventPartId: me.part.id},
                     true
                 )
-                rounds = rounds.docs
+                rounds = rounds.nodes
 
                 for(let i = 0; i < rounds.length; i ++) {
                     let r = rounds[i]
@@ -226,24 +226,24 @@
 
                     let matches = await me.$graph(
                         'Matches',
-                        {docs: [
-                                '_id',
+                        {nodes: [
+                                'id',
                                 'status',
-                                {players: ['_id']},
-                                {dependantMatches: ['_id']}
+                                {players: ['id']},
+                                {dependantMatches: ['id']}
                             ]},
-                        {roundId: r._id},
+                        {roundId: r.id},
                         true
                     )
-                    matches = matches.docs
+                    matches = matches.nodes
                     let matchObjects = []
 
                     for(let x = 0; x < matches.length; x ++) {
-                        matches[x].dependantMatches = matches[x].dependantMatches.map(d => d._id)
+                        matches[x].dependantMatches = matches[x].dependantMatches.map(d => d.id)
 
                         let m = new Match(me, matches[x], type)
                         matchObjects.push(m)
-                        me.matches[m._id] = m
+                        me.matches[m.id] = m
 
                         let ids = m.players
                         m.players = []
@@ -252,13 +252,13 @@
                             let player = await me.$graph(
                                 'Player',
                                 [
-                                    '_id',
+                                    'id',
                                     'nickname',
                                     'shortNickname',
-                                    {country: ['_id']},
+                                    {country: ['id']},
                                     //And the other fields
                                 ],
-                                {id: ids[y]._id}
+                                {id: ids[y].id}
                             )
 
                             m.players.push(player)

@@ -101,14 +101,14 @@
             Promise.all([
                 me.$graph(
                     'Players',
-                    {docs: ['_id', 'nickname']},
+                    {nodes: ['id', 'nickname']},
                     {limit: 100000},
                     true
                 ),
                 me.$loadTournament(true)
             ])
            .then(response => {
-               let players = response[0].docs
+               let players = response[0].nodes
                let playerMap = {}
 
                let join = response[1].playerJoinRequests
@@ -116,20 +116,20 @@
                let disqualified = response[1].disqualifiedPlayers
 
                let all = players.filter(p => {
-                   playerMap[p._id] = {
-                       id: p._id,
+                   playerMap[p.id] = {
+                       id: p.id,
                        name: p.nickname
                    }
 
                    let ret =
-                        join.indexOf(p._id) < 0 &&
-                        current.indexOf(p._id) < 0 &&
-                        disqualified.indexOf(p._id) < 0
+                        join.indexOf(p.id) < 0 &&
+                        current.indexOf(p.id) < 0 &&
+                        disqualified.indexOf(p.id) < 0
 
                    return ret
                })
 
-               me.players.all = all.map(p => playerMap[p._id])
+               me.players.all = all.map(p => playerMap[p.id])
                me.players.join = join.map(p => playerMap[p])
                me.players.current = current.map(p => playerMap[p])
                me.players.disqualified = disqualified.map(p => playerMap[p])

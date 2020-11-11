@@ -34,7 +34,7 @@
 
                 data.token = localStorage.token
                 data.cabOwner = me.$user.data.userId
-                delete data._id
+                delete data.id
 
                 if(me.loading === false) {
                     if(this.$route.params.cabId.length > 1) {
@@ -89,20 +89,20 @@
                 me.$graph(
                     'ArcadeCab',
                     [
-                        '_id',
+                        'id',
                         'name',
                         'cabDescription',
                         'cabIconUrl',
                         'cabLocation',
-                        {'cabOwner': ['_id']},
-                        {'coOwners': ['_id']},
+                        {'cabOwner': ['id']},
+                        {'coOwners': ['id']},
                         'isLeftSidePlayable',
                         'isRightSidePlayable'
                     ],
                     {id: me.$route.params.cabId}
                 ).then((cab) => {
-                    cab.cabOwner = cab.cabOwner._id
-                    cab.coOwners = cab.coOwners.map(u => u._id)
+                    cab.cabOwner = cab.cabOwner.id
+                    cab.coOwners = cab.coOwners.map(u => u.id)
 
                     me.cab = cab
                     console.log(me.cab)
@@ -123,7 +123,7 @@
                 loading: true,
                 message: "",
                 cab: {
-                    _id: 0,
+                    id: 0,
                     name: "",
                     cabDescription: "",
                     cabLocation: "",

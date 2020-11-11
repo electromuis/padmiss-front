@@ -1,32 +1,39 @@
 import ApiClient from './ApiClient'
-import Query from 'graphql-query-builder'
+import Query from 'graphql-query-builder-v2'
 
-let queryString = (type, fields, filter, encodeFilter) => {
-    if(filter === undefined) {
-        filter = {}
-    } else {
-        if(encodeFilter === true) {
-            let newFilter = {}
-            if(filter.limit) {
-                newFilter.limit = filter.limit
-            }
-            delete filter.limit
-            if(filter.sort) {
-                newFilter.sort = filter.sort
-            }
-            delete filter.sort
-            if(filter.offset) {
-                newFilter.offset = filter.offset
-            }
-            delete filter.offset
-            newFilter.queryString = JSON.stringify(filter)
-            filter = newFilter
+let queryString = (type, fields, filter) => {
+    // Translate arguments to API V2 arguments
+
+    let newFilter = {}
+
+    if(filter.limit) {
+        newFilter.last = filter.limit
+    }
+    delete filter.limit
+
+    if(filter.sort) {
+        let field = filter.sort;
+        if(field[0] === '-') {
+            field = field.substr(1)
+            newFilter.order_by = {[field]: Query.Enum('DESC')}
+        }
+        else {
+            newFilter.order_by = {[field]: Query.Enum('ASC')}
         }
     }
-    let q = new Query(type, filter)
+    delete filter.sort
+
+    if(filter.offset) {
+        newFilter.offset = filter.offset
+    }
+    delete filter.offset
+
+    // newFilter.queryString = JSON.stringify(filter)
+
+    let q = new Query(type, newFilter)
     q.find(fields)
 
-    return q.toString()
+    return q.toString();
 }
 
 export default class {
@@ -44,7 +51,7 @@ export default class {
 
             let request = {query: q}
 
-            ApiClient.post('/graphiql', request, {}).then((response) => {
+            ApiClient.post('/graphql', request, {}).then((response) => {
                 if (response.data) {
                     resolve(response.data)
                 } else {
@@ -58,8 +65,19 @@ export default class {
         return new Promise(((resolve, reject) => {
             let request = {query: "{" + queryString(type, fields, filter, encodeFilter) + "}"}
 
-            ApiClient.post('/graphiql', request, {}).then((response) => {
+            ApiClient.post('/graphql', request, {}).then((response) => {
                 if(response.data && response.data[type]) {
+                    if(response.data[type].nodes) {
+                        response.data[type].nodes.forEach(n => {
+                            if(n.id) {
+                                n.id = parseInt(n.id)
+                            }
+                        })
+                    }
+                    else if(response.data[type].id) {
+                        response.data[type].id = parseInt(response.data[type].id)
+                    }
+
                     resolve(response.data[type])
                 } else {
                     reject()

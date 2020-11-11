@@ -15,7 +15,7 @@
                 </tr>
                 <tr>
                     <td>Level</td>
-                    <td><a @click="$router.push('/charts/' + score.stepChart._id + '/scores')" href="#">{{score.stepChart.difficultyLevel}}</a></td>
+                    <td><a @click="$router.push('/charts/' + score.stepChart.id + '/scores')" href="#">{{score.stepChart.difficultyLevel}}</a></td>
                 </tr>
                 <tr>
                     <td colspan="2">
@@ -52,7 +52,7 @@
                 </tr>
                 <tr>
                     <td>Player</td>
-                    <td><a @click="$router.push('/players/' + score.player._id + '/details')" href="#">{{score.player.nickname}}</a></td>
+                    <td><a @click="$router.push('/players/' + score.player.id + '/details')" href="#">{{score.player.nickname}}</a></td>
                 </tr>
 
                 <tr>

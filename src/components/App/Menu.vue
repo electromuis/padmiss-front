@@ -8,7 +8,7 @@
                 <b-nav-item v-if="!$isLoggedIn" to="/login">Login</b-nav-item>
 
 
-                <b-nav-item v-if="$isLoggedIn" to="/tournaments">Tournaments</b-nav-item>
+<!--                <b-nav-item v-if="$isLoggedIn" to="/tournaments">Tournaments</b-nav-item>-->
                 <b-nav-item v-if="$isLoggedIn" to="/cabs">Cabs</b-nav-item>
 
                 <b-nav-item to="/players">Players</b-nav-item>

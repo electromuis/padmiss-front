@@ -22,8 +22,8 @@
                     <td>{{ row.name }}</td>
                     <td>
                         <template v-if="$can('edit-cab', row)">
-                            <b-button v-on:click="$router.push({path: `/cabs/${row._id}/edit`})">Edit</b-button>
-                            <b-button v-on:click="$router.push({path: `/cabs/${row._id}/delete`})">Delete</b-button>
+                            <b-button v-on:click="$router.push({path: `/cabs/${row.id}/edit`})">Edit</b-button>
+                            <b-button v-on:click="$router.push({path: `/cabs/${row.id}/delete`})">Delete</b-button>
 
                             <b-button v-if="row.status == 'Online'" @click="openTab(row)">Cab page</b-button>
                         </template>
@@ -64,20 +64,20 @@
 
                 c.status = "Offline"
 
-                me.$cab.isOnline(c._id).then(r => {
+                me.$cab.isOnline(c.id).then(r => {
                     if(r) {
-                        c.data = me.$cab.cabInfo(c._id)
+                        c.data = me.$cab.cabInfo(c.id)
                         c.status = "Online"
                     }
                 })
 
-                // me.$cab.ping(c._id).then(r => {
+                // me.$cab.ping(c.id).then(r => {
                 //     if(r) {
                 //         c.status = "Online+"
                 //         return;
                 //     }
                 //
-                //     return me.$cab.isOnline(c._id)
+                //     return me.$cab.isOnline(c.id)
                 // }).then(r => {
                 //     if(r) {
                 //         c.status = "Online"

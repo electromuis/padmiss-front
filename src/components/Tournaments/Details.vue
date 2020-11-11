@@ -47,9 +47,9 @@
 
                 Promise.all(me.tournament.players.map(p => me.$graph(
                     'Scores',
-                    [{docs: [
+                    [{nodes: [
                         'scoreValue',
-						{'player': ['_id', 'nickname']},
+						{'player': ['id', 'nickname']},
                         {'stepChart': [
                             'difficultyLevel',
                             'stepData',
@@ -65,7 +65,7 @@
                         let highest = {}
 						let player = null
 
-                        playerScores.docs.forEach(s => {
+                        playerScores.nodes.forEach(s => {
                             let level = parseInt(s.stepChart.difficultyLevel)
 							player = s.player.nickname
 

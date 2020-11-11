@@ -152,19 +152,19 @@
                 this.$graph(
                     me.query.table,
                     [
-                        'totalDocs',
+                        'totalCount',
                         {
-                            'docs': query.fields
+                            'nodes': query.fields
                         }
                     ],
                     filter,
                     true
                 ).then(response => {
-                    me.rows = response.docs
+                    me.rows = response.nodes
                     if (query.limit === 'all') {
                         me.pages = 1
                     } else {
-                        me.pages = Math.ceil(response.totalDocs / query.limit)
+                        me.pages = Math.ceil(response.totalCount / query.limit)
                     }
                     me.loading = false
                 })

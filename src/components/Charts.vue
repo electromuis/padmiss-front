@@ -95,7 +95,7 @@
                             {
                                 text: 'Scores',
                                 action(r) {
-                                    me.$router.push('/charts/' + r._id + '/scores')
+                                    me.$router.push('/charts/' + r.id + '/scores')
                                 }
                             }
                         ]
@@ -106,7 +106,7 @@
                     sort: '-created',
                     limit: 10,
                     fields: [
-                        '_id',
+                        'id',
                         'created',
                         'difficultyLevel',
                         'groups',

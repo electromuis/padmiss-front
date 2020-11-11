@@ -1,5 +1,7 @@
 'use strict'
 
+import jwt_decode from "jwt-decode";
+
 class User {
   constructor(data) {
     this.id = data.userId
@@ -67,121 +69,47 @@ export default {
   },
 
   methods: {
-    // Function to auto-login if we have a token stored in our local storage, will set user to state
-    $autoLogin() {
-      let me = this
-
-      me.$logDebug('$autoLogin')
-
-      return new Promise((resolve, reject) => {
-        // No token in local storage, cannot auto-login
-        if (!localStorage.token) {
-          return resolve(null)
-        }
-
-        // Otherwise validate our token from local storage
-        me.$api.post('/validate-token', { 'token': localStorage.token }, {
-          resolveAlways: true
-        })
-          .then(result => {
-            // Validation failed
-            if (!result || result.success === false) {
-              if (localStorage.token) {
-                delete localStorage.token
-              }
-
-              return reject(null)
-            }
-
-            me.$graph(
-                'Player',
-                [
-                  '_id',
-                'nickname',
-                'shortNickname',
-                {country: ['_id']},
-                'avatarIconUrl',
-                'playerLevel',
-                'accuracy',
-                'stamina',
-                'unlockedAchievements',
-                'totalSteps',
-                'totalPlayTimeSeconds',
-                'totalSongsPlayed',
-                'metaData'
-                ],
-                {id: result.playerId}
-            ).then(playerResult => {
-              if(playerResult.country) {
-                playerResult.country = playerResult.country._id
-              }
-              let user = new User(Object.assign({}, result, playerResult))
-              console.log(user)
-
-              // Validation succeeded
-              me.$store.commit('SET', {
-                key: 'user',
-                value: user
-              })
-
-              resolve(user)
-            }).catch(reject)
-
-          })
-          // In case of errors, get rid of our token from local storage
-          .catch(err => {
-            if (localStorage.token) {
-              delete localStorage.token
-            }
-
-            me.$logError('auto sign-in error', err.message)
-
-            reject(null)
-          })
-      })
-    },
-
     $signIn(email, password) {
       let me = this
 
       return new Promise((resolve, reject) => {
         me.$logDebug('$signIn', email)
 
-        me.$api.post('/authenticate', {
+        me.$api.post('/v1/authenticate', {
           email: email,
           password: password,
         })
           .then(result => {
             me.$logDebug('$signIn result', result)
 
-            if (result.success === true) {
-              // Login successful -> set user to state and save token to local storage
 
-              localStorage.token = result.token
+              // Login successful -> set user to state and save token to local storage
+              let decodedToken = jwt_decode(result.token)
+
+              localStorage.token = decodedToken
 
               me.$graph(
                   'Player',
                   [
-                    '_id',
+                    'id',
                     'nickname',
                     'shortNickname',
-                    {country: ['_id']},
+                    {country: ['id']},
                     'avatarIconUrl',
                     'playerLevel',
                     'accuracy',
                     'stamina',
-                    'unlockedAchievements',
                     'totalSteps',
                     'totalPlayTimeSeconds',
                     'totalSongsPlayed',
                     'metaData'
                   ],
-                  {id: result.playerId}
+                  {id: decodedToken.playerId}
               ).then(playerResult => {
                 if(playerResult.country) {
-                  playerResult.country = playerResult.country._id
+                  playerResult.country = playerResult.country.id
                 }
-                let user = new User(Object.assign({}, result, playerResult))
+                let user = new User(Object.assign({}, decodedToken, playerResult))
 
                 // Validation succeeded
                 me.$store.commit('SET', {
@@ -191,20 +119,18 @@ export default {
 
                 resolve(user)
               }).catch(reject)
-            }
-            else {
-              // Login failed -> delete possible token from local storage and show login failed message
-              if (localStorage.token) {
-                delete localStorage.token
-              }
 
-              // TODO: Show login error message
-              me.$logError('Login failed!', result)
-
-              reject(result)
-            }
           })
           .catch((err) => {
+
+            // Login failed -> delete possible token from local storage and show login failed message
+            if (localStorage.token) {
+              delete localStorage.token
+            }
+
+            // TODO: Show login error message
+            me.$logError('Login failed!', result)
+
             reject(err)
           })
       })

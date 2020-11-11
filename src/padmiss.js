@@ -58,7 +58,7 @@ export default {
             this.countries = []
 
             response.data.forEach((c) => {
-                me.countries.push({name: c.name, id: c._id})
+                me.countries.push({name: c.name, id: c.id})
             })
 
             return this.countries

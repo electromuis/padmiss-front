@@ -59,7 +59,7 @@
                             {
                                 text: 'Details',
                                 action(r) {
-                                    me.$router.push('/scores/my/details/' + r._id)
+                                    me.$router.push('/scores/my/details/' + r.id)
                                 }
                             }
                         ]
@@ -70,7 +70,7 @@
                     sort: '-playedAt',
                     limit: 25,
                     fields: [
-                        '_id',
+                        'id',
                         'playedAt',
                         'scoreValue',
                         {'stepChart': [

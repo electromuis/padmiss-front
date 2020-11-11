@@ -15,7 +15,7 @@
                     {player.nickname}
                 </div>
 
-                <v-button v-on:click="() => {editMatch(match._id, round._id)}">Edit</v-button>
+                <v-button v-on:click="() => {editMatch(match.id, round.id)}">Edit</v-button>
             </div>
 
         </div>
@@ -41,7 +41,7 @@
                     index: me.rounds.length + 1
                 }
 
-                me.$api.post('/api/tournament-event-parts/' + me.round._id + '/create-round', data).then(round => {
+                me.$api.post('/api/tournament-event-parts/' + me.round.id + '/create-round', data).then(round => {
                     return me.loadData()
                 }).then(() => {
                     me.loading = false
@@ -56,7 +56,7 @@
                 return this.$graph(
                     'Rounds',
                     {
-                        docs: [
+                        nodes: [
                             'name',
                             'status',
                             {
@@ -64,7 +64,7 @@
                                     'status',
                                     {
                                         players: [
-                                            '_id',
+                                            'id',
                                             'nickname'
                                         ]
                                     }
@@ -72,7 +72,7 @@
                             }
                         ]
                     },
-                    {sort: "index", partId: part._id},
+                    {sort: "index", partId: part.id},
                     true
                 )
             }

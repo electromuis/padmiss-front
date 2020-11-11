@@ -3,7 +3,7 @@
     <div v-else id="details">
         <h1>Score details</h1>
         <br/>
-        <template v-if="$isLoggedIn && $user.data.playerId === score.player._id">
+        <template v-if="$isLoggedIn && $user.data.playerId === score.player.id">
             <b-button v-if="!isFavorite" variant="info" class="m-1" @click="toggleFavorite(true)">Add to favorites</b-button>
             <b-button v-else variant="info" class="m-1" @click="toggleFavorite(false)">Remove from favorites</b-button>
         </template>
@@ -41,7 +41,7 @@
 
                 if(
                     !this.$isLoggedIn||
-                    this.$user.data.playerId !== me.score.player._id
+                    this.$user.data.playerId !== me.score.player.id
                 ) {
                     return
                 }
@@ -50,16 +50,16 @@
                     this.$user.metaData.favoriteScores = []
                 }
 
-                if(this.$user.metaData.favoriteScores.indexOf(this.score._id) < 0) {
+                if(this.$user.metaData.favoriteScores.indexOf(this.score.id) < 0) {
                     if(flag) {
-                        this.$user.metaData.favoriteScores.push(this.score._id)
+                        this.$user.metaData.favoriteScores.push(this.score.id)
                     }
                 }
                 else {
                     if(!flag) {
                         this.$user.metaData.favoriteScores =
                             this.$user.metaData.favoriteScores
-                            .filter(s => s != me.score._id)
+                            .filter(s => s != me.score.id)
                     }
                 }
 
@@ -76,7 +76,7 @@
             me.$graph(
                 'Score',
                 [
-                    '_id',
+                    'id',
                     'scoreValue',
                     'secondsSurvived',
                     'originalScore',
@@ -107,14 +107,14 @@
                         'name'
                     ]},
                     {player: [
-                        '_id',
+                        'id',
                         'nickname',
                         {country: [
                             'name'
                         ]}
                     ]},
                     {stepChart: [
-                        '_id',
+                        'id',
                         'stepArtist',
                         'difficultyLevel',
                         'groups',
@@ -132,7 +132,7 @@
                 if(
                     me.$isLoggedIn &&
                     me.$user.metaData.favoriteScores &&
-                    me.$user.metaData.favoriteScores.indexOf(me.score._id) > -1
+                    me.$user.metaData.favoriteScores.indexOf(me.score.id) > -1
                 ) {
                     me.isFavorite = true
                 }

@@ -1,4 +1,4 @@
-import Query from 'graphql-query-builder'
+import Query from 'graphql-query-builder-v2'
 import moment from 'moment'
 
 export default {
@@ -30,34 +30,34 @@ export default {
                this.$graph(
                    'Tournament',
                    [
-                       '_id',
+                       'id',
                        'name',
                        'description',
                        'status',
                        'appIds',
                        'startDate',
                        'endDate',
-                       {'tournamentAdmin': [{player: ['_id']}]},
-                       {'tournamentManagers': [{player: ['_id']}]},
-                       {'arcadeCabs': ['_id']},
+                       {'tournamentAdmin': [{player: ['id']}]},
+                       {'tournamentManagers': [{player: ['id']}]},
+                       {'arcadeCabs': ['id']},
 
-                       {'playerJoinRequests': ['_id']},
-                       {'players': ['_id']},
-                       {'disqualifiedPlayers': ['_id']},
+                       {'playerJoinRequests': ['id']},
+                       {'players': ['id']},
+                       {'disqualifiedPlayers': ['id']},
                    ],
                    {'id': me.$route.params.tournamentId}
                ).then((tournament) => {
                    tournament.endDate = moment(tournament.endDate).calendar()
                    tournament.startDate = moment(tournament.startDate).calendar()
 
-                   tournament.tournamentAdmin = tournament.tournamentAdmin.player._id
-                   tournament.tournamentManagers = tournament.tournamentManagers.map(u => u.player._id)
+                   tournament.tournamentAdmin = tournament.tournamentAdmin.player.id
+                   tournament.tournamentManagers = tournament.tournamentManagers.map(u => u.player.id)
 
-                   tournament.arcadeCabs = tournament.arcadeCabs.map(u => u._id)
+                   tournament.arcadeCabs = tournament.arcadeCabs.map(u => u.id)
 
-                   tournament.players = tournament.players.map(p => p._id)
-                   tournament.disqualifiedPlayers = tournament.disqualifiedPlayers.map(p => p._id)
-                   tournament.playerJoinRequests = tournament.playerJoinRequests.map(p => p._id)
+                   tournament.players = tournament.players.map(p => p.id)
+                   tournament.disqualifiedPlayers = tournament.disqualifiedPlayers.map(p => p.id)
+                   tournament.playerJoinRequests = tournament.playerJoinRequests.map(p => p.id)
 
                    me.tournament = tournament
                    resolve(tournament)
@@ -75,17 +75,17 @@ export default {
                 this.$graph(
                     'TournamentEvent',
                     [
-                        '_id',
+                        'id',
                         'name',
                         'status',
                         'isCountedToTournamentPoints',
-                        {'players': ['_id']},
-                        {'disqualifiedPlayers': ['_id']},
+                        {'players': ['id']},
+                        {'disqualifiedPlayers': ['id']},
                     ],
                     {'id': me.$route.params.eventId}
                 ).then(event => {
-                    event.players = event.players.map(u => u._id)
-                    event.disqualifiedPlayers = event.disqualifiedPlayers.map(u => u._id)
+                    event.players = event.players.map(u => u.id)
+                    event.disqualifiedPlayers = event.disqualifiedPlayers.map(u => u.id)
 
                     me.event = event
                     resolve(event)
@@ -103,18 +103,18 @@ export default {
                 this.$graph(
                     'TournamentEventPart',
                     [
-                        "_id",
+                        "id",
                         "name",
                         "roundType",
                         "status",
-                        {'stepCharts': ['_id']},
-                        {'arcadeCabs': ['_id']}
+                        {'stepCharts': ['id']},
+                        {'arcadeCabs': ['id']}
                     ],
                     {'id': me.$route.params.partId}
                 ).then((part) => {
-                    part.arcadeCabs = part.arcadeCabs.map(u => u._id)
+                    part.arcadeCabs = part.arcadeCabs.map(u => u.id)
                     part.stepCharts = part.stepCharts.filter(u => u !== null)
-                    part.stepCharts = part.stepCharts.map(u => u._id)
+                    part.stepCharts = part.stepCharts.map(u => u.id)
 
                     me.part = part
                     resolve(part)
@@ -133,17 +133,17 @@ export default {
                 this.$graph(
                     'Round',
                     [
-                        "_id",
+                        "id",
                         "name",
                         "roundType",
                         "playMode",
                         "bestOfCount",
                         "status",
-                        {'arcadeCabs': ['_id']}
+                        {'arcadeCabs': ['id']}
                     ],
                     {'id': me.$route.params.roundId}
                 ).then((round) => {
-                    round.arcadeCabs = round.arcadeCabs.map(u => u._id)
+                    round.arcadeCabs = round.arcadeCabs.map(u => u.id)
 
                     me.round = round
                     resolve(round)
@@ -163,11 +163,11 @@ export default {
             let cabs = await this.$getCabValues(true)
             let event = await this.$graph(
                 'TournamentEvent',
-                [{players: ['_id']}],
-                {id: me.event._id}
+                [{players: ['id']}],
+                {id: me.event.id}
             )
 
-            let players = event.players.map(p => p._id)
+            let players = event.players.map(p => p.id)
             let numPlayers = players.length
             let numPlayersRoundOne = 1 << 31 - Math.clz32(numPlayers);
             let numMatchesPre = numPlayers - numPlayersRoundOne
@@ -182,8 +182,8 @@ export default {
                     '/api/rounds',
                     {
                         token: localStorage.token,
-                        tournamentId: me.tournament._id,
-                        tournamentEventPartId: me.part._id,
+                        tournamentId: me.tournament.id,
+                        tournamentEventPartId: me.part.id,
                         roundType: me.part.roundType,
                         playMode: "Single",
                         name: "Winners " + roundCounter,
@@ -201,8 +201,8 @@ export default {
                         '/api/matches',
                         {
                             token: localStorage.token,
-                            tournamentId: me.tournament._id,
-                            roundId: round._id,
+                            tournamentId: me.tournament.id,
+                            roundId: round.id,
                             status: "New",
                             roundType: me.part.roundType,
                             playMode: "Single",
@@ -232,8 +232,8 @@ export default {
                     '/api/rounds',
                     {
                         token: localStorage.token,
-                        tournamentId: me.tournament._id,
-                        tournamentEventPartId: me.part._id,
+                        tournamentId: me.tournament.id,
+                        tournamentEventPartId: me.part.id,
                         roundType: me.part.roundType,
                         playMode: "Single",
                         name: "Winners " + roundCounter,
@@ -250,8 +250,8 @@ export default {
                 while(matches.length < numMatches) {
                     let matchData = {
                         token: localStorage.token,
-                        tournamentId: me.tournament._id,
-                        roundId: round._id,
+                        tournamentId: me.tournament.id,
+                        roundId: round.id,
                         status: "New",
                         roundType: me.part.roundType,
                         playMode: "Single",
@@ -264,7 +264,7 @@ export default {
                     if(roundCounter === 1) {
                         if (numMatchesPre > 0 && matches.length < numMatchesPre) {
                             matchData.players.push(players[playerCounter])
-                            matchData.dependantMatches.push(rounds.Winners[0].matches[matches.length]._id)
+                            matchData.dependantMatches.push(rounds.Winners[0].matches[matches.length].id)
                             playerCounter++
                         } else {
                             if(playerCounter > (players.length - 2)) {
@@ -290,8 +290,8 @@ export default {
                             rounds['Winners'][roundCounter - 1].matches
                         ])
 
-                        matchData.dependantMatches.push(rounds['Winners'][roundCounter - 1].matches[matchCounter]._id)
-                        matchData.dependantMatches.push(rounds['Winners'][roundCounter - 1].matches[matchCounter + 1]._id)
+                        matchData.dependantMatches.push(rounds['Winners'][roundCounter - 1].matches[matchCounter].id)
+                        matchData.dependantMatches.push(rounds['Winners'][roundCounter - 1].matches[matchCounter + 1].id)
                     }
 
                     let match = await me.$api.post(
@@ -312,8 +312,8 @@ export default {
                         '/api/rounds',
                         {
                             token: localStorage.token,
-                            tournamentId: me.tournament._id,
-                            tournamentEventPartId: me.part._id,
+                            tournamentId: me.tournament.id,
+                            tournamentEventPartId: me.part.id,
                             roundType: me.part.roundType,
                             playMode: "Single",
                             name: "Losers 0",
@@ -329,16 +329,16 @@ export default {
 
                         let matchData = {
                             token: localStorage.token,
-                            tournamentId: me.tournament._id,
-                            roundId: round._id,
+                            tournamentId: me.tournament.id,
+                            roundId: round.id,
                             status: "New",
                             roundType: me.part.roundType,
                             playMode: "Single",
                             bestOfCount: bestOff,
                             arcadeCabs: [],
                             dependantMatches: [
-                                rounds.Winners[0].matches[matches.length]._id,
-                                rounds.Winners[1].matches[matches.length + 1]._id,
+                                rounds.Winners[0].matches[matches.length].id,
+                                rounds.Winners[1].matches[matches.length + 1].id,
                             ],
                             players: []
                         }
@@ -359,8 +359,8 @@ export default {
                     '/api/rounds',
                     {
                         token: localStorage.token,
-                        tournamentId: me.tournament._id,
-                        tournamentEventPartId: me.part._id,
+                        tournamentId: me.tournament.id,
+                        tournamentEventPartId: me.part.id,
                         roundType: me.part.roundType,
                         playMode: "Single",
                         name: "Losers " + roundCounter,
@@ -379,21 +379,21 @@ export default {
 
                     let matchData = {
                         token: localStorage.token,
-                        tournamentId: me.tournament._id,
-                        roundId: round._id,
+                        tournamentId: me.tournament.id,
+                        roundId: round.id,
                         status: "New",
                         roundType: me.part.roundType,
                         playMode: "Single",
                         bestOfCount: bestOff,
                         arcadeCabs: [],
                         dependantMatches: [
-                            rounds.Winners[roundCounter].matches[matches.length]._id
+                            rounds.Winners[roundCounter].matches[matches.length].id
                         ],
                         players: []
                     }
 
                     if(roundCounter > 1) {
-                        matchData.dependantMatches.push(rounds.Winners[roundCounter - 1].matches[matches.length]._id)
+                        matchData.dependantMatches.push(rounds.Winners[roundCounter - 1].matches[matches.length].id)
                     }
 
                     playerCounter += 2
@@ -420,8 +420,8 @@ export default {
             if(this.part.roundType === 'SingleElimination' || this.part.roundType === 'DoubleElimination') {
                 let result = await this.$graph(
                     'TournamentEvent',
-                    [{players: ['_id']}],
-                    {id: me.event._id}
+                    [{players: ['id']}],
+                    {id: me.event.id}
                 )
 
                 if(result.players.length === 0 || (result.players.length & (result.players.length - 1)) !== 0) {
@@ -441,8 +441,8 @@ export default {
                 while(playersLeft > 1) {
                     let roundBase = {
                         token: localStorage.token,
-                        tournamentId: me.tournament._id,
-                        tournamentEventPartId: me.part._id,
+                        tournamentId: me.tournament.id,
+                        tournamentEventPartId: me.part.id,
                         roundType: me.part.roundType,
                         playMode: "Single",
                         name: "Round " + roundNumber,
@@ -462,8 +462,8 @@ export default {
                     while(matches > 0) {
                         let row = {
                             token: localStorage.token,
-                            tournamentId: me.tournament._id,
-                            roundId: round._id,
+                            tournamentId: me.tournament.id,
+                            roundId: round.id,
                             status: "New",
                             roundType: me.part.roundType,
                             playMode: "Single",
@@ -480,8 +480,8 @@ export default {
                             ]
                         } else {
                             let matchOffset = lastWinnerMatchesBuffer.length*2
-                            row.dependantMatches.push(lastWinnerMatches[matchOffset]._id)
-                            row.dependantMatches.push(lastWinnerMatches[matchOffset + 1]._id)
+                            row.dependantMatches.push(lastWinnerMatches[matchOffset].id)
+                            row.dependantMatches.push(lastWinnerMatches[matchOffset + 1].id)
 
                         }
 
@@ -496,8 +496,8 @@ export default {
                     if(this.part.roundType === 'DoubleElimination') {
                         let roundBase = {
                             token: localStorage.token,
-                            tournamentId: me.tournament._id,
-                            tournamentEventPartId: me.part._id,
+                            tournamentId: me.tournament.id,
+                            tournamentEventPartId: me.part.id,
                             roundType: me.part.roundType,
                             playMode: "Single",
                             name: "Losers " + roundNumber,
@@ -514,8 +514,8 @@ export default {
                         while(losers > 0) {
                             let row = {
                                 token: localStorage.token,
-                                tournamentId: me.tournament._id,
-                                roundId: round._id,
+                                tournamentId: me.tournament.id,
+                                roundId: round.id,
                                 status: "New",
                                 roundType: me.part.roundType,
                                 playMode: "Single",
@@ -550,13 +550,13 @@ export default {
                     this.$graph(
                         'Tournament',
                         [
-                            {'arcadeCabs': ['_id', 'name', 'cabLocation']}
+                            {'arcadeCabs': ['id', 'name', 'cabLocation']}
                         ],
                         {'id': me.$route.params.tournamentId}
                     ).then((tournament) => {
                         let mapped = tournament.arcadeCabs.map((c) => {
                             return {
-                                id: c._id,
+                                id: c.id,
                                 name: c.cabLocation + ' - ' + c.name
                             }
                         })
@@ -565,11 +565,11 @@ export default {
                 } else {
                     me.$graph(
                         "ArcadeCabs",
-                        {docs: ['_id', 'name', 'cabLocation']}
+                        {nodes: ['id', 'name', 'cabLocation']}
                     ).then((cabs) => {
-                        let mapped = cabs.docs.map((c) => {
+                        let mapped = cabs.nodes.map((c) => {
                             return {
-                                id: c._id,
+                                id: c.id,
                                 name: c.name
                             }
                         })
@@ -589,7 +589,7 @@ export default {
                     }
 
                     console.log(players)
-                    let filter = players.filter(p => p._id === id)
+                    let filter = players.filter(p => p.id === id)
                     if(filter.length === 1) {
                         resolve(filter[0])
                     } else {
@@ -608,11 +608,11 @@ export default {
                 // if(me.$store.state.players.length === 0) {
                     me.$graph(
                         'Players',
-                        {docs: [
-                            '_id',
+                        {nodes: [
+                            'id',
                             'nickname',
                             'shortNickname',
-                            {country: ['_id']},
+                            {country: ['id']},
                             //And the other fields
                         ]}
                     ).then(players => {
@@ -621,9 +621,9 @@ export default {
                         //     value: mapped
                         // })
 
-                        let mapped = players.docs.map((c) => {
+                        let mapped = players.nodes.map((c) => {
                             return {
-                                id: c._id,
+                                id: c.id,
                                 name: c.nickname
                             }
                         })
@@ -635,7 +635,7 @@ export default {
                 //     let mapped = me.$store.state.players
                 //
                 //     if(form === true) {
-                //         mapped = mapped.map(p => ({name: p.nickname, id: p._id}))
+                //         mapped = mapped.map(p => ({name: p.nickname, id: p.id}))
                 //     }
                 //
                 //     resolve(mapped)
