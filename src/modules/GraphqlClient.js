@@ -29,6 +29,10 @@ let queryString = (type, fields, filter) => {
     delete filter.offset
 
     // newFilter.queryString = JSON.stringify(filter)
+    if(filter.id) {
+        newFilter.id = filter.id
+        delete filter.id
+    }
 
     let q = new Query(type, newFilter)
     q.find(fields)

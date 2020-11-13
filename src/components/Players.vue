@@ -85,17 +85,26 @@
                     }
                 ],
                 query: {
-                    table: 'players',
+                    table: 'Players',
                     sort: 'nickname',
                     limit: 10,
                     fields: [
                         'id',
                         'nickname',
-                        'shortNickname',
+                        'metaData',
                         {'country': [
                             'name'
                         ]}
-                    ]
+                    ],
+                    map(row) {
+                      if(row.metaData) {
+                        let meta = JSON.parse(row.metaData)
+                        if (meta) {
+                          row = Object.assign({}, row, meta)
+                        }
+                      }
+                      return row
+                    }
                 }
             }
         },

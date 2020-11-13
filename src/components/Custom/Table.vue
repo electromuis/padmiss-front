@@ -160,7 +160,13 @@
                     filter,
                     true
                 ).then(response => {
-                    me.rows = response.nodes
+                    if(me.query.map) {
+                      me.rows = response.nodes.map(me.query.map)
+                    }
+                    else{
+                      me.rows = response.nodes
+                    }
+
                     if (query.limit === 'all') {
                         me.pages = 1
                     } else {

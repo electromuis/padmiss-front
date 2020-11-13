@@ -254,7 +254,7 @@
                                 [
                                     'id',
                                     'nickname',
-                                    'shortNickname',
+                                    // 'shortNickname',
                                     {country: ['id']},
                                     //And the other fields
                                 ],

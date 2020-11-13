@@ -611,7 +611,7 @@ export default {
                         {nodes: [
                             'id',
                             'nickname',
-                            'shortNickname',
+                            // 'shortNickname',
                             {country: ['id']},
                             //And the other fields
                         ]}

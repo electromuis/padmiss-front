@@ -40,7 +40,11 @@
                         me.$router.push('/')
                     })
                     .catch(data => {
-                        me.message = "Login failed: " + data
+                        me.message = "Login failed"
+
+                        if(data.response.data.errors) {
+                            me.message += ": " + data.response.data.errors.join(', ')
+                        }
                     })
 
             },
