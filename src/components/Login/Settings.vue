@@ -63,7 +63,6 @@
                 model: {
                     nickname: "",
                     email: "",
-                    shortNickname: "",
                     rfidUid: "",
                     password: "",
                     country: "",

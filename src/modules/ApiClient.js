@@ -53,12 +53,12 @@ export default class ApiClient {
     reject(err)
   }
 
-  static get(route, options = {}) {
+  static get(route, options = {}, axiosOptions = {}) {
     if (config.debug.vue)
       console.log('GET', route)
 
     return new Promise((resolve, reject) => {
-      client.get(route)
+      client.get(route, axiosOptions)
         .then(response => {
           ApiClient.apiResponseHandler({
             method: 'GET',
@@ -82,12 +82,12 @@ export default class ApiClient {
     })
   }
 
-  static post(route, payload, options = {}) {
+  static post(route, payload, options = {}, axiosOptions = {}) {
     if (config.debug.vue)
       console.log('POST', route, payload)
 
     return new Promise((resolve, reject) => {
-      client.post(route, payload)
+      client.post(route, payload, axiosOptions)
         .then(response => {
           ApiClient.apiResponseHandler({
             method: 'POST',
@@ -140,12 +140,12 @@ export default class ApiClient {
     })
   }
 
-  static put(route, payload, options = {}) {
+  static put(route, payload, options = {}, axiosOptions = {}) {
     if (config.debug.vue)
       console.log('PUT', route, payload)
 
     return new Promise((resolve, reject) => {
-      client.put(route, payload)
+      client.put(route, payload, axiosOptions)
         .then(response => {
           ApiClient.apiResponseHandler({
             method: 'PUT',

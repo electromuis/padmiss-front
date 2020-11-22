@@ -2,6 +2,13 @@
     <div>
         <h1>Scores</h1>
 
+      <div v-if="$isLoggedIn">
+        <b-button variant="info" class="m-1" @click="$router.push({path: `/cabs/0/edit`})">
+          My scores
+        </b-button>
+        <br/>&nbsp;
+      </div>
+
         <b-button v-if="canPost" variant="info" class="m-1" @click="$router.push({path: `/scores/post`})">
             Post score
         </b-button>
@@ -14,23 +21,25 @@
 <script>
     import Table from './Custom/Table.vue'
     import TournamentMixin from './../mixins/TournamentMixin'
+    import AuthMixin from './../mixins/AuthMixin'
     import moment from 'moment'
 
     let me = null
 
     export default {
-        mixins: [TournamentMixin],
+        mixins: [TournamentMixin, AuthMixin],
 
         created() {
             me = this
 
-            me.$api.get(
-                '/api/arcade-cabs/get-my-cabs?token=' + localStorage.token
-            ).then(response => {
-                if(response.cabs.length > 0) {
-                    me.canPost = true
-                }
-            })
+          //todo
+            // me.$api.get(
+            //     '/api/arcade-cabs/get-my-cabs?token=' + localStorage.token
+            // ).then(response => {
+            //     if(response.cabs.length > 0) {
+            //         me.canPost = true
+            //     }
+            // })
         },
 
         data() {
@@ -58,11 +67,11 @@
                         morph: (v) =>  (Math.round(v*10000) / 100).toFixed(2) + ' %'
                     },
                     {
-                        field: 'stepChart.song.title',
+                        field: 'stepChart.songs.title',
                         name: 'Song'
                     },
                     {
-                        field: 'stepChart.song.artist',
+                        field: 'stepChart.songs.artist.name',
                         name: 'Artist'
                     },
                     {
@@ -87,7 +96,12 @@
                         'scoreValue',
                         {'player': ['nickname']},
                         {'stepChart': [
-                            {'song': ['title', 'artist']},
+                            {'songs': [
+                                'title',
+                                {'artist': [
+                                    'name'
+                                ]}
+                              ]},
                             'difficultyLevel'
                         ]}
                     ]

@@ -17,44 +17,28 @@
 
     export default {
         methods: {
-            makeid() {
-                let text = "";
-                let possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-
-                for (let i = 0; i < 32; i++)
-                    text += possible.charAt(Math.floor(Math.random() * possible.length));
-
-                return text;
-            },
-
-
             handleClick(e) {
                 let me = this
                 let data = this.cab
 
-                data.token = localStorage.token
-                data.cabOwner = me.$user.data.userId
                 delete data.id
 
                 if(me.loading === false) {
                     if(this.$route.params.cabId.length > 1) {
-                        let url = '/api/arcade-cabs/' + this.$route.params.cabId
-                        if(me.$user.isAdmin() === false) {
-                            url += '/edit'
-                        }
+                        let url = '/v1/arcadeCabs/' + this.$route.params.cabId
 
                         me.$api.put(url, data, {expectStatus: 201}).then(() => {
                             me.$router.push('/cabs')
                         })
                     } else {
-                        let url = '/api/arcade-cabs'
-                        if(me.$user.isAdmin() === false) {
-                            url += '/create'
-                        } else {
-                            data.apiKey = me.makeid()
-                        }
+                        let url = '/v1/arcadeCabs'
 
-                        me.$api.post(url, data, {expectStatus: 201}).then(() => {
+                        me.$api.post(
+                            url,
+                            data,
+                            {expectStatus: 201},
+                            {headers: {'Authorization': 'Bearer ' + localStorage.token}}
+                        ).then(() => {
                             me.$router.push('/cabs')
                         })
                     }
@@ -67,21 +51,6 @@
 
         created() {
             let me = this
-
-            if(me.$user.isAdmin()) {
-                this.$api.get('/api/users?sort=email&token=' + localStorage.token)
-                .then((users) => {
-                    let mappedUsers = users.map(u => {
-                        return {
-                            name: u.email,
-                            id: u.id
-                        }
-                    })
-
-                    me.schema.fields.filter(x => x.model === 'cabOwner')[0].values = mappedUsers
-                    me.schema.fields.filter(x => x.model === 'coOwners')[0].items.values = mappedUsers
-                })
-            }
 
             if(this.$route.params.cabId.length > 1) {
                 me.schema.fields = me.schema.fields.filter(x => x.model !== 'apiKey')
@@ -105,7 +74,6 @@
                     cab.coOwners = cab.coOwners.map(u => u.id)
 
                     me.cab = cab
-                    console.log(me.cab)
                     me.loading = false
                 }).catch(() => {
                     me.$router.push('/cabs')

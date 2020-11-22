@@ -77,17 +77,17 @@
                         name: 'Difficulty'
                     },
                     {
-                        field: 'song.title',
+                        field: 'songs.title',
                         name: 'Song'
                     },
                     {
-                        field: 'song.artist',
+                        field: 'songs.artist.name',
                         name: 'Artist'
                     },
                     {
-                        field: 'groups',
+                        field: 'songPacks',
                         name: 'In packs',
-                        morph: (v) => {v.join(', ')}
+                        morph: (v) => {v.map(x => x.name).join(', ')}
                     },
                     {
                         type: 'actions',
@@ -102,18 +102,22 @@
                     }
                 ],
                 query: {
-                    table: 'Stepcharts',
+                    table: 'StepCharts',
                     sort: '-created',
                     limit: 10,
                     fields: [
                         'id',
                         'created',
                         'difficultyLevel',
-                        'groups',
+                        {'songPacks': [
+                              'name'
+                        ]},
                         'durationSeconds',
-                        {'song': [
+                        {'songs': [
                             'title',
-                            'artist'
+                            {'artist': [
+                                'name'
+                            ]}
                         ]}
                     ]
                 }

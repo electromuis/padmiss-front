@@ -46,11 +46,11 @@
                         morph: (v) =>  (Math.round(v*10000) / 100).toFixed(2) + ' %'
                     },
                     {
-                        field: 'stepChart.song.title',
+                        field: 'stepChart.songs.title',
                         name: 'Song'
                     },
                     {
-                        field: 'stepChart.song.artist',
+                        field: 'stepChart.songs.artist.name',
                         name: 'Artist'
                     },
                     {
@@ -74,7 +74,12 @@
                         'playedAt',
                         'scoreValue',
                         {'stepChart': [
-                            {'song': ['title', 'artist']},
+                            {'songs': [
+                                'title',
+                                {'artist': [
+                                    'name'
+                                ]}
+                            ]},
                             'difficultyLevel'
                         ]}
                     ]

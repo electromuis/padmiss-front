@@ -2,12 +2,12 @@
     <div>
         <h1>Players</h1>
 
-        <div class="form-group">
-            <div class="form-label">
-                Filter:
-            </div>
-            <input v-model="filter" class="form-control col-md-12" />
-        </div>
+<!--        <div class="form-group">-->
+<!--            <div class="form-label">-->
+<!--                Filter:-->
+<!--            </div>-->
+<!--            <input v-model="filter" class="form-control col-md-12" />-->
+<!--        </div>-->
 
         <Table ref="table" :cols="cols" :query="query"></Table>
     </div>

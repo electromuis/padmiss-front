@@ -60,15 +60,66 @@ export default {
         // If the user exists in our state we are logged in
         $isLoggedIn() {
             return !!this.$store.state.user
-        },
-
-        $isAdmin() {
-            return true
-            return this.$isLoggedIn && this.$store.state.user.isAdmin()
         }
     },
 
     methods: {
+        queryPlayer(playerId) {
+            return this.$graph(
+                'Player',
+                [
+                    'id',
+                    'nickname',
+                    {country: ['id']},
+                    'avatarIconUrl',
+                    'playerLevel',
+                    'accuracy',
+                    'stamina',
+                    'totalSteps',
+                    'totalPlayTimeSeconds',
+                    'totalSongsPlayed',
+                    'metaData'
+                ],
+                {id: playerId}
+            )
+        },
+
+        $autoLogin() {
+            let me = this
+
+            return new Promise((resolve, reject) => {
+
+                if(localStorage.decodedToken) {
+                    this
+                        .queryPlayer(localStorage.decodedToken.playerId)
+                        .then(playerResult => {
+                            if (playerResult.country) {
+                                playerResult.country = playerResult.country.id
+                            }
+
+                            let user = new User(Object.assign({}, localStorage.decodedToken, playerResult))
+
+                            // Validation succeeded
+                            me.$store.commit('SET', {
+                                key: 'user',
+                                value: user
+                            })
+
+                            resolve(user)
+                        }).catch((err) => {
+                            delete localStorage.token
+                            delete localStorage.decodedToken
+
+                            reject()
+                        })
+                }
+                else {
+                    resolve(null)
+                }
+
+            })
+        },
+
         $signIn(email, password) {
             let me = this
 
@@ -85,25 +136,13 @@ export default {
 
                         // Login successful -> set user to state and save token to local storage
                         let decodedToken = jwt_decode(result.token)
-                        localStorage.token = decodedToken
+                        localStorage.token = result.token
+                        localStorage.decodedToken = decodedToken
 
-                        me.$graph(
-                            'Player',
-                            [
-                                'id',
-                                'nickname',
-                                {country: ['id']},
-                                'avatarIconUrl',
-                                'playerLevel',
-                                'accuracy',
-                                'stamina',
-                                'totalSteps',
-                                'totalPlayTimeSeconds',
-                                'totalSongsPlayed',
-                                'metaData'
-                            ],
-                            {id: decodedToken.playerId}
-                        ).then(playerResult => {
+                        console.log([result, decodedToken])
+
+                        me.queryPlayer(decodedToken.playerId)
+                        .then(playerResult => {
                             if (playerResult.country) {
                                 playerResult.country = playerResult.country.id
                             }
@@ -189,13 +228,6 @@ export default {
                     }
                     return (what.tournamentAdmin == userId || what.tournamentManagers.indexOf(userId) > -1) ||
                         (what.tournamentAdmin == playerId || what.tournamentManagers.indexOf(playerId) > -1)
-
-                case 'admin-users-tournament':
-                    return this.$isAdmin
-
-                case 'edit-users-tournament':
-                    //todo if is a tournament manager
-                    return this.$isAdmin
             }
 
             return false
