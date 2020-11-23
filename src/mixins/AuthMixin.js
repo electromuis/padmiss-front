@@ -89,15 +89,17 @@ export default {
 
             return new Promise((resolve, reject) => {
 
-                if(localStorage.decodedToken) {
+                if(localStorage.token) {
+                    let decodedToken = jwt_decode(localStorage.token)
+
                     this
-                        .queryPlayer(localStorage.decodedToken.playerId)
+                        .queryPlayer(decodedToken.playerId)
                         .then(playerResult => {
                             if (playerResult.country) {
                                 playerResult.country = playerResult.country.id
                             }
 
-                            let user = new User(Object.assign({}, localStorage.decodedToken, playerResult))
+                            let user = new User(Object.assign({}, decodedToken, playerResult))
 
                             // Validation succeeded
                             me.$store.commit('SET', {
@@ -108,7 +110,6 @@ export default {
                             resolve(user)
                         }).catch((err) => {
                             delete localStorage.token
-                            delete localStorage.decodedToken
 
                             reject()
                         })
@@ -137,7 +138,6 @@ export default {
                         // Login successful -> set user to state and save token to local storage
                         let decodedToken = jwt_decode(result.token)
                         localStorage.token = result.token
-                        localStorage.decodedToken = decodedToken
 
                         console.log([result, decodedToken])
 

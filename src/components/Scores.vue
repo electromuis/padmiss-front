@@ -3,7 +3,7 @@
         <h1>Scores</h1>
 
       <div v-if="$isLoggedIn">
-        <b-button variant="info" class="m-1" @click="$router.push({path: `/cabs/0/edit`})">
+        <b-button variant="info" class="m-1" @click="$router.push({path: `/scores/my`})">
           My scores
         </b-button>
         <br/>&nbsp;
