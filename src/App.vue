@@ -5,9 +5,15 @@
     <div v-else>
       <Menu />
       <Breadcrumb />
-      <div class="container main-wrapper">
+
+      <div v-if="$route.fullPath == '/'">
         <router-view></router-view>
       </div>
+
+      <div v-else class="container main-wrapper">
+        <router-view></router-view>
+      </div>
+
     </div>
   </div>
 </template>
