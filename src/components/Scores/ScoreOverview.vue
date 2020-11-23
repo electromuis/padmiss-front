@@ -56,13 +56,16 @@
                 </tr>
 
                 <tr>
-                    <td colspan="2" class="header">Breakdown</td>
+                    <td colspan="2" class="header">Breakdown <v-button @click="breakdownMode = 'arrows'">Arrows</v-button></td>
                 </tr>
-                <tr v-for="(v, k) in score.scoreBreakdown">
-                    <td>{{unCamelCase(k)}}</td>
+				<tr v-for="(v, k) in score.scoreBreakdown" v-if="breakdownMode = 'arrows'">
+                    <td>arrows {{unCamelCase(k)}}</td>
                     <td>{{v}}</td>
                 </tr>
-
+                <tr v-for="(v, k) in score.scoreBreakdown" v-if="breakdownMode = 'total'">
+                    <td>total {{unCamelCase(k)}}</td>
+                    <td>{{v}}</td>
+                </tr>
                 <tr>
                     <td colspan="2" class="header">Other</td>
                 </tr>
@@ -124,7 +127,13 @@
         components: {
             "vue-form-generator": VueFormGenerator.component,
             Density: Density
-        }
+        },
+		
+		data () {
+			return {
+				breakdownMode: 'total'
+			}
+		}
     }
 </script>
 
